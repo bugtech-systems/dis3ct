@@ -50,7 +50,7 @@ export function UserNav() {
   return (
     <>
       <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />
-      <CreateLeaderFormDialog  open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
+      <CreateLeaderFormDialog user={user}  open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -85,12 +85,13 @@ export function UserNav() {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            
-            <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New </DropdownMenuItem>
+            {user?.userLevel !== 'barangay' && 
+            <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New Leader</DropdownMenuItem>
+          }
           </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>

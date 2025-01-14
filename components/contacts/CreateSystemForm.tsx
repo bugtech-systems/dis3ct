@@ -35,7 +35,7 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { sanitizePhoneNumber } from "@/lib/helpers";
 
 
-export function CreateLeaderFormDialog({ user, contact, open, setOpen }: { 
+export function CreateSystemForm({ user, contact, open, setOpen }: { 
   user?: Contact;
   contact?: Contact; 
   open: boolean;
@@ -176,9 +176,9 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
               <TabsList className="flex justify-center">
                 <TabsTrigger value="basic">Basic Details</TabsTrigger>
                 <TabsTrigger value="area">Area Location</TabsTrigger>
-                 <TabsTrigger value="access" >
+                 {/* <TabsTrigger value="access" >
                                 Access Level
-                              </TabsTrigger>
+                              </TabsTrigger> */}
               </TabsList>
               <TabsContent value="basic" className="space-y-4">
                 <div className="min-h-[300px] space-y-4 py-2 pb-4">

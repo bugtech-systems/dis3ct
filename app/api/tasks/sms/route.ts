@@ -26,7 +26,7 @@ export const POST = async (req: NextRequest) => {
       title: "Send SMS",
       category: "Sms",
       status: "Todo",
-      priority: "High",
+      priority: "Medium",
       taskObject: JSON.stringify({
         phone: internationalizePhoneNumber(phone),
         message,

@@ -1,7 +1,8 @@
 // utils/otp.ts
-import { sanitizePhoneNumber } from '@/lib/helpers';
+import { internationalizePhoneNumber, sanitizePhoneNumber } from '@/lib/helpers';
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
+import axios from 'axios';
 // import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
@@ -24,5 +25,14 @@ export async function sendOTP(phone: string, otp: string): Promise<void> {
   //   to: phone,
   //   message: `Your OTP code is ${otp}`,
   // });
-  console.log(`Sending OTP ${otp} to phone ${phone}`);
+  
+  const payload = {
+    recipients: [internationalizePhoneNumber(phone)], // Extract phone numbers
+    message: `One Time Password: ${otp}\n Maretext App.`,
+    isFlash: false,
+  };
+
+  const response = await axios.post("/api/tasks/sms", payload);
+
+  console.log(`Sending OTP ${otp} to phone ${phone}. Nice`);
 }

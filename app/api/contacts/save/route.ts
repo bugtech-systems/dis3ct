@@ -46,7 +46,7 @@ export const POST = async (req: NextRequest) => {
       existingContact.regCode = regCode;
       existingContact.provCode = provCode;
       existingContact.citymunCode = citymunCode;
-      // existingContact.refNum = referrer.id; // Update referrer
+      existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 
       await existingContact.save();

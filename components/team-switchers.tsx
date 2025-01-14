@@ -18,26 +18,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm"
+import { useSession } from "next-auth/react";
+import axios from "axios"
+import { Contact } from "@/data/schema"
 
 
 
@@ -50,10 +34,28 @@ export function TeamSwitchers({
     plan: string
   }[]
 }) {
+  const { data: session } = useSession() as any; // Get the session data from next-auth
+  const [user, setUser] = React.useState<Contact>();
   const [open, setOpen] = React.useState(false)
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
+
+
+  React.useEffect(() => {
+    // Fetch user details from API if session exists
+    if (session?.user?.id) {
+      axios.get(`/api/contacts/${session.user.phone}`)
+        .then((response) => {
+          setUser(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        })
+        // .finally(() => setLoading(false));
+    }
+  }, [session]);
+
 
   return (
   <>
@@ -101,6 +103,7 @@ export function TeamSwitchers({
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
+            {user?.userLevel == 'admin' && 
             <DropdownMenuItem className="gap-2 p-2">
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <Plus className="size-4" />
@@ -112,6 +115,7 @@ export function TeamSwitchers({
               }}
               >Add team</div>
             </DropdownMenuItem>
+            }
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
