@@ -291,7 +291,7 @@ export function LeaderProfileDialogForm({ contact, open, setOpen }: {
                                 <SelectValue placeholder="Select a level" />
                               </SelectTrigger>
                               <SelectContent>
-                              {}  <SelectItem value="barangay">
+                               <SelectItem value="barangay">
                                   <span className="font-medium">Barangay</span> -{" "}
                                   <span className="text-muted-foreground">
                                     Barangay Level

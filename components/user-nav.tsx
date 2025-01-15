@@ -22,13 +22,16 @@ import axios from "axios";
 import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm";
 import { LeaderProfileDialogForm } from "./contacts/LeaderProfileForm";
 import { Contact } from "@/data/schema";
+import { useContact } from "./providers/ContactProvider";
 
 export function UserNav() {
   const { data: session } = useSession() as any; // Get the session data from next-auth
-  const [user, setUser] = useState<Contact>();
+  // const [user, setUser] = useState<Contact>();
   const [loading, setLoading] = useState(true);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const [open, setOpen] = useState(false);
+  const {user, setUser } = useContact()
+ 
  
   useEffect(() => {
     // Fetch user details from API if session exists
@@ -45,12 +48,12 @@ export function UserNav() {
   }, [session]);
 
 
-// console.log(showNewTeamDialog, 'SHOW TEAM IALG')
+console.log(user, 'SHOW TEAM IALG')
 
   return (
     <>
       <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />
-      <CreateLeaderFormDialog user={user}  open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
+      <CreateLeaderFormDialog  open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">

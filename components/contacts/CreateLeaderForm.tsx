@@ -37,13 +37,12 @@ import { UserLevelSelect } from "../user-level";
 import { useContact } from "../providers/ContactProvider";
 
 
-export function CreateLeaderFormDialog({ user, contact, open, setOpen }: { 
-  user?: Contact;
+export function CreateLeaderFormDialog({ contact, open, setOpen }: { 
   contact?: Contact; 
   open: boolean;
   setOpen: (value: boolean) => void 
   }) {
-    const { system } = useContact();
+    const { system, user } = useContact();
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
@@ -165,7 +164,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
 
 
 
-console.log(system, 'SYSTEM PAR')
+console.log(system, user?.userLevel, 'SYSTEM PAR')
 
   return (
     <>
@@ -298,7 +297,6 @@ console.log(system, 'SYSTEM PAR')
                             </Select>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="userLevel">Access Level</Label>
                             <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel}  />
                    {/*           <Select onValueChange={setUserLevel} value={userLevel} >
                               <SelectTrigger>

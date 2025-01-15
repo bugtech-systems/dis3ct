@@ -6,13 +6,21 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const userLevelOptions: Record<string, { value: string; label: string }[]> = {
+  system: [
+    { value: "regional", label: "Region" },
+    { value: "provincial", label: "Province" },
+    { value: "municipal", label: "City/Municipality" },
+    { value: "barangay", label: "Barangay" },
+  ],
   regional: [
     { value: "provincial", label: "Province" },
     { value: "municipal", label: "City/Municipality" },
     { value: "barangay", label: "Barangay" },
   ],
+  
   provincial: [
     { value: "municipal", label: "City/Municipality" },
     { value: "barangay", label: "Barangay" },
@@ -31,6 +39,8 @@ export function UserLevelSelect({ userLevel, selectedLevel, setSelectedLevel }: 
   if (options.length === 0) return null;
 
   return (
+  <>
+    <Label htmlFor="userLevel">Access Level</Label>
     <Select onValueChange={setSelectedLevel} value={selectedLevel}>
       <SelectTrigger>
         <SelectValue placeholder="Select a level" />
@@ -44,5 +54,7 @@ export function UserLevelSelect({ userLevel, selectedLevel, setSelectedLevel }: 
         ))}
       </SelectContent>
     </Select>
+  </>
+    
   );
 }
