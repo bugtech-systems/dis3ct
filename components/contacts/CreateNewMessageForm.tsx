@@ -28,7 +28,7 @@ export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContac
   const router = useRouter();
 
   // 📌 Max characters allowed
-  const MAX_CHARACTERS = 150;
+  const MAX_CHARACTERS = 120;
   const recipientCount = selectedContacts.length;
 
   // 📌 Handle message change
