@@ -4,12 +4,24 @@ import { ColumnDef } from "@tanstack/react-table"
 
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 import { TContact } from "@/utils/types"
 
-export const columns: ColumnDef<TContact>[] = [
+import regions from "@/data/regions/refregion.json"
+import provinces from "@/data/regions/refprovince.json"
+import municipalities from "@/data/regions/refcitymun.json"
+import barangays from "@/data/regions/refbrgy.json"
+
+
+let regionsOptions = regions.map(region => ({label: region.regDesc, value: region.regCode}))
+let provincesOptions = provinces.map(province => ({label: province.provDesc, value: province.provCode}))
+let municipalitiesOptions = municipalities.map(mun => ({label: mun.citymunDesc, value: mun.citymunCode}))
+let barangaysOptions = barangays.map(brgy => ({label: brgy.brgyDesc, value: brgy.brgyCode}))
+
+
+
+export const columns: ColumnDef<any>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -78,6 +90,9 @@ export const columns: ColumnDef<TContact>[] = [
         </div>
       )
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
   },
   {
     accessorKey: "address",
@@ -95,6 +110,48 @@ export const columns: ColumnDef<TContact>[] = [
           {/* </span> */}
         </div>
       )
+    },
+  },
+  {
+    accessorKey: "regCode",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Region" />
+    ),
+    cell: ({ row }) => {
+      const label = regionsOptions.find((label) => label.value === row.original.regCode)
+  
+      return (
+        <div className="flex space-x-2">
+   {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          <span className="max-w-[500px] truncate font-medium">
+            {label?.label}
+          </span> 
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: "provCode",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Province" />
+    ),
+    cell: ({ row }) => {
+      const label = provincesOptions.find((label) => label.value === row.original.provCode)
+  
+      return (
+        <div className="flex space-x-2">
+   {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          <span className="max-w-[500px] truncate font-medium">
+            {label?.label}
+          </span> 
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
     },
   },
   {

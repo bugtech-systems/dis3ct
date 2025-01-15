@@ -38,20 +38,10 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Maretext",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
+      plan: "Organization",
+    }
   ],
   navMain: [
   
@@ -68,16 +58,16 @@ const data = {
         icon: BookOpen,
         badge: "10",
       },
-    /*   {
+      {
         title: "Ask AI",
         url: "/playground",
         icon: Sparkles,
       },
-      {
+    {
         title: "Tasks",
         url: "/tasks",
         icon: Settings2,
-      }, */
+      }, 
       
 
   ],

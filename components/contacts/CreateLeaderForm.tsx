@@ -33,6 +33,7 @@ import { TContact } from "@/utils/types";
 import { Contact } from "@/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { sanitizePhoneNumber } from "@/lib/helpers";
+import { UserLevelSelect } from "../user-level";
 
 
 export function CreateLeaderFormDialog({ user, contact, open, setOpen }: { 
@@ -294,7 +295,8 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="userLevel">Access Level</Label>
-                            <Select onValueChange={setUserLevel} value={userLevel} >
+                            <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel}  />
+                            {/* <Select onValueChange={setUserLevel} value={userLevel} >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a level" />
                               </SelectTrigger>
@@ -324,7 +326,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
                                   </span>
                                 </SelectItem>
                               </SelectContent>
-                            </Select>
+                            </Select> */}
                           </div>
                         </div>
                       </div>

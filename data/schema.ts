@@ -23,7 +23,7 @@ export const contactSchema = z.object({
   provCode: z.string().optional(),
   citymunCode: z.string().optional(),
   brgyCode: z.string().optional(),
-  userLevel: z.string(),
+  userLevel: z.string().optional(),
   subscription: z.string().optional()
 })
 

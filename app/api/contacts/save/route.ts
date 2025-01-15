@@ -36,7 +36,8 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Check if contact already exists
-    let existingContact = await Contact.findOne({ phone: sanitizePhoneNumber(phone) });
+    let existingContact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), refNum: referrer.id
+    });
 
     if (existingContact) {
       // Update existing contact
@@ -57,26 +58,29 @@ export const POST = async (req: NextRequest) => {
       );
     } else {
       // Create new contact
-    const newMobile = new Mobile({phone: sanitizePhoneNumber(phone)});
+    await Mobile.create({phone: sanitizePhoneNumber(phone)}).catch(err => {
+      console.log('Mobile Error')
+    });
       
       
       
       
       const newContact = new Contact({
         phone: sanitizePhoneNumber(phone),
-        mobile: newMobile,
+        // mobile: newMobile,
         name,
         address,
         brgyCode,
         regCode,
         provCode,
         citymunCode,
-        parNum: referrer.parNum,
+        // parNum: referrer.parNum,
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level
       });
-      await newMobile.save()
+      
+      newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum
       await newContact.save();
 
       return NextResponse.json(

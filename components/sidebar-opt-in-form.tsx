@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,8 +13,12 @@ import {
 import { SidebarInput } from "@/components/ui/sidebar";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
+import { useSession } from "next-auth/react";
+import { Contact } from "@/data/schema";
 
 export function SidebarOptInForm() {
+  const { data: session } = useSession() as any; // Get the session data from next-auth
+  const [user, setUser] = useState<Contact>();
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +31,9 @@ export function SidebarOptInForm() {
     // Philippine mobile number should match these formats:
     return /^(9\d{9}|09\d{9}|639\d{9}|\+639\d{9})$/.test(sanitizedNumber);
   };
+  
+  
+  
 
   // 📌 Handle Form Submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +65,21 @@ export function SidebarOptInForm() {
       router.refresh();
     }
   };
+  
+  useEffect(() => {
+    // Fetch user details from API if session exists
+    if (session?.user?.id) {
+      axios.get(`/api/contacts/${session.user.phone}`)
+        .then((response) => {
+          setUser(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        })
+        // .finally(() => setLoading(false));
+    }
+  }, [session]);
+  
 
   return (
     <Card className="shadow-none">

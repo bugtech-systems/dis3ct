@@ -264,7 +264,7 @@ export function LeaderProfileDialogForm({ contact, open, setOpen }: {
                         <div className="space-y-4 py-2 pb-4">
                           <div className="space-y-2">
                             <Label htmlFor="subscription">Subscription plan</Label>
-                            <Select onValueChange={setSubscription} value={subscription}>
+                            <Select onValueChange={setSubscription} value={subscription} disabled={contact?.userLevel !== 'admin'}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a plan" />
                               </SelectTrigger>
@@ -286,12 +286,12 @@ export function LeaderProfileDialogForm({ contact, open, setOpen }: {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="userLevel">Access Level</Label>
-                            <Select onValueChange={setUserLevel} value={userLevel} >
+                            <Select onValueChange={contact?.userLevel == 'admin' ? setUserLevel : () => console.log('Not Admin')} value={userLevel} disabled={contact?.userLevel !== 'admin'} >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a level" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="barangay">
+                              {}  <SelectItem value="barangay">
                                   <span className="font-medium">Barangay</span> -{" "}
                                   <span className="text-muted-foreground">
                                     Barangay Level
@@ -322,12 +322,10 @@ export function LeaderProfileDialogForm({ contact, open, setOpen }: {
                       </div>
                           </TabsContent>
             </Tabs>
-
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button onClick={() => handleSubmit()}>Save</Button>
             </DialogFooter>
-            
         </DialogContent>
       </Dialog>
       

@@ -30,7 +30,7 @@ export interface IContact extends Document {
   parNum?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
-  userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal';
+  userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal' | 'system';
   subscription: 'basic' | 'pro' | 'cancelled' ;
   isDeleted: boolean;
 }

@@ -52,6 +52,30 @@ export const statuses = [
   },
 ]
 
+export const userLevels = [
+  {
+    label: "Regional",
+    value: "region"
+  },
+  {
+    label: "Provincial",
+    value: "provincial",
+  },
+  {
+    label: "Municipal",
+    value: "municipal",
+  },
+  {
+    label: "Barangay",
+    value: "barangay",
+  },
+  {
+    label: "Basic",
+    value: "normal",
+  },
+]
+
+
 export const priorities = [
   {
     label: "Low",
