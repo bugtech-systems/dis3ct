@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
      let contact;
      
      contact = await Contact.findOne({
-     phone: sanitizePhoneNumber(phone)
+     $and: [ { phone: sanitizePhoneNumber(phone)}, {userLevel: {$ne: 'normal'}}]
      });
      
      if(!contact){

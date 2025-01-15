@@ -34,6 +34,7 @@ import { Contact } from "@/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { sanitizePhoneNumber } from "@/lib/helpers";
 import { UserLevelSelect } from "../user-level";
+import { useContact } from "../providers/ContactProvider";
 
 
 export function CreateLeaderFormDialog({ user, contact, open, setOpen }: { 
@@ -42,6 +43,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
   open: boolean;
   setOpen: (value: boolean) => void 
   }) {
+    const { system } = useContact();
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
@@ -134,7 +136,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
     }
 
     try {
-      const response = await axios.post("/api/contacts/save", {
+      const response = await axios.post("/api/contacts/save/leader", {
         phone: sanitizePhoneNumber(phone),
         name,
         address,
@@ -143,7 +145,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
         citymunCode: selectedMunicipality,
         brgyCode: selectedBarangay,
         userLevel: userLevel,
-        subscription: subscription
+        parNum: system.id
       });
 
       // toast({ title: "Success", description: response.data.message, status: "success" });
@@ -162,6 +164,8 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
   };
 
 
+
+console.log(system, 'SYSTEM PAR')
 
   return (
     <>
@@ -296,7 +300,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
                           <div className="space-y-2">
                             <Label htmlFor="userLevel">Access Level</Label>
                             <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel}  />
-                            {/* <Select onValueChange={setUserLevel} value={userLevel} >
+                             <Select onValueChange={setUserLevel} value={userLevel} >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a level" />
                               </SelectTrigger>
@@ -326,7 +330,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
                                   </span>
                                 </SelectItem>
                               </SelectContent>
-                            </Select> */}
+                            </Select> 
                           </div>
                         </div>
                       </div>

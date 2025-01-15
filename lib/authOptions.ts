@@ -20,9 +20,10 @@ export const authOptions: NextAuthOptions = {
     
             const { phone, otp } = credentials;
             // Find the user by phone number
-            const user = await Contact.findOne({ phone: sanitizePhoneNumber(phone) }) as any;
+            const user = await Contact.findOne({ phone: sanitizePhoneNumber(phone), userLevel: { $ne: "normal" }}) as any;
+            console.log('AUTH CONTACT', user)
             // If OTP is provided, verify it
-            if ((user && user.id && user.userLevel !== 'normal') && otp) {
+            if ((user && user._id) && otp) {
               if (user.otpExpiresAt && user.otpExpiresAt > new Date() && await bcrypt.compare(otp, user?.otpCode)) {
                 // OTP is valid
                 user.otpCode = undefined;
@@ -64,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       },
       callbacks: {
         async jwt({ token, user }: any) {
-
+console.log('JWT',user)
           if (user) {
             token.id = user.id;
             token.phone = user?.phone;
@@ -73,6 +74,7 @@ export const authOptions: NextAuthOptions = {
           return token;
         },
         async session({ session, token }: any) {
+          console.log('SESSION AUTH',token)
           if (token) {
             session.user.id = token.id;
             session.user.userLevel = token.userLevel;

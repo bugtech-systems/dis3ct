@@ -85,7 +85,7 @@ export function UserNav() {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {user?.userLevel !== 'barangay' && 
+            {(user?.userLevel !== 'barangay' && user?.userLevel !== 'admin') && 
             <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New Leader</DropdownMenuItem>
           }
           </DropdownMenuGroup>

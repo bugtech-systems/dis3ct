@@ -28,16 +28,10 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "Phone and Name are required." }, { status: 400 });
     }
 
-    // Find the authenticated user's contact (referrer)
-    const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(session.user.phone) });
 
-    if (!referrer) {
-      return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
-    }
 
     // Check if contact already exists
-    let existingContact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), refNum: referrer.id
-    });
+    let existingContact = await Contact.findById(session.user.id);
 
     if (existingContact) {
       // Update existing contact
@@ -53,43 +47,19 @@ export const POST = async (req: NextRequest) => {
       await existingContact.save();
 
       return NextResponse.json(
-        { message: "Contact updated successfully", contact: existingContact },
+        { message: "Profile updated successfully", contact: existingContact },
         { status: 200 }
       );
     } else {
       // Create new contact
-    await Mobile.create({phone: sanitizePhoneNumber(phone)}).catch(err => {
-      console.log('Mobile Error')
-    });
-      
-      
-      
-      
-      const newContact = new Contact({
-        phone: sanitizePhoneNumber(phone),
-        // mobile: newMobile,
-        name,
-        address,
-        brgyCode,
-        regCode,
-        provCode,
-        citymunCode,
-        // parNum: referrer.parNum,
-        refNum: referrer.id, // Assign current user's ID as refNum
-        uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
-        userLevel: userLevel, // Default user level
-      });
-      
-      newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum
-      await newContact.save();
 
       return NextResponse.json(
-        { message: "Contact saved successfully", contact: newContact },
-        { status: 201 }
+        { message: "Profile not Found" },
+        { status: 404 }
       );
     }
   } catch (error) {
-    console.error("Error saving contact:", error);
+    console.error("Error saving profile:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 };

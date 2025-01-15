@@ -7,6 +7,8 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 interface ContactContextProvider {
   user: any;
   setUser: (temp: any) => void;
+  system: any;
+  setSystem: (temp: any) => void;
   selectedContacts: any[];
   setSelectedContacts: (temp: any) => void;
 }
@@ -14,8 +16,7 @@ interface ContactContextProvider {
 interface ContactProviderProps {
   children: ReactNode;
   defaultUser?: any;
-  
-  
+  defaultSystem?: any;
 }
 
 // Create the context
@@ -25,13 +26,15 @@ const ContactContext = createContext<ContactContextProvider | undefined>(undefin
 export const ContactProvider: React.FC<ContactProviderProps> = ({
   children,
   defaultUser,
+  defaultSystem
 }) => {
   const [user, setUser] = useState<any>(defaultUser);
+  const [system, setSystem] = useState<any>(defaultSystem);
   const [selectedContacts, setSelectedContacts] = useState<IContact[]>([]);
 
 
   return (
-    <ContactContext.Provider value={{ user, setUser, selectedContacts, setSelectedContacts }}>
+    <ContactContext.Provider value={{ user, setUser, selectedContacts, setSelectedContacts, system, setSystem }}>
       {children}
     </ContactContext.Provider>
   );

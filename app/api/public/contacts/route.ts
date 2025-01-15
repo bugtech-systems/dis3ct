@@ -9,7 +9,7 @@ export const POST = async (req: NextRequest) => {
   try {
 
 
-    const data = await req.json()
+    const data = await req.json();
 
     if(!data?.phone) return new NextResponse("Not Found", { status: 404 })
 
@@ -18,20 +18,33 @@ export const POST = async (req: NextRequest) => {
     
       await connectToDatabase();
       
+    let options = { phone: newPhone} as any;
+    
+      
+    const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(data?.referrer) });
+
+    if(referrer){
+      options.refNum = referrer.id;
+      options.parNum = referrer.parNum || referrer.id;
+    }
+      
+      
+      
       
           
-    const contact = await Contact.findOne({ phone: newPhone});
+    const contact = await Contact.findOne(options);
 
     if (contact) {
       return new NextResponse('Invitation Sent!', { status: 200 });
     }
       
       
-    const newMobile = new Mobile({phone: newPhone});
-  
+    await Mobile.create({phone: sanitizePhoneNumber(data.phone)}).catch(err => {
+      console.log('Mobile Error')
+    });  
       
-    const newContact = new Contact({ ...data, mobile: newMobile, phone: newPhone});
-    await newMobile.save();
+    const newContact = new Contact({ ...data, phone: newPhone});
+    // await newMobile.save();
     await newContact.save();
       return NextResponse.json('Invitation Sent!', { status: 201 });
     

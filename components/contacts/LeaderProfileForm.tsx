@@ -127,7 +127,7 @@ export function LeaderProfileDialogForm({ contact, open, setOpen }: {
     }
 
     try {
-      const response = await axios.post("/api/contacts/save", {
+      const response = await axios.post("/api/contacts/save/profile", {
         phone: sanitizePhoneNumber(phone),
         name,
         address,

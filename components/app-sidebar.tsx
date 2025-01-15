@@ -1,10 +1,9 @@
-"use client"
+'use client'
+
 
 import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
 import { TeamSwitchers } from "@/components/team-switchers"
 import {
   Sidebar,
@@ -13,7 +12,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import TeamSwitcher from "@/app/(app)/dashboard/components/team-switcher"
 import { SidebarOptInForm } from "./sidebar-opt-in-form"
 
 import {
@@ -74,14 +72,14 @@ const data = {
 
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar | any>) {
   return (
     <Sidebar  {...props}>
       <SidebarHeader>
-        <TeamSwitchers teams={data.teams} />
+        <TeamSwitchers  teams={props.systems || []}/>
       </SidebarHeader>
       <SidebarContent>
-      <NavMain items={data.navMain} />
+      <NavMain />
       </SidebarContent>
       <SidebarFooter>
           <SidebarOptInForm />

@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   //   fetchDashboardData();
   // }, []);
   
-  const dashboardData = await getLeaderDashboard()
+  const dashboardData = await getLeaderDashboard();
   
 
   return (

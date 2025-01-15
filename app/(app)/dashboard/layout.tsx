@@ -9,8 +9,9 @@ import { Separator } from "@/components/ui/separator";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { UserNav } from "@/components/user-nav";
-import { Button } from "@/components/ui/button";
-import { BookPlusIcon } from "lucide-react";
+import getSystems from "@/actions/getSystems";
+import { GalleryVerticalEnd } from "lucide-react";
+import { ContactProvider } from "@/components/providers/ContactProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,9 +26,18 @@ export default async function RootLayout({
 }>) {
 
 
+  const systems = await getSystems();
+
+
+  const systemData = systems.map(system => ({id: String(system._id), name: system.name, plan: "Organization"}))
+
   return (
     <SidebarProvider>
-          <AppSidebar />
+      <ContactProvider>
+
+          <AppSidebar 
+          systems={systemData}
+          />
       <SidebarInset>
       {/* <div className="border-b w-100 d-flex flex-row justify-between">
       <SidebarTrigger className="-ml-1" />
@@ -64,6 +74,7 @@ export default async function RootLayout({
           {children}
           </main>
           </SidebarInset>
+          </ContactProvider>
           </SidebarProvider>
   );
 }

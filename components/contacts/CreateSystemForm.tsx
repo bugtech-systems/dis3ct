@@ -95,28 +95,10 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedMunicipality, selectedProvince, selectedRegion]);
+  }, [selectedMunicipality, selectedProvince]);
   
   
-  React.useEffect(() => {
-    if(contact){
-      setPhone(contact.phone)
-      setName(contact.name || "")
-      setAddress(contact.address || "")
-      setSelectedRegion(contact.regCode || "")
-      setSelectedProvince(contact.provCode || "")
-      setSelectedMunicipality(contact.citymunCode || "")
-      setSelectedBarangay(contact.brgyCode || "")
-      setUserLevel(contact.userLevel || "")
-      setSubscription(contact.subscription || "")
-    } else {
-      setSelectedRegion(user?.regCode || "08")
-      setSelectedProvince(user?.provCode || "0837")
-      setSelectedMunicipality(user?.citymunCode || "")
-      setSelectedBarangay(user?.brgyCode || "")
-    }
-  
-  }, [contact, user])
+
 
   // 📌 Handle Form Submission
   const handleSubmit = async () => {
@@ -133,28 +115,26 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
     }
 
     try {
-      const response = await axios.post("/api/contacts/save", {
+      const response = await axios.post("/api/contacts/save/leader", {
         phone: sanitizePhoneNumber(phone),
         name,
-        address,
         regCode: selectedRegion,
         provCode: selectedProvince,
         citymunCode: selectedMunicipality,
         brgyCode: selectedBarangay,
-        userLevel: userLevel,
+        userLevel: 'system',
         subscription: subscription
       });
 
       // toast({ title: "Success", description: response.data.message, status: "success" });
       setOpen(false); // Close modal after success
-      toast.success(response.data.message);
+      toast.success('System created Successfully');
       router.refresh();
-
     } catch (error: any) {
     console.log(error, 'ERROR')
       // toast({ title: "Error", description: error.response?.data?.error || "Failed to save contact.", status: "error" });
       // alert('Failed to save contact.')
-      toast.error(error.response?.data?.error || "Failed to save contact.");
+      toast.error(error.response?.data?.error || "Failed to save System.");
 
 
     }
@@ -167,14 +147,14 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-          <DialogTitle>Create leader</DialogTitle>
+          <DialogTitle>Create System</DialogTitle>
           <DialogDescription>
-            Add a new leader to manage groups and members.
+            Add a new system.
           </DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
               <TabsList className="flex justify-center">
-                <TabsTrigger value="basic">Basic Details</TabsTrigger>
+                <TabsTrigger value="basic">System Details</TabsTrigger>
                 <TabsTrigger value="area">Area Location</TabsTrigger>
                  {/* <TabsTrigger value="access" >
                                 Access Level
@@ -187,13 +167,31 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                     <Input id="mobile" placeholder="09123123123" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="name">Contact Name</Label>
+                    <Label htmlFor="name">System Name</Label>
                     <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" placeholder="Real St. Tacloban City" value={address} onChange={(e) => setAddress(e.target.value)} />
-                  </div>
+                                              <Label htmlFor="subscription">Subscription plan</Label>
+                                              <Select onValueChange={setSubscription} value={subscription}>
+                                                <SelectTrigger>
+                                                  <SelectValue placeholder="Select a plan" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="basic">
+                                                    <span className="font-medium">Basic</span> -{" "}
+                                                    <span className="text-muted-foreground">
+                                                      Unlimited Sms 
+                                                    </span>
+                                                  </SelectItem>
+                                                  <SelectItem value="pro">
+                                                    <span className="font-medium">Pro</span> -{" "}
+                                                    <span className="text-muted-foreground">
+                                                     Unlimited Sms and Flash Sms
+                                                    </span>
+                                                  </SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                            </div>
                 </div>
               </TabsContent>
               <TabsContent value="area" className="space-y-4">

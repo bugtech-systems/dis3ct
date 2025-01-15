@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CreateContactForm } from "@/components/contacts/CreateContactForm";
 import { ContactProvider } from "@/components/providers/ContactProvider";
+import getSystems from "@/actions/getSystems";
 
 
 
@@ -25,12 +26,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  const systems = await getSystems();
+
+
+  const systemData = systems.map(system => ({id: String(system._id), name: system.name, plan: "Organization"}))
 
   return (
     <SidebarProvider>
   <ContactProvider>
     
-          <AppSidebar />
+          <AppSidebar 
+                    systems={systemData}
+          />
       <SidebarInset>
       {/* <div className="border-b w-100 d-flex flex-row justify-between">
       <SidebarTrigger className="-ml-1" />

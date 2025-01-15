@@ -5,7 +5,7 @@ import { sanitizePhoneNumber } from "@/lib/helpers";
 import { authOptions } from "@/lib/authOptions";
 
 
-const getLeaderDashboard = async (): Promise<any | null> => {
+const getLeaderDashboard = async (parent?: any): Promise<any | null> => {
   let teamReach = 0;
   let subscriptions = 0;
   let contacts = 0;
@@ -24,19 +24,31 @@ const getLeaderDashboard = async (): Promise<any | null> => {
        return { teamReach, subscriptions, contacts, recentContacts, overviewChartData };
      }
  
-     const phone = session.user.phone;
      const userId = session.user.id;
 
   await connectToDatabase()
+  let options = {
+    deletedAt: null,
+    parNum: null
+  } as any;
+  
+  const user = await Contact.findById(userId || parent);
+  if(user){
+    options.parNum = userId ? user.parNum : user._id;
+  }
 
   
+console.log(userId, 'USERID')
   
-  teamReach = await Contact.countDocuments({ deletedAt: null });
-  subscriptions = await Contact.countDocuments({ subscribed: true, deletedAt: null });
-  contacts = await Contact.countDocuments({ refNum: userId, deletedAt: null });
+  teamReach = await Contact.countDocuments({ ...options });
+  subscriptions = await Contact.countDocuments({ subscribed: true, ...options });
+  contacts = await Contact.countDocuments({ refNum: userId, ...options });
+
+
+console.log(teamReach, subscriptions, contacts, 'DSHBOAR', options)
 
   // Fetch 5 recent contacts
-  recentContacts = await Contact.find({ refNum: userId, deletedAt: null })
+  recentContacts = await Contact.find({ refNum: userId, ...options})
     .sort({ createdAt: -1 })
     .limit(5)
     .select("name phone createdAt");

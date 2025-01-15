@@ -1,24 +1,64 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
+import { BookOpen, PieChart, Settings2, Sparkles, type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useContact } from "./providers/ContactProvider";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-}) {
+const navAdmin = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: PieChart,
+    isActive: true,
+  },
+  {
+    title: "Contacts",
+    url: "/contacts",
+    icon: BookOpen,
+    badge: "10",
+  },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
+{
+    title: "Tasks",
+    url: "/tasks",
+    icon: Settings2,
+  }, 
+]
+
+const navNormal = [
+  { 
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: PieChart,
+    isActive: true,
+  },
+  {
+    title: "Contacts",
+    url: "/contacts",
+    icon: BookOpen,
+    badge: "10",
+  }
+]
+
+
+export function NavMain() {
+
+
+  const { user } = useContact()
+
+
   const pathname = usePathname();
 
+let items = (user && user.userLevel == 'admin') ? navAdmin : navNormal;
   return (
     <SidebarMenu>
       {items.map((item) => {

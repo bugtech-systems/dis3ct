@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest) => {
 
   console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum } = await req.json();
 
     // Validate required fields
     if (!phone) {
@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest) => {
       existingContact.regCode = regCode;
       existingContact.provCode = provCode;
       existingContact.citymunCode = citymunCode;
-      // existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
+      existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 
       await existingContact.save();
@@ -74,13 +74,13 @@ export const POST = async (req: NextRequest) => {
         regCode,
         provCode,
         citymunCode,
-        // parNum: referrer.parNum,
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level
       });
       
-      newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum
+      newContact.parNum = parNum ? parNum : userLevel == 'system' ? newContact.id : referrer.parNum
+      
       await newContact.save();
 
       return NextResponse.json(

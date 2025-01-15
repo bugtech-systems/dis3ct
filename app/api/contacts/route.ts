@@ -68,7 +68,7 @@ export const GET = withAuth(async (req: NextRequest) => {
 
 
 
-    const contacts = await Contact.find().sort({ createdAt: -1 });
+    const contacts = await Contact.find().sort({ createdAt: -1 }).populate('parNum');
 
     return NextResponse.json({contacts, user} , { status: 200 });
   } catch (error) {

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown,GalleryVerticalEnd,Plus } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -18,28 +18,36 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm"
 import { useSession } from "next-auth/react";
 import axios from "axios"
 import { Contact } from "@/data/schema"
+import { CreateSystemForm } from "./contacts/CreateSystemForm"
+import { useContact } from "./providers/ContactProvider"
 
 
 
 export function TeamSwitchers({
   teams,
 }: {
-  teams: {
+  teams?: {
+    id: any
     name: string
-    logo: React.ElementType
     plan: string
   }[]
 }) {
   const { data: session } = useSession() as any; // Get the session data from next-auth
-  const [user, setUser] = React.useState<Contact>();
-  const [open, setOpen] = React.useState(false)
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const [activeTeam, setActiveTeam] = React.useState<any>(null);
+  const [systems, setSystems] = React.useState<any[]>([]);
+  const { setSystem, user, setUser } = useContact();
+    
+    
+  const handleSystems = async (e: any) => {
+    setActiveTeam(e)
+    setSystem(e)
+    
+  }
 
 
   React.useEffect(() => {
@@ -48,18 +56,34 @@ export function TeamSwitchers({
       axios.get(`/api/contacts/${session.user.phone}`)
         .then((response) => {
           setUser(response.data);
+          let activeSys = teams?.find((team) => team.id == response.data.parNum)
+          console.log(activeSys, response.data, 'ACTIVE SYS')
+          if(activeSys){
+            if(response.data.userLevel !== 'admin'){
+              setSystems([activeSys])
+            } else {
+              setSystems(teams || [])
+            }
+            setActiveTeam(activeSys)
+            setSystem(activeSys)
+          }
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
         })
         // .finally(() => setLoading(false));
+        
+        
+        
     }
-  }, [session]);
+  }, [session, teams]);
+  
+
 
 
   return (
   <>
-    <CreateLeaderFormDialog open={showNewTeamDialog} setOpen={setShowNewTeamDialog}  />
+    <CreateSystemForm open={showNewTeamDialog} setOpen={setShowNewTeamDialog}  />
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
@@ -69,13 +93,13 @@ export function TeamSwitchers({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeTeam.logo className="size-4" />
+                <GalleryVerticalEnd className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeTeam.name}
+                  {activeTeam?.name}
                 </span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate text-xs">{activeTeam?.plan}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -89,14 +113,14 @@ export function TeamSwitchers({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Teams
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {systems.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
-                onClick={() => setActiveTeam(team)}
+                onClick={() => handleSystems(team)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <team.logo className="size-4 shrink-0" />
+                  <GalleryVerticalEnd className="size-4 shrink-0" />
                 </div>
                 {team.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>

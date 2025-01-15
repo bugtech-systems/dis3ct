@@ -27,12 +27,10 @@ export function DataTableToolbar<TData>({
 
 let isSelected = Object.keys(selectedRow).length ? true : false;
 let selectedRows = table.getSelectedRowModel().flatRows ? table.getSelectedRowModel().flatRows.map(contact => ({...contact.original})) : []
-console.log(table.getSelectedRowModel().flatRows, 'TABLEEE')
 let regionsOptions = regions.map(region => ({label: region.regDesc, value: region.regCode}))
 let provincesOptions = provinces.map(province => ({label: province.provDesc, value: province.provCode}))
 
 
-console.log(regions, 'REGIONSS')
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
