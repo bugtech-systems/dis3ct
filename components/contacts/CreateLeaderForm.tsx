@@ -145,7 +145,7 @@ export function CreateLeaderFormDialog({ user, contact, open, setOpen }: {
         citymunCode: selectedMunicipality,
         brgyCode: selectedBarangay,
         userLevel: userLevel,
-        parNum: system.id
+        // parNum: system.id
       });
 
       // toast({ title: "Success", description: response.data.message, status: "success" });
@@ -300,7 +300,7 @@ console.log(system, 'SYSTEM PAR')
                           <div className="space-y-2">
                             <Label htmlFor="userLevel">Access Level</Label>
                             <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel}  />
-                             <Select onValueChange={setUserLevel} value={userLevel} >
+                   {/*           <Select onValueChange={setUserLevel} value={userLevel} >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a level" />
                               </SelectTrigger>
@@ -330,7 +330,7 @@ console.log(system, 'SYSTEM PAR')
                                   </span>
                                 </SelectItem>
                               </SelectContent>
-                            </Select> 
+                            </Select>  */}
                           </div>
                         </div>
                       </div>
