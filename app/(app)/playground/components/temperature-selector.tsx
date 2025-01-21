@@ -10,15 +10,18 @@ import {
 } from "@/components/ui/hover-card"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { usePlayground } from "@/components/providers/PlaygroundProvider"
 
 interface TemperatureSelectorProps {
   defaultValue: SliderProps["defaultValue"]
 }
 
-export function TemperatureSelector({
-  defaultValue,
-}: TemperatureSelectorProps) {
-  const [value, setValue] = React.useState(defaultValue)
+export function TemperatureSelector() {
+const { preset, setPreset} = usePlayground();
+
+
+
+
 
   return (
     <div className="grid gap-2 pt-2">
@@ -28,15 +31,16 @@ export function TemperatureSelector({
             <div className="flex items-center justify-between">
               <Label htmlFor="temperature">Temperature</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
-                {value}
+                {preset.temperature}
               </span>
             </div>
             <Slider
               id="temperature"
               max={1}
-              defaultValue={value}
+              // defaultValue={defaultValue}
+              value={[preset.temperature]}
               step={0.1}
-              onValueChange={setValue}
+              onValueChange={(e) => setPreset({...preset, temperature: e[0]})}
               className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
               aria-label="Temperature"
             />

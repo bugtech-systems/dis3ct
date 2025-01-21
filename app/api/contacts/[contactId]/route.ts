@@ -27,13 +27,13 @@ export const PATCH = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userId = session.user.id;
+    // const userId = session.user.id;
     const { contactId } = params;
     const values = await req.json();
 
-    if (!(await isAuthorized(userId, contactId))) {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
+    // if (!(await isAuthorized(userId, contactId))) {
+    //   return new NextResponse("Forbidden", { status: 403 });
+    // }
 
     const updatedContact = await Contact.updateOne(
       { phone: sanitizePhoneNumber(contactId), deletedAt: null },
@@ -63,7 +63,7 @@ export const GET = async (
     const contact = await Contact.findOne({
       phone: sanitizePhoneNumber(contactId),
       deletedAt: null
-    });
+    }).populate('parNum');
 
     if (!contact) {
       return new NextResponse("Contact not found", { status: 404 });

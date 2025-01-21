@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/popover"
 
 import { Model, ModelType } from "../data/models"
+import { usePlayground } from "@/components/providers/PlaygroundProvider"
 
 interface ModelSelectorProps extends PopoverProps {
   types: readonly ModelType[]
@@ -35,9 +36,23 @@ interface ModelSelectorProps extends PopoverProps {
 }
 
 export function ModelSelector({ models, types, ...props }: ModelSelectorProps) {
+const { preset, setPreset, selectedPreset} = usePlayground();
   const [open, setOpen] = React.useState(false)
   const [selectedModel, setSelectedModel] = React.useState<Model>(models[0])
   const [peekedModel, setPeekedModel] = React.useState<Model>(models[0])
+
+  React.useEffect(() => {
+    setPreset({...preset, modelName: selectedModel.id})
+  }, [selectedModel])
+
+  React.useEffect(() => {
+  if(selectedPreset){
+    let model = models.find(model => model.id == selectedPreset.modelName)
+    setSelectedModel(model || models[0])
+  }
+  }, [selectedPreset])
+
+
 
   return (
     <div className="grid gap-2">
@@ -80,16 +95,6 @@ export function ModelSelector({ models, types, ...props }: ModelSelectorProps) {
                 <div className="text-sm text-muted-foreground">
                   {peekedModel.description}
                 </div>
-                {peekedModel.strengths ? (
-                  <div className="mt-4 grid gap-2">
-                    <h5 className="text-sm font-medium leading-none">
-                      Strengths
-                    </h5>
-                    <ul className="text-sm text-muted-foreground">
-                      {peekedModel.strengths}
-                    </ul>
-                  </div>
-                ) : null}
               </div>
             </HoverCardContent>
             <Command loop>

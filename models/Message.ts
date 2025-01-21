@@ -13,10 +13,11 @@ export enum MessageType {
 }
 
 export interface IMessage extends Document {
-  senderId: string;
-  recipientId: string;
+  sender: mongoose.Types.ObjectId;
+  recipient: mongoose.Types.ObjectId;
   message: string;
   tag?: string;
+  group: string; 
   status: MessageStatus;
   isFlash: boolean;
   messageDate: Date;
@@ -26,10 +27,11 @@ export interface IMessage extends Document {
 
 const MessageSchema = new Schema<IMessage>(
   {
-    senderId: { type: String, required: true }, // System ID
-    recipientId: { type: String, required: true }, // Contact ID
+    sender: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // System ID
+    recipient: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // Contact ID
     message: { type: String, required: true }, // Content of the message
     tag: { type: String }, // Optional tag
+    group: { type: String }, // Optional tag
     status: {
       type: String,
       enum: Object.values(MessageStatus),

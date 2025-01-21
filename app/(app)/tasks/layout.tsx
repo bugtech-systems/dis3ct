@@ -1,16 +1,4 @@
 import type { Metadata } from "next";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator";
-
-
-import { AppSidebar } from "@/components/app-sidebar";
-import { UserNav } from "./components/user-nav";
-import getSystems from "@/actions/getSystems";
-import { ContactProvider } from "@/components/providers/ContactProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,55 +12,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const systems = await getSystems();
-
-
-  const systemData = systems.map(system => ({id: String(system._id), name: system.name, plan: "Organization"}))
 
 
   return (
-    <SidebarProvider>
-    <ContactProvider>
-          <AppSidebar
-            systems={systemData}
-          />
-      <SidebarInset>
-      {/* <div className="border-b w-100 d-flex flex-row justify-between">
-      <SidebarTrigger className="-ml-1" />
-      <div className="flex justify-center  h-16 items-center px-4">
-        <h3 className="text-center">MARETEXT</h3>
-      </div>
-      <UserNav />
-
-    </div> */}
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <div className="flex flex-grow items-end justify-end mr-2">
-          <UserNav />
-          </div>
-
-  {/*         <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">components</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">ui</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>button.tsx</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb> */}
-        </header>
-    <main className="flex-1  items-center justify-center">
+   <> 
           {children}
-          </main>
-          </SidebarInset>
-          </ContactProvider>
-          </SidebarProvider>
+          </>
+  
   );
 }

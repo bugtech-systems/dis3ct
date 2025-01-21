@@ -75,7 +75,6 @@ export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContac
     }
   };
 
-console.log(selectedContacts, 'SELECTED')
   return (
     <>
       <Button onClick={() => setShowContactDialog(true)}>

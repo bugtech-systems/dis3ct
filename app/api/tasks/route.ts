@@ -1,48 +1,109 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Task from "@/models/Task";
+import {
+  createTask,
+  getTasks,
+  getTaskById,
+  updateTask,
+  deleteTask,
+} from "@/services/taskServices";
+import { v4 as uuidv4 } from "uuid";
 
+// Get all tasks or a single task by ID
 export const GET = async (req: NextRequest) => {
   try {
-    await dbConnect();
-    const tasks = await Task.find().sort({ createdAt: -1 });
+    const { searchParams } = new URL(req.url);
+    const taskId = searchParams.get("id");
 
-    return NextResponse.json({ success: true, data: tasks }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to fetch tasks" }, { status: 500 });
+    if (taskId) {
+      const result = await getTaskById(taskId);
+      if (!result.success) {
+        return NextResponse.json(result, { status: 404 });
+      }
+      return NextResponse.json(result);
+    }
+
+    const result = await getTasks();
+    return NextResponse.json(result);
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to fetch tasks" },
+      { status: 500 }
+    );
   }
 };
 
-
+// Create a new task
 export const POST = async (req: NextRequest) => {
-    try {
-      await dbConnect();
-      const { taskId, title, category, status, priority, taskObject } = await req.json();
-  
-      const task = new Task({ taskId, title, category, status, priority, taskObject: JSON.stringify(taskObject) });
-      await task.save();
-  
-      return NextResponse.json({ success: true, data: task }, { status: 201 });
-    } catch (error) {
-    console.log(error)
-      return NextResponse.json({ success: false, error: "Failed to create task" }, { status: 500 });
+  try {
+    const body = await req.json();
+    
+    let newObject = {...body,
+      taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
+    };
+    
+    const result = await createTask(newObject);
+    if (!result.success) {
+      return NextResponse.json(result, { status: 400 });
     }
-  };
-  
-  
-  export const PATCH = async (req: NextRequest, { params }: { params: { id: string } }) => {
-    try {
-      await dbConnect();
-      const { id } = params;
-      const updateData = await req.json();
-  
-      const task = await Task.findByIdAndUpdate(id, updateData, { new: true });
-  
-      if (!task) return NextResponse.json({ success: false, error: "Task not found" }, { status: 404 });
-  
-      return NextResponse.json({ success: true, data: task }, { status: 200 });
-    } catch (error) {
-      return NextResponse.json({ success: false, error: "Failed to update task" }, { status: 500 });
+    
+    return NextResponse.json(result, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to create task" },
+      { status: 500 }
+    );
+  }
+};
+
+// Update a task
+export const PUT = async (req: NextRequest) => {
+  try {
+    const body = await req.json();
+    const { searchParams } = new URL(req.url);
+    const taskId = searchParams.get("id");
+
+    if (!taskId) {
+      return NextResponse.json(
+        { success: false, error: "Task ID is required" },
+        { status: 400 }
+      );
     }
-  };
-  
+
+    const result = await updateTask(taskId, body);
+    if (!result.success) {
+      return NextResponse.json(result, { status: 404 });
+    }
+    return NextResponse.json(result);
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to update task" },
+      { status: 500 }
+    );
+  }
+};
+
+// Delete a task
+export const DELETE = async (req: NextRequest) => {
+  try {
+    const { searchParams } = new URL(req.url);
+    const taskId = searchParams.get("id");
+
+    if (!taskId) {
+      return NextResponse.json(
+        { success: false, error: "Task ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const result = await deleteTask(taskId);
+    if (!result.success) {
+      return NextResponse.json(result, { status: 404 });
+    }
+    return NextResponse.json(result);
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to delete task" },
+      { status: 500 }
+    );
+  }
+};

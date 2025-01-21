@@ -35,7 +35,7 @@ const TaskSchema: Schema = new Schema(
     taskId: { type: String, required: true}, // Unique Task Identifier
     title: { type: String, required: true }, // Task Title
     category: { type: String, enum: Object.values(TaskCategory), required: true }, // Task Category
-    status: { type: String, enum: Object.values(TaskStatus), required: true }, // Task Status
+    status: { type: String, enum: Object.values(TaskStatus), required: false, default: 'Todo' }, // Task Status
     priority: { type: String, enum: Object.values(TaskPriority), required: true }, // Task Priority
     taskObject: { type: String, required: false }
   },

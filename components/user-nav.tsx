@@ -48,7 +48,6 @@ export function UserNav() {
   }, [session]);
 
 
-console.log(user, 'SHOW TEAM IALG')
 
   return (
     <>

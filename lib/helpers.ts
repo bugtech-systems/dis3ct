@@ -1,4 +1,59 @@
 import { parse } from 'node-html-parser';
+import { parseDocument } from "htmlparser2";
+import { DomUtils } from "htmlparser2";
+
+// export function convertRichTextToPlain(content: string): string {
+//   // Create a temporary DOM element to parse HTML
+//   const tempDiv = document.createElement("div");
+//   tempDiv.innerHTML = content;
+
+//   // Remove specific tags like <script>, <style>, etc.
+//   const disallowedTags = ["script", "style"];
+//   disallowedTags.forEach((tag) => {
+//     const elements = tempDiv.getElementsByTagName(tag);
+//     while (elements.length > 0) {
+//       elements[0].parentNode?.removeChild(elements[0]);
+//     }
+//   });
+
+//   // Replace <br>, <p>, and similar block-level tags with newlines
+//   tempDiv.innerHTML = tempDiv.innerHTML
+//     .replace(/<br\s*\/?>/gi, "\n")
+//     .replace(/<\/p>/gi, "\n")
+//     .replace(/<\/h[1-6]>/gi, "\n")
+//     .replace(/<li>/gi, "- ")
+//     .replace(/<\/li>/gi, "\n")
+//     .replace(/<\/ul>/gi, "\n")
+//     .replace(/<\/ol>/gi, "\n");
+
+//   // Strip remaining HTML tags
+//   const plainText = tempDiv.textContent || tempDiv.innerText || "";
+
+//   // Normalize newlines and trim extra spaces
+//   return plainText
+//     .replace(/\n\s*\n/g, "\n") // Remove multiple consecutive newlines
+//     .trim(); // Trim leading and trailing spaces
+// }
+
+
+export function convertRichTextToPlain(content: string): string {
+console.log(content, 'CONTET')
+  // Parse the HTML content
+  const document = parseDocument(content);
+  console.log(content, 'DOCUE')
+
+  // Extract text content, ignoring tags
+  const plainText = DomUtils.getText(document);
+  console.log(content, 'PLAIN')
+  // Normalize newlines and trim extra spaces
+  return plainText
+    .replace(/\n\s*\n/g, "\n") // Remove multiple consecutive newlines
+    .trim(); // Trim leading and trailing spaces
+}
+
+
+
+
 
 
 export function isParsableObject(value: any) {

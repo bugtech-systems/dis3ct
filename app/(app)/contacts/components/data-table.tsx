@@ -199,7 +199,6 @@ export function CardsDataTable<TData, TValue>({
   })
 
 
-console.log(rowSelection, 'ROW')
 
   return (
 

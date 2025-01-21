@@ -1,5 +1,4 @@
-import { Metadata } from "next"
-import Image from "next/image"
+'use client'
 import { RotateCcw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -17,6 +16,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import toast from "react-hot-toast";
 
 import { CodeViewer } from "./components/code-viewer"
 import { MaxLengthSelector } from "./components/maxlength-selector"
@@ -29,25 +29,231 @@ import { TemperatureSelector } from "./components/temperature-selector"
 import { TopPSelector } from "./components/top-p-selector"
 import { models, types } from "./data/models"
 import { presets } from "./data/presets"
+import { usePlayground } from "@/components/providers/PlaygroundProvider"
+import RichEditor from "@/components/playground/components/RichEditor"
+import { useState } from "react"
+import axios from "axios"
+import { CardsChat } from "./components/chat"
+import { useContact } from "@/components/providers/ContactProvider"
 
-export const metadata: Metadata = {
-  title: "Playground",
-  description: "The OpenAI Playground built using the components.",
-}
 
 export default function PlaygroundPage() {
+  const [isLoading, setLoading] = useState(false);
+  const [instruction, setInstruction] = useState('');
+  const { messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset} = usePlayground();
+    const {user, system, parentSystem} = useContact();
+
+  
+  // const handleAddMessage = async (message: any) => {
+    
+  //   if(selectedPreset){
+  //     await axios.post(`/api/conversations`, message);
+  //   }
+  // }
+  
+    const getConversations = async () => {
+    try {
+  // setLoading(true)
+  setMessages([]);
+  let newContact = axios.get(`/api/contacts/${user?.phone}`)
+      .then((response) => {
+        return response.data
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+        return user
+      }) as any;
+      // .finally(() => setLoading(false));
+  
+  
+      const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${newContact?.activePreset}&status=pending`); // Update the endpoint URL if necessary
+      console.log('response CONVO', response)
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch conversations");
+      }
+      
+      const data = await response.json();
+      console.log('RESP CONVO', data)
+      if (data && Array.isArray(data)) {
+        setMessages(data); // Assuming `data.data` contains the conversations array
+      }
+      
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+    } finally {
+      setLoading(false)
+    }
+  };
+  
+  
+  const handleMessageSubmit = async () => {
+    try {
+      setLoading(true)
+      let newMessages = messages; 
+      
+   /*    newMessages.push({
+        role: 'user',
+        content: userMessage
+      })
+      */ 
+
+        setUserMessage('')
+
+    // let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
+    // let apiUrl =  '/api/presets/chat'
+    let apiUrl =  '/api/tasks'
+
+
+    await axios.post(apiUrl, {
+        status: 'Todo',
+        priority: 'High',
+        category: 'Api',
+        title: 'Chat AI',
+        taskObject: JSON.stringify({
+          urlPath: '/presets/chat',
+          method: 'post',
+          dataObject: {
+          ...preset,
+          sender: user.phone,  
+          system: system.phone,
+          message: userMessage,
+          instruction
+        }
+        })
+    } );
+  
+
+
+    //  let resp = await axios.post(apiUrl, {
+    //     ...preset,
+    //     sender: user.phone,  
+    //     system: system.phone,
+    //     message: userMessage,
+    //     instruction
+    //   });
+   
+      
+      // if(resp.data.done){
+      //   newMessages.push({
+      //     role: 'assistant',
+      //     content: resp.data.message.content
+      //   })
+          
+      //   setMessages(newMessages)
+          
+      //    if(resp.data.preset){
+      //     setSelectedPreset(resp.data.preset)
+      //   } 
+      // }
+      // toast.success("Course Updated");
+      
+      
+      // router.refresh();
+    } catch (err) {
+      console.log("Failed to update the course", err);
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false)
+    }
+  };
+  
+//   const handleMessageResubmit = async () => {
+//     try {
+//       let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
+//       let lastUserMessage = messages[messages.length - 2];
+//     let newMessages = messages.slice(0, -2);
+
+//     messages.pop();
+// messages.pop();
+// setMessages(messages)
+    
+//      let resp = await axios.post(apiUrl, {
+//         ...selectedPreset,
+//         modelName: selectedModel.id,
+//         message: lastUserMessage ? lastUserMessage.content : "",
+//         sampleConversations: newMessages,
+//         temperature,
+//         topP,
+//         maxTokens,
+//         instruction,
+//       });
+      
+      
+//       if(resp.data.done){
+//         handleAddMessage([{
+//           role: 'user',
+//           content: lastUserMessage.content,
+//         }, resp.data.message])
+//         setUserMessage('')
+//         if(resp.data.preset){
+//           setSelectedPreset(resp.data.preset)
+//         }
+//       }
+      
+      
+//       // toast.success("Course Updated");
+//       // router.refresh();
+//     } catch (err) {
+//       console.log("Failed to update the course", err);
+//       toast.error("Something went wrong!");
+//     }
+//   };
+  
+  
+  const handleSavePreset = async () => {
+      try {
+          if(selectedPreset && selectedPreset._id){
+            let resp = await axios.patch(`/api/presets/${selectedPreset._id}`, {
+              ...preset,
+              systemBehavior: preset.systemBehavior,
+              modelName: preset.modelName,
+              aiTemperature: preset.temperature,
+              aiTopP: preset.topP,
+              aiMaxLength: preset.maxTokens
+            });
+            if(resp.data){
+              toast.success("Preset Updated");
+            }        
+  
+          } else {
+            let resp = await axios.post(`/api/presets`, {
+              ...preset,
+              systemBehavior: preset.systemBehavior,
+              modelName: preset.modelName,
+              aiTemperature: preset.temperature,
+              aiTopP: preset.topP,
+              aiMaxLength: preset.maxTokens
+            });
+            if(resp.data){
+              toast.success("Preset Created");
+            }   
+          }
+      
+  
+  
+        // router.refresh();
+      } catch (err) {
+        console.log("Failed to update the course", err);
+        toast.error("Something went wrong!");
+      }
+  };
+    
+  
+
+
   return (
-    <>
+    <div className="flex-1 space-y-4 p-8 pt-3">
       <div className="h-full flex-col md:flex">
         <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <h2 className="text-lg font-semibold">Playground</h2>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-            <PresetSelector presets={presets} />
+            <PresetSelector />
             <PresetSave />
-            <div className="hidden space-x-2 md:flex">
+            {/* <div className="hidden space-x-2 md:flex">
               <CodeViewer />
               <PresetShare />
-            </div>
+            </div> */}
             <PresetActions />
           </div>
         </div>
@@ -234,41 +440,52 @@ export default function PlaygroundPage() {
                   </TabsList>
                 </div>
                 <ModelSelector types={types} models={models} />
-                <TemperatureSelector defaultValue={[0.56]} />
-                <MaxLengthSelector defaultValue={[256]} />
-                <TopPSelector defaultValue={[0.9]} />
+                <TemperatureSelector  />
+                <MaxLengthSelector />
+                <TopPSelector />
               </div>
-              <div className="md:order-1">
+              <div className="lg:max-h-[600px] md:order-1">
                 <TabsContent value="complete" className="mt-0 border-0 p-0">
                   <div className="flex h-full flex-col space-y-4">
-                    <Textarea
-                      placeholder="Write a tagline for an ice cream shop"
-                      className="min-h-[300px] flex-1 p-4 md:min-h-[700px] lg:min-h-[500px]"
-                    />
+                  <div className="flex h-full flex-col space-y-4">
+                     <RichEditor
+                    placeholder="What is this content about?"
+                    value={preset.systemBehavior}
+                      onChange={e => setPreset({...preset, systemBehavior: e})}
+                    // {...field}
+                  />
+                    
+                  {selectedPreset && 
                     <div className="flex items-center space-x-2">
-                      <Button>Submit</Button>
-                      <Button variant="secondary">
+                      <Button onClick={() => handleSavePreset()}>Update</Button>
+                    {/*   <Button variant="secondary">
                         <span className="sr-only">Show history</span>
                         <RotateCcw />
-                      </Button>
+                      </Button> */}
                     </div>
+                    }
+                  </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="insert" className="mt-0 border-0 p-0">
-                  <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col space-y-4  max-h-[600px]">
                     <div className="grid h-full grid-rows-2 gap-6 lg:grid-cols-2 lg:grid-rows-1">
                       <Textarea
                         placeholder="We're writing to [inset]. Congrats from OpenAI!"
-                        className="h-full min-h-[300px] lg:min-h-[700px] xl:min-h-[700px]"
+                        className=" lg:min-h-[600px] xl:min-h-[700px]"
+                        value={userMessage}
+                        onChange={(e) => setUserMessage(e.target.value)}
                       />
-                      <div className="rounded-md border bg-muted"></div>
+                    <div className="rounded-md border h-full overflow-scroll min-h-[300px] lg:max-h-[700px] lg:min-h-[500px] xl:min-h-[500px]">
+                    <CardsChat messages={messages} setMessages={setMessages}/>
+                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button>Submit</Button>
-                      <Button variant="secondary">
-                        <span className="sr-only">Show history</span>
-                        <RotateCcw />
-                      </Button>
+                    <Button disabled={isLoading} onClick={() => handleMessageSubmit()}>Submit</Button>
+                    <Button disabled={isLoading} variant="secondary" onClick={() => getConversations()}>
+                      <span className="sr-only">Show history</span>
+                      <RotateCcw />
+                    </Button>
                     </div>
                   </div>
                 </TabsContent>
@@ -308,6 +525,6 @@ export default function PlaygroundPage() {
           </div>
         </Tabs>
       </div>
-    </>
+    </div>
   )
 }

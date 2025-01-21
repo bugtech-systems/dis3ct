@@ -164,8 +164,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
 
 
-console.log(system, user?.userLevel, 'SYSTEM PAR')
-
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>

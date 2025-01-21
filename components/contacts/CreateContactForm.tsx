@@ -122,7 +122,6 @@ export function CreateContactForm() {
         brgyCode: selectedBarangay?.brgyCode,
       });
 
-console.log(response.data, 'RESP DATA')
       // toast({ title: "Success", description: response.data.message, status: "success" });
       setPhone('')
       setName('')
@@ -142,8 +141,6 @@ console.log(response.data, 'RESP DATA')
   };
   
   
-  console.log(regions, 'REGSION')
-  console.log(provinces, 'PROVS')
 
   return (
     <>

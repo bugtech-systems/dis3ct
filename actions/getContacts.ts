@@ -18,14 +18,26 @@ const getLeadersContacts = async (): Promise<IContact[]> => {
 
   await connectToDatabase()
   
+  let contact = await Contact.findById(userId);
+  let contacts = [];
+
+  if(contact?.userLevel == 'admin'){
+    contacts = await Contact.find({
+      phone: { $ne: sanitizePhoneNumber(phone) },
+      // refNum: userId,
+      deletedAt: null
+    }).lean();   
+  } else {
   
+    contacts = await Contact.find({
+      phone: { $ne: sanitizePhoneNumber(phone) },
+      refNum: userId,
+      deletedAt: null
+    }).lean();  
   
-  let contacts = await Contact.find({
-    phone: { $ne: sanitizePhoneNumber(phone) },
-    refNum: userId,
-    deletedAt: null
-  }).lean();
-console.log(contacts, 'LEADERS CONTACTS', phone, userId)
+  }
+
+
   return contacts
  } catch(err){
   return []

@@ -135,7 +135,6 @@ export function EditContactForm({ contact, open, setOpen }: {
         brgyCode: selectedBarangay,
       });
 
-console.log(response.data, 'RESP DATA')
       // toast({ title: "Success", description: response.data.message, status: "success" });
       setOpen(false); // Close modal after success
       toast.success(response.data.message);

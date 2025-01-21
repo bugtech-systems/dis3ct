@@ -56,17 +56,17 @@ export function TeamSwitchers({
       axios.get(`/api/contacts/${session.user.phone}`)
         .then((response) => {
           setUser(response.data);
-          let activeSys = teams?.find((team) => team.id == response.data.parNum)
-          console.log(activeSys, response.data, 'ACTIVE SYS')
-          if(activeSys){
+
             if(response.data.userLevel !== 'admin'){
-              setSystems([activeSys])
+              setSystems([response.data.parNum])
+
             } else {
               setSystems(teams || [])
             }
-            setActiveTeam(activeSys)
-            setSystem(activeSys)
-          }
+            if(response.data.parNum){
+              setActiveTeam(response.data.parNum)
+              setSystem(response.data.parNum)
+            }
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);

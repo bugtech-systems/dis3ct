@@ -11,7 +11,7 @@ export const POST = async (req: NextRequest) => {
   try {
     await connectDB(); // Connect to MongoDB
 
-    const { recipients, message, isFlash } = await req.json();
+    const { recipients, message, isFlash, system } = await req.json();
 
     if (!recipients || !message || !Array.isArray(recipients)) {
       return NextResponse.json(
@@ -31,6 +31,7 @@ export const POST = async (req: NextRequest) => {
         phone: internationalizePhoneNumber(phone),
         message,
         isFlash: isFlash || false,
+        system
       }),
     }));
 

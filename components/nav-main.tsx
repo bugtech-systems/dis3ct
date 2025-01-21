@@ -22,16 +22,36 @@ const navAdmin = [
     icon: BookOpen,
     badge: "10",
   },
-  {
-    title: "Ask AI",
-    url: "/playground",
-    icon: Sparkles,
-  },
+  // {
+  //   title: "Ask AI",
+  //   url: "/playground",
+  //   icon: Sparkles,
+  // },
 {
     title: "Tasks",
     url: "/tasks",
     icon: Settings2,
   }, 
+]
+
+const navSystem = [
+  { 
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: PieChart,
+    isActive: true,
+  },
+  {
+    title: "Contacts",
+    url: "/contacts",
+    icon: BookOpen,
+    badge: "10",
+  },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
 ]
 
 const navNormal = [
@@ -58,7 +78,7 @@ export function NavMain() {
 
   const pathname = usePathname();
 
-let items = (user && user.userLevel == 'admin') ? navAdmin : navNormal;
+let items = (user && user.userLevel == 'admin') ? navAdmin : (user && user.userLevel == 'system') ? navSystem : navNormal;
   return (
     <SidebarMenu>
       {items.map((item) => {

@@ -40,7 +40,6 @@ export function DataTableFacetedFilter<TData, TValue>({
   const selectedValues = new Set(column?.getFilterValue() as string[])
 
 
-console.log(facets, 'FACCETS', selectedValues)
 
   return (
     <Popover>

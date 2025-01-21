@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { PopoverProps } from "@radix-ui/react-popover"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -20,20 +19,48 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { usePlayground } from "@/components/providers/PlaygroundProvider"
 
-import { Preset } from "../data/presets"
-
-interface PresetSelectorProps extends PopoverProps {
-  presets: Preset[]
+// Define Preset interface
+interface Preset {
+  id: number
+  name: string
+  description: string
+  value: string
 }
 
-export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
+export function PresetSelector() {
+const { selectedPreset, setSelectedPreset, presets, setPresets} = usePlayground()
   const [open, setOpen] = React.useState(false)
-  const [selectedPreset, setSelectedPreset] = React.useState<Preset>()
-  const router = useRouter()
+  // const [selectedPreset, setSelectedPreset] = React.useState<Preset | null>(null)
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const fetchPresets = async () => {
+    try {
+      const response = await fetch("/api/presets")
+      if (!response.ok) {
+        throw new Error("Failed to fetch presets")
+      }
+      const data = await response.json()
+      setPresets(data.data) // Assuming API returns { success: true, data: [...] }
+      setError(null)
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  // Fetch presets from the API
+  React.useEffect(() => {
+
+
+    fetchPresets()
+  }, [])
 
   return (
-    <Popover open={open} onOpenChange={setOpen} {...props}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -50,11 +77,27 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
         <Command>
           <CommandInput placeholder="Search presets..." />
           <CommandList>
-            <CommandEmpty>No presets found.</CommandEmpty>
-            <CommandGroup heading="Examples">
-              {presets.map((preset) => (
+            {loading && <CommandEmpty>Loading presets...</CommandEmpty>}
+            {error && <CommandEmpty>{error}</CommandEmpty>}
+            {!loading && !error && presets.length === 0 && (
+              <CommandEmpty>No presets found.</CommandEmpty>
+            )}
+            {selectedPreset && (
+              <CommandGroup className="pt-2">
                 <CommandItem
-                  key={preset.id}
+                  onSelect={() => {
+                    setSelectedPreset(null)
+                    setOpen(false)
+                  }}
+                >
+                  Clear Selection
+                </CommandItem>
+              </CommandGroup>
+            )}
+            <CommandGroup heading="Presets">
+              {presets.map((preset: any, index: number) => (
+                <CommandItem
+                  key={index}
                   onSelect={() => {
                     setSelectedPreset(preset)
                     setOpen(false)
@@ -64,18 +107,13 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
                   <Check
                     className={cn(
                       "ml-auto",
-                      selectedPreset?.id === preset.id
+                      selectedPreset?.value === preset.value
                         ? "opacity-100"
                         : "opacity-0"
                     )}
                   />
                 </CommandItem>
               ))}
-            </CommandGroup>
-            <CommandGroup className="pt-0">
-              <CommandItem onSelect={() => router.push("/examples")}>
-                More examples
-              </CommandItem>
             </CommandGroup>
           </CommandList>
         </Command>
