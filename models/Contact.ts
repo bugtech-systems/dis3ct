@@ -1,7 +1,6 @@
 // models/Contact.ts
 import mongoose, { Schema, Document, Types, Model } from 'mongoose';
 
-
 // // Check if the Mongoose connection is initialized
 // if (!mongoose.connection.readyState) {
 //   throw new Error('Mongoose connection is not established.');
@@ -49,9 +48,6 @@ const ContactSchema = new Schema<IContact>(
   provCode: { type: String, maxlength: 255 },
   citymunCode: { type: String, maxlength: 255 },
   activePreset: { type: String, maxlength: 255 },
-  brgyDesc: { type: String, maxlength: 255 },
-  regDesc: { type: String, maxlength: 255 },
-  provDesc: { type: String, maxlength: 255 },
   citymunDesc: { type: String, maxlength: 255 },
   otpCode: { type: String },
   refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },

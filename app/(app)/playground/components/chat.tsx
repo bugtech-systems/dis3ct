@@ -49,7 +49,7 @@ export function CardsChat({messages}: ChatProps) {
       }) as any;
       
       console.log(newContact, 'NEW USER')
-      const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${newContact?.activePreset}&status=pending`); // Update the endpoint URL if necessary
+      const response = await fetch(`/api/conversations?contact=${user?.phone}&system=${system?.phone}&preset=${newContact?.activePreset}&status=pending`); // Update the endpoint URL if necessary
       
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
@@ -70,13 +70,16 @@ export function CardsChat({messages}: ChatProps) {
 
   React.useEffect(() => {
     // Trigger function every 10 seconds
+    
     const intervalId = setInterval(() => {
+      if(user){
       getConversations();
+  }
     }, 10000); // 10000ms = 10 seconds
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
-  }, [selectedPreset]); // Empty dependency array ensures this runs only once on mount
+  }, [selectedPreset, user]); // Empty dependency array ensures this runs only once on mount
 
   // Handle deleting a message
   const handleDelete = (ind: number) => {

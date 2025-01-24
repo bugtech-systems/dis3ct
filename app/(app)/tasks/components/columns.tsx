@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 
 import { labels, priorities, statuses } from "../data/data"
-import { Task } from "../data/schema"
-import { DataTableColumnHeader } from "./data-table-column-header"
-import { DataTableRowActions } from "./data-table-row-actions"
+// import { Task } from "../data/schema"
 
-export const columns: ColumnDef<Task>[] = [
+import { DataTableColumnHeader } from "./data-table-column-header"
+import { ITask } from "@/models/Task"
+
+export const columns: ColumnDef<ITask>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -36,11 +37,11 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "taskId",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Task" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("taskId")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
@@ -50,7 +51,7 @@ export const columns: ColumnDef<Task>[] = [
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
+      const label = labels.find((label) => label.value === row.original.title)
 
       return (
         <div className="flex space-x-2">
@@ -65,6 +66,6 @@ export const columns: ColumnDef<Task>[] = [
 
   {
     id: "actions",
-    cell: ({ row }) => <DataTableRowActions row={row} />,
+    // cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]

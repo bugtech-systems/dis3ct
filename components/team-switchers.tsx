@@ -115,14 +115,14 @@ export function TeamSwitchers({
             </DropdownMenuLabel>
             {systems.map((team, index) => (
               <DropdownMenuItem
-                key={team.name}
+                key={team?.name}
                 onClick={() => handleSystems(team)}
                 className="gap-2 p-2"
               >
                 <div className="flex size-6 items-center justify-center rounded-sm border">
                   <GalleryVerticalEnd className="size-4 shrink-0" />
                 </div>
-                {team.name}
+                {team?.name}
                 <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}

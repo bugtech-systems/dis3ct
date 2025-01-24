@@ -22,10 +22,12 @@ export const POST = async (req: NextRequest) => {
     
       
     const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(data?.referrer) });
-
+  
+  
+  console.log('REFEREER', referrer)
     if(referrer){
       options.refNum = referrer.id;
-      options.parNum = referrer.parNum || referrer.id;
+      options.parNum = referrer.parNum ? referrer.parNum : referrer.id;
     }
       
       
@@ -33,6 +35,7 @@ export const POST = async (req: NextRequest) => {
       
           
     const contact = await Contact.findOne(options);
+    console.log('Contact', contact, options, data.phone)
 
     if (contact) {
       return new NextResponse('Invitation Sent!', { status: 200 });
@@ -43,7 +46,7 @@ export const POST = async (req: NextRequest) => {
       console.log('Mobile Error')
     });  
       
-    const newContact = new Contact({ ...data, phone: newPhone});
+    const newContact = new Contact({ ...options, phone: newPhone});
     // await newMobile.save();
     await newContact.save();
       return NextResponse.json('Invitation Sent!', { status: 201 });

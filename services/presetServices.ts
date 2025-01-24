@@ -19,18 +19,21 @@ export const createPreset = async (
     
       const existingSystem = await AiPreset.findOne({ value: newData.value });
       if (existingSystem) {
+        const updatedPreset = await AiPreset.findByIdAndUpdate(existingSystem._id, data, {
+          new: true,
+          runValidators: true,
+        });
         return {
-          success: false,
-          error: `An active system with the number "${data.name}" already exists.`,
-        };
-      }
-  
-    
-    
-
+          success: true};
+      } else {
+      
     const newPreset = new AiPreset(newData);
     const savedPreset = await newPreset.save();
     return { success: true, data: savedPreset };
+      } 
+    
+    
+
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to create preset" };
   }

@@ -66,7 +66,12 @@ const navNormal = [
     url: "/contacts",
     icon: BookOpen,
     badge: "10",
-  }
+  },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
 ]
 
 

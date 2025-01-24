@@ -66,7 +66,7 @@ export default function PlaygroundPage() {
       // .finally(() => setLoading(false));
   
   
-      const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${newContact?.activePreset}&status=pending`); // Update the endpoint URL if necessary
+      const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&status=pending`); // Update the endpoint URL if necessary
       console.log('response CONVO', response)
 
       if (!response.ok) {
@@ -106,22 +106,38 @@ export default function PlaygroundPage() {
 
 
     await axios.post(apiUrl, {
-        status: 'Todo',
-        priority: 'High',
-        category: 'Api',
-        title: 'Chat AI',
-        taskObject: JSON.stringify({
-          urlPath: '/presets/chat',
-          method: 'post',
-          dataObject: {
-          ...preset,
-          sender: user.phone,  
-          system: system.phone,
+      status: 'Todo',
+      priority: 'High',
+      category: 'Api',
+      title: 'Chat AI',
+      taskObject: JSON.stringify({
+        url: `/chat/ai`,
+        method: 'post',
+        dataObject: {
+          sender: user?.phone,  
+          system: system?.phone,
           message: userMessage,
           instruction
-        }
-        })
-    } );
+      }
+      })
+    })
+       
+        console.log({
+          status: 'Todo',
+          priority: 'High',
+          category: 'Api',
+          title: 'Chat AI',
+          taskObject: JSON.stringify({
+            url: `${process.env.MARETEXT_URL}/chat/ai`,
+            method: 'post',
+            dataObject: {
+              sender: user?.phone,  
+              system: system?.phone,
+              message: userMessage,
+              instruction
+          }
+          })
+        }); 
   
 
 
