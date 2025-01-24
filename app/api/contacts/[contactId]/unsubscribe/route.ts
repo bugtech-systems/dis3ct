@@ -30,9 +30,9 @@ export const POST = async (
     const userId = session.user.id;
     const { contactId } = params;
 
-    if (!(await isAuthorized(userId, contactId))) {
-      return new NextResponse("Forbidden", { status: 403 });
-    }
+    // if (!(await isAuthorized(userId, contactId))) {
+    //   return new NextResponse("Forbidden", { status: 403 });
+    // }
 
     const updatedContact = await Contact.updateOne(
       { phone: sanitizePhoneNumber(contactId), deletedAt: null },

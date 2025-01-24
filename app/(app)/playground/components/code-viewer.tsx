@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function CodeViewer() {
+export function CodeViewer({row} : {row: any}) {
   return (
     <Dialog>
       <DialogTrigger asChild>

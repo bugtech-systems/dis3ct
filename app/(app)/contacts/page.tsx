@@ -34,7 +34,7 @@ export default async function TaskPage() {
 
 {/* <DataTable data={tasks} columns={columns} /> */}
 <CardsDataTable 
-  data={contacts.map(contact => ({id: String(contact._id), phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel,  subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode}))}
+  data={contacts.map(contact => ({id: String(contact._id), phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel,  subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode, activePreset: contact.activePreset}))}
   columns={columns}  
 />
   </div>

@@ -39,7 +39,7 @@ export const getTaskById = async (id: string) => {
 };
 
 // Update a task
-export const updateTask = async (id: string, data: Partial<ITask>) => {
+export const updateTask = async (id: string, data: Partial<any>, status?: string) => {
   try {
     await dbConnect();
     const updatedTask = await Task.findByIdAndUpdate(id, data, {
@@ -49,6 +49,8 @@ export const updateTask = async (id: string, data: Partial<ITask>) => {
     if (!updatedTask) {
       return { success: false, error: "Task not found" };
     }
+    
+    console.log(status, 'STATUS')
     return { success: true, data: updatedTask };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update task" };

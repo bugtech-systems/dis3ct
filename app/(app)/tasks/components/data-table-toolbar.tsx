@@ -1,7 +1,7 @@
 "use client"
 
 import { Table } from "@tanstack/react-table"
-import { X } from "lucide-react"
+import { RefreshCcw, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,9 @@ import { DataTableViewOptions } from "@/app/(app)/tasks/components/data-table-vi
 
 import { priorities, statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import axios from "axios"
+import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -17,7 +20,33 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
+  const router = useRouter();
   const isFiltered = table.getState().columnFilters.length > 0
+
+  console.log(table.getSelectedRowModel(), 'SELECTED')
+
+
+  const handleDelete = async (id: any) => {
+
+    try {
+      const response = await axios.delete(`/api/tasks?id=${id}`);
+      if (response.data) {
+        toast.success('Deleted Successfully!')
+        router.refresh();
+
+      } else {
+        toast.error("Failed to delete, Please try again.")
+      }
+    } catch (error: any) {
+    console.log(error.response, 'ERR')
+    toast.error( "An error occurred while deleting.")
+
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    }
+  };
+  
+
+
 
   return (
     <div className="flex items-center justify-between">
@@ -44,6 +73,8 @@ export function DataTableToolbar<TData>({
             options={priorities}
           />
         )}
+        
+   
         {isFiltered && (
           <Button
             variant="ghost"
@@ -55,6 +86,13 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+      <Button
+            // variant="ghost"
+            onClick={() => router.refresh()}
+            className="h-8 mx-3 px-2 lg:px-3"
+          >
+            <RefreshCcw />
+          </Button>
       <DataTableViewOptions table={table} />
     </div>
   )
