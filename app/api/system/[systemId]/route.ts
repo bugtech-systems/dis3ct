@@ -13,7 +13,6 @@ export const GET = async (
       const { systemId } = params;
   
       const system = await System.findOne({number: sanitizePhoneNumber(systemId)});
-    console.log(system, 'SYSTT')
       if (!system) {
         return new NextResponse("System not found", { status: 404 });
       }

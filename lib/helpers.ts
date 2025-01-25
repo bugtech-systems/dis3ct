@@ -35,6 +35,41 @@ import { DomUtils } from "htmlparser2";
 //     .trim(); // Trim leading and trailing spaces
 // }
 
+export function cleanJsonObject(inputString: any) {
+  try {
+    // Remove non-breaking spaces (&nbsp;) and other extra characters
+    const sanitizedString = inputString
+      .replace(/&nbsp;/g, " ") // Replace HTML non-breaking spaces with regular spaces
+      .replace(/\s*[\r\n]+\s*/g, "") // Remove extra newlines and surrounding spaces
+      .replace(/,\s*}/g, "}"); // Remove trailing commas before closing braces
+
+    // Parse the cleaned string to ensure it's valid JSON
+
+    return sanitizedString;
+  } catch (error) {
+    return { success: false, error: "Invalid JSON format" };
+  }
+}
+
+// export function cleanToJson(input: string) {
+//   try {
+//       // Use a regex to find the JSON object in the string
+//       const jsonMatch = input.match(/{.*}/s); // Match anything starting with `{` and ending with `}`
+//       if (jsonMatch && jsonMatch[0]) {
+//           const cleanedJsonString = jsonMatch[0]; // Extract matched JSON part
+//           // Try to parse it to confirm it's valid JSON
+//           JSON.parse(cleanedJsonString);
+//           return cleanedJsonString;
+//       } else {
+//           throw new Error("No JSON object found in the string.");
+//       }
+//   } catch (error: any) {
+//       console.error("Error cleaning JSON string:", error.message);
+//       return null;
+//   }
+// }
+
+
 
 export function convertRichTextToPlain(content: string): string {
 console.log(content, 'CONTET')

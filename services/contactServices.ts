@@ -45,6 +45,26 @@ export const updateContact = async (
   }
 };
 
+
+export const updateContactByNumber = async (
+  id: string,
+  data: Partial<IContact>
+): Promise<{ success: boolean; data?: IContact; error?: string }> => {
+  try {
+    await dbConnect();
+    const updatedContact = await Contact.findOneAndUpdate({phone: sanitizePhoneNumber(id)}, data, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedContact) {
+      return { success: false, error: "Contact not found" };
+    }
+    return { success: true, data: updatedContact };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to update contact" };
+  }
+};
+
 /**
  * Delete a contact by ID.
  * @param {string} id - Contact ID to delete.
@@ -133,8 +153,8 @@ export const optInContact = async (
   try {
     await dbConnect();
     const updatedContact = await Contact.findOneAndUpdate(
-      { phone: number },
-      { optedIn: true },
+      { phone: sanitizePhoneNumber(number) },
+      { subscribed: true },
       { new: true, runValidators: true }
     );
     if (!updatedContact) {
@@ -157,8 +177,8 @@ export const optOutContact = async (
   try {
     await dbConnect();
     const updatedContact = await Contact.findOneAndUpdate(
-      { phone: number },
-      { optedIn: false },
+      { phone: sanitizePhoneNumber(number) },
+      { subscribed: false },
       { new: true, runValidators: true }
     );
     if (!updatedContact) {

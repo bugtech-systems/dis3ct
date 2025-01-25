@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       },
       callbacks: {
         async jwt({ token, user }: any) {
-console.log('JWT',user)
+// console.log('JWT',user)
           if (user) {
             token.id = user.id;
             token.phone = user?.phone;
@@ -74,7 +74,7 @@ console.log('JWT',user)
           return token;
         },
         async session({ session, token }: any) {
-          console.log('SESSION AUTH',token)
+          // console.log('SESSION AUTH',token)
           if (token) {
             session.user.id = token.id;
             session.user.userLevel = token.userLevel;

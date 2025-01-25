@@ -92,37 +92,37 @@ export default function PlaygroundPage() {
       setLoading(true)
       let newMessages = messages; 
       
-   /*    newMessages.push({
+      newMessages.push({
         role: 'user',
         content: userMessage
       })
-      */ 
+      
 
         setUserMessage('')
 
     // let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
-    // let apiUrl =  '/api/presets/chat'
-    let apiUrl =  '/api/tasks'
+    let apiUrl =  '/api/presets/chat'
+    // let apiUrl =  '/api/tasks'
 
 
-    await axios.post(apiUrl, {
-      status: 'Todo',
-      priority: 'High',
-      category: 'Api',
-      title: 'Chat AI',
-      taskObject: JSON.stringify({
-        url: `/chat/ai`,
-        method: 'post',
-        dataObject: {
-          sender: user?.phone,  
-          system: system?.phone,
-          message: userMessage,
-          instruction
-      }
-      })
-    })
+    // await axios.post(apiUrl, {
+    //   status: 'Todo',
+    //   priority: 'High',
+    //   category: 'Api',
+    //   title: 'Chat AI',
+    //   taskObject: JSON.stringify({
+    //     url: `/chat/ai`,
+    //     method: 'post',
+    //     dataObject: {
+    //       sender: user?.phone,  
+    //       system: system?.phone,
+    //       message: userMessage,
+    //       instruction
+    //   }
+    //   })
+    // })
        
-        console.log({
+  /*       console.log({
           status: 'Todo',
           priority: 'High',
           category: 'Api',
@@ -138,30 +138,30 @@ export default function PlaygroundPage() {
           }
           })
         }); 
-  
+   */
 
 
-    //  let resp = await axios.post(apiUrl, {
-    //     ...preset,
-    //     sender: user.phone,  
-    //     system: system.phone,
-    //     message: userMessage,
-    //     instruction
-    //   });
+     let resp = await axios.post(apiUrl, {
+        ...preset,
+        sender: user.phone,  
+        system: system.phone,
+        message: userMessage,
+        instruction
+      });
    
       
-      // if(resp.data.done){
-      //   newMessages.push({
-      //     role: 'assistant',
-      //     content: resp.data.message.content
-      //   })
+      if(resp.data.done){
+        newMessages.push({
+          role: 'assistant',
+          content: resp.data.message.content
+        })
           
-      //   setMessages(newMessages)
+        setMessages(newMessages)
           
-      //    if(resp.data.preset){
-      //     setSelectedPreset(resp.data.preset)
-      //   } 
-      // }
+  /*        if(resp.data.preset){
+          setSelectedPreset(resp.data.preset)
+        }  */
+      }
       // toast.success("Course Updated");
       
       

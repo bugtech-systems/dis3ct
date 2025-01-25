@@ -68,18 +68,18 @@ export function CardsChat({messages}: ChatProps) {
 
   // // Fetch conversations on component mount
 
-  React.useEffect(() => {
-    // Trigger function every 10 seconds
+  // React.useEffect(() => {
+  //   // Trigger function every 10 seconds
     
-    const intervalId = setInterval(() => {
-      if(user){
-      getConversations();
-  }
-    }, 10000); // 10000ms = 10 seconds
+  //   const intervalId = setInterval(() => {
+  //     if(user){
+  //     getConversations();
+  // }
+  //   }, 10000); // 10000ms = 10 seconds
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, [selectedPreset, user]); // Empty dependency array ensures this runs only once on mount
+  //   // Cleanup interval on component unmount
+  //   return () => clearInterval(intervalId);
+  // }, [selectedPreset, user]); // Empty dependency array ensures this runs only once on mount
 
   // Handle deleting a message
   const handleDelete = (ind: number) => {

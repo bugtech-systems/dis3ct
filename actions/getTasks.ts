@@ -20,7 +20,6 @@ const getTasks = async (): Promise<any[]> => {
 
   let newTasks = tasks.map((task: any) => ({id: String(task._id), taskId: task?.taskId, title: task?.title, status: task?.status, category: task.category, label: task.category,  priority: task?.priority, taskObject: task.taskObject }))
   
-  console.log(tasks, 'TAASKS');
 
 
   return newTasks

@@ -1,3 +1,4 @@
+import { cleanJsonObject } from '@/lib/helpers';
 import Ollama from 'ollama';
 
 interface Preset {
@@ -24,7 +25,7 @@ class OllamaService {
     this.options = {
       temperature: 0.1,
       top_p: 0.9,
-      max_tokens: 4000,
+      max_tokens: 500,
     };
   }
 
@@ -39,24 +40,13 @@ class OllamaService {
     this.setOptions('preset_model', this.options)
     
       const structuredPrompt = this.createPrompt(presets, userPrompt, currentPreset);
-    console.log(structuredPrompt, "PROMPT")
-     let defaultConvo = [ 
-     {
-        role: "user",
-        content: "ALAYON"
-     }, {
-        role: "assistant",
-        content: JSON.stringify({
-              Name: "Alayon Help",
-              Description: "ALAYON Ai Help. Your Ai Assistant for everything you need.",
-              Value: "alayon_help"
-        })
-     }, ...sampleConversations ];
+    // console.log(presets, structuredPrompt, "PRESETS")
+
     
     
       const response = await this.callOllamaAPI(structuredPrompt, sampleConversations);
-console.log(response, 'CALL OLLAMA API')
-      return JSON.parse(response);
+// console.log(response, 'CALL OLLAMA API')
+      return JSON.parse(cleanJsonObject(response));
     } catch (error) {
       console.error('Error determining related preset:', error);
       throw new Error('Failed to process the user prompt.');
@@ -95,13 +85,13 @@ ${presetDescriptions}
 1. Analyze the user's prompt and if applicable, consider the chat history in the system instruction.
 2. Determine the most relevant preset from the list above based on the user's intent and input.
 3. If the user's prompt is clearly linked to the **Current Preset**, return the **Current Preset**.
-4. If the user's intent cannot be matched to a specific preset, return this JSON object:
+4. If the user's intent is to "subscribe" or "unsubscribe", return this JSON object:  
    {
-     "Name": "Alayon Help",
-     "Description": "ALAYON Help for general questions.",
-     "Value": "alayon_help"
+     "Name": "Alayon Opting",
+     "Description": "For Subscription Handling.",
+     "Value": "alayon_opting"
    }
-
+   
 ### Response Rules:
 - Your response **must be a valid JSON object only**.
 - Do not include any additional text, commentary, or explanations outside of the JSON object.
@@ -140,7 +130,7 @@ ${presetDescriptions}
       }
     ).join('\n');
   
-  console.log(sampleConversations, presetConvo, 'PRESET CONVO')
+  // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
     try {
       const response = await Ollama.chat({
         model: this.model,
