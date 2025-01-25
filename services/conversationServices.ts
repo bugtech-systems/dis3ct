@@ -1,6 +1,7 @@
 import Conversation, { IConversation } from "@/models/Conversation";
 import dbConnect from "@/lib/mongodb";
 import { getContactByNumber } from "./contactServices";
+import { sanitizePhoneNumber } from "@/lib/helpers";
 
 
 const convertToAndCondition = (option: any) => {
@@ -163,14 +164,24 @@ export const getAllConversations = async (option: any): Promise<{
 };
 
 
-export const updateAllPendingConversationsToClose = async (option: any): Promise<{
+export const updateAllPendingConversationsToClose = async (sender: any, system: string): Promise<{
   success: boolean;
   error?: string;
 }> => {
   try {
     await dbConnect();
     
-    let newOptions = convertToAndCondition(option);
+    // let newOptions = convertToAndCondition(option);
+    
+    
+    
+      let senderContact = await getContactByNumber(sanitizePhoneNumber(sender));
+      let systemContact = await getContactByNumber(sanitizePhoneNumber(system));
+    
+      let newOptions = {
+          contact: senderContact.data?._id,
+          system: systemContact.data?._id
+      }
     
     console.log('GET ALL CONVO', newOptions)
     await Conversation.updateMany({...newOptions, status: 'pending'}, {status: 'closed'}, {
