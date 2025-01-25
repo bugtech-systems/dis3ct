@@ -87,7 +87,7 @@ async function processApiResponse(response: any){
         let {userData} = contentData;
         if(userData.name || userData.phone || userData.address){
         await updateContactByNumber(userData.phone, {name: userData.name, address: userData.address})
-        await updateAllPendingConversationsToClose(sender, system)
+        // await updateAllPendingConversationsToClose(sender, system)
           // await axios.patch(`${process.env.ALAYON_NEXT_URL}/contacts/${sanitizePhoneNumber(sender)}`, {name: userData.name, address: userData.address})
         }
         
