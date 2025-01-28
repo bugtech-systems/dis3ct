@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { usePlayground } from "@/components/providers/PlaygroundProvider"
+import { useContact } from "@/components/providers/ContactProvider"
 
 // Define Preset interface
 interface Preset {
@@ -30,7 +31,9 @@ interface Preset {
 }
 
 export function PresetSelector() {
-const { selectedPreset, setSelectedPreset, presets, setPresets} = usePlayground()
+  const { selectedPreset, setSelectedPreset, presets, setPresets } = usePlayground()
+  const { system } = useContact()
+
   const [open, setOpen] = React.useState(false)
   // const [selectedPreset, setSelectedPreset] = React.useState<Preset | null>(null)
   const [loading, setLoading] = React.useState(true)
@@ -38,7 +41,7 @@ const { selectedPreset, setSelectedPreset, presets, setPresets} = usePlayground(
 
   const fetchPresets = async () => {
     try {
-      const response = await fetch("/api/presets")
+      const response = await fetch(`/api/presets?system=${system?.phone}`)
       if (!response.ok) {
         throw new Error("Failed to fetch presets")
       }
@@ -51,13 +54,16 @@ const { selectedPreset, setSelectedPreset, presets, setPresets} = usePlayground(
       setLoading(false)
     }
   }
-  
+
   // Fetch presets from the API
   React.useEffect(() => {
 
+    if (system) {
+      fetchPresets()
+    }
+  }, [system])
 
-    fetchPresets()
-  }, [])
+  console.log(system, 'SYSTEM')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

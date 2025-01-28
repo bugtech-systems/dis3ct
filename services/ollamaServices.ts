@@ -1,4 +1,4 @@
-import { cleanJsonObject } from '@/lib/helpers';
+import { cleanJsonObject, cleanToJson } from '@/lib/helpers';
 import Ollama from 'ollama';
 
 interface Preset {
@@ -23,9 +23,9 @@ class OllamaService {
   constructor(model: string = 'preset_model') {
     this.model = model;
     this.options = {
-      temperature: 0.1,
+      temperature: 0.3,
       top_p: 0.9,
-      max_tokens: 500,
+      max_tokens: 1000,
     };
   }
 
@@ -37,16 +37,16 @@ class OllamaService {
    */
   async determineRelatedPreset(presets: Preset[], currentPreset: any, userPrompt: string, sampleConversations: any): Promise<Preset> {
     try {
-    this.setOptions('preset_model', this.options)
-    
-      const structuredPrompt = this.createPrompt(presets, userPrompt, currentPreset);
-    // console.log(presets, structuredPrompt, "PRESETS")
+      this.setOptions('preset_model', this.options)
 
-    
-    
-      const response = await this.callOllamaAPI(structuredPrompt, sampleConversations);
-// console.log(response, 'CALL OLLAMA API')
-      return JSON.parse(cleanJsonObject(response));
+      const structuredPrompt = this.createPrompt(presets, userPrompt, currentPreset);
+      // console.log(presets, structuredPrompt, "PRESETS")
+
+
+
+      const response = await this.callOllamaAPI(structuredPrompt, sampleConversations) as any;
+      console.log(response, 'CALL OLLAMA API')
+      return JSON.parse(cleanToJson(response));
     } catch (error) {
       console.error('Error determining related preset:', error);
       throw new Error('Failed to process the user prompt.');
@@ -61,37 +61,37 @@ class OllamaService {
    */
   createPrompt(presets: Preset[], userPrompt: string, currentPreset: any): string {
     const presetDescriptions = presets
-    .map(
-      (preset, index) =>
-        `${index + 1}. Name: ${preset.name}\n   Description: ${preset.description}\n   Value: ${preset.value}`
-    )
-    .join('\n');
+      .map(
+        (preset, index) =>
+          `${index + 1}. Name: ${preset.name}\n   Description: ${preset.description}\n   Value: ${preset.value}`
+      )
+      .join('\n');
 
-  return `
+    return `
 You are a highly intelligent AI assistant for matching prompts to presets. Your task is to analyze the user's input, evaluate the provided presets, and respond with the most relevant preset in the required JSON format.
 
 ### Input Details:
 1. **User Prompt**: "${userPrompt}"
-${
-  currentPreset
-    ? `2. **Current Preset**: ${JSON.stringify(currentPreset)}`
-    : '2. **Current Preset**: None'
-}
+${currentPreset
+        ? `2. **Current Preset**: ${JSON.stringify(currentPreset)}`
+        : '2. **Current Preset**: None'
+      }
+      
+### Instructions:
+1. Analyze the user's prompt and if applicable, consider the chat history in the system instruction.
+2. Determine the most relevant preset from the list above based on the user's intent and input.
+3. If Current Preset exist, and If the user's prompt is clearly linked to the **Current Preset**, return the **Current Preset**.
+4. If the user's prompt doesn't linked to the **Current Preset**, return the relevant Preset available.
+5. If the user's intent is to "subscribe" or "unsubscribe", return "Opting" Preset.  
+
+
 
 ### Presets Available:
 ${presetDescriptions}
 
-### Instructions:
-1. Analyze the user's prompt and if applicable, consider the chat history in the system instruction.
-2. Determine the most relevant preset from the list above based on the user's intent and input.
-3. If the user's prompt is clearly linked to the **Current Preset**, return the **Current Preset**.
-4. If the user's intent is to "subscribe" or "unsubscribe", return this JSON object:  
-   {
-     "Name": "Alayon Opting",
-     "Description": "For Subscription Handling.",
-     "Value": "alayon_opting"
-   }
-   
+
+
+
 ### Response Rules:
 - Your response **must be a valid JSON object only**.
 - Do not include any additional text, commentary, or explanations outside of the JSON object.
@@ -122,22 +122,23 @@ ${presetDescriptions}
    * @returns - Chat response content.
    */
   async callOllamaAPI(prompt: string, sampleConversations: any): Promise<string> {
-  
+
     // let newMessages = sampleConversations.map((convo: any) => ({role: convo.role, content: convo.content}))
     const presetConvo = sampleConversations.map(
       (convo: any) => {
         return `${convo.role}: ${convo.content}.`
       }
     ).join('\n');
-  
-  // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
+
+    // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
     try {
       const response = await Ollama.chat({
         model: this.model,
         messages: [
-        //  ...newMessages,
-         { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
-        { role: 'user', content: prompt }
+          //  ...newMessages,
+          { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
+          ...sampleConversations,
+          { role: 'user', content: prompt }
         ],
         options: {
           num_predict: this.options.max_tokens,
@@ -145,7 +146,7 @@ ${presetDescriptions}
           top_p: this.options.top_p,
         },
       });
-   
+
       if (response && response.message) {
         return response?.message.content;
       } else {
@@ -156,8 +157,8 @@ ${presetDescriptions}
       throw error;
     }
   }
-  
-  
+
+
 }
 
 export default OllamaService;

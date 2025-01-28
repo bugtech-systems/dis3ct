@@ -15,10 +15,11 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { useSession } from "next-auth/react";
 import { Contact } from "@/data/schema";
+import { useContact } from "./providers/ContactProvider";
 
 export function SidebarOptInForm() {
+  const { user, system, setUser } = useContact()
   const { data: session } = useSession() as any; // Get the session data from next-auth
-  const [user, setUser] = useState<Contact>();
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,9 +32,9 @@ export function SidebarOptInForm() {
     // Philippine mobile number should match these formats:
     return /^(9\d{9}|09\d{9}|639\d{9}|\+639\d{9})$/.test(sanitizedNumber);
   };
-  
-  
-  
+
+
+
 
   // 📌 Handle Form Submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +54,9 @@ export function SidebarOptInForm() {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/contacts/save", { phone: mobile });
+
+
+      const response = await axios.post("/api/contacts", { phone: mobile, referrer: user?.phone, system: system?.phone });
 
       toast.success("Invite Sent!");
       setMobile(""); // Clear input after success
@@ -65,7 +68,7 @@ export function SidebarOptInForm() {
       router.refresh();
     }
   };
-  
+
   useEffect(() => {
     // Fetch user details from API if session exists
     if (session?.user?.id) {
@@ -76,10 +79,10 @@ export function SidebarOptInForm() {
         .catch((error) => {
           console.error("Error fetching user data:", error);
         })
-        // .finally(() => setLoading(false));
+      // .finally(() => setLoading(false));
     }
   }, [session]);
-  
+
 
   return (
     <Card className="shadow-none">

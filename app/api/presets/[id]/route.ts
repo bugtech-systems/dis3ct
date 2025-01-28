@@ -1,5 +1,21 @@
 import { getPresetById, updatePreset } from "@/services/presetServices";
 import { NextRequest, NextResponse } from "next/server";
+import { authOptions } from "@/lib/authOptions";
+import { getServerSession } from "next-auth";
+import { sanitizePhoneNumber } from "@/lib/helpers";
+import dbConnect from "@/lib/mongodb";
+import AiPreset from "@/models/AiPreset";
+
+
+const isAuthorized = async (userId: string, contactId: string) => {
+  await dbConnect();
+  const contact = await Contact.findOne({ phone: sanitizePhoneNumber(contactId) });
+
+  if (!contact) return false;
+
+  // Check if user is the referrer (refNum) OR has admin access
+  return contact.refNum?.toString() === userId || contact.userLevel === "admin";
+};
 
 export const GET = async (
   req: NextRequest,
@@ -41,5 +57,29 @@ export const PATCH = async (
       { success: false, error: error.message || "Failed to update preset" },
       { status: 500 }
     );
+  }
+};
+
+
+export const DELETE = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const session = await getServerSession(authOptions) as any;
+    if (!session || !session.user) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const userId = session.user.id;
+    const { id } = params;
+
+
+    await AiPreset.findByIdAndDelete(id);
+
+    return new NextResponse("Contact deleted", { status: 200 });
+  } catch (err) {
+    console.error("Error deleting contact:", err);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 };

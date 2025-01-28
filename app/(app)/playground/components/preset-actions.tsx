@@ -4,7 +4,6 @@ import * as React from "react"
 import { Dialog } from "@radix-ui/react-dialog"
 import { MoreHorizontal } from "lucide-react"
 
-import { toast } from "@/components/hooks/use-toast"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -31,11 +30,43 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import toast from "react-hot-toast"
+import axios from "axios"
+import { usePlayground } from "@/components/providers/PlaygroundProvider"
+import { useRouter } from "next/navigation"
 
 export function PresetActions() {
   const [open, setIsOpen] = React.useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
+  const { selectedPreset, setSelectedPreset } = usePlayground()
+  const router = useRouter();
 
+  const handleDeletePreset = async () => {
+    // e.preventDefault()
+
+    try {
+      if (selectedPreset && selectedPreset._id) {
+        let resp = await axios.delete(`/api/presets/${selectedPreset._id}`);
+
+        console.log(resp.data, 'DELETED PRESET')
+
+        if (resp.data) {
+          toast.success("This preset has been deleted.");
+        }
+
+      }
+      setShowDeleteDialog(false)
+
+      setIsOpen(false)
+      router.refresh();
+    } catch (err) {
+      console.log("Failed to update the course", err);
+      toast.error("Something went wrong!");
+    }
+  };
+
+
+  console.log('SELECTEDD PRESET', selectedPreset)
   return (
     <>
       <DropdownMenu>
@@ -105,12 +136,7 @@ export function PresetActions() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <Button
               variant="destructive"
-              onClick={() => {
-                setShowDeleteDialog(false)
-                toast({
-                  description: "This preset has been deleted.",
-                })
-              }}
+              onClick={() => handleDeletePreset()}
             >
               Delete
             </Button>

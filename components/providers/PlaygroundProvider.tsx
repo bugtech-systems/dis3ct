@@ -9,6 +9,8 @@ import axios from "axios";
 import { useContact } from "./ContactProvider";
 
 interface PlaygroundContextType {
+  selectedContact: any;
+  setSelectedContact: (contact: any) => void;
   selectedPreset: IAiPreset | null;
   setSelectedPreset: (preset: IAiPreset | null) => void;
   preset: any;
@@ -35,7 +37,7 @@ interface PlaygroundProviderProps {
   defaultMessages?: any;
   defaultPresets?: any;
   defaultPreset?: any;
-  
+
 }
 
 // Create the context
@@ -49,11 +51,11 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   defaultMessages = [],
   defaultPresets = [],
   defaultPreset = {
-      temperature: 0.5,
-      maxTokens: 2000,
-      topP: 0.5,
-      systemBehavior: "",
-      aiModel: "llama3.1"
+    temperature: 0.2,
+    maxTokens: 2000,
+    topP: 0.9,
+    systemBehavior: "",
+    aiModel: "llama3.2"
   }
 
 }) => {
@@ -64,32 +66,33 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   const [conversations, setConversations] = useState<any>(defaultMessages);
   const [presets, setPresets] = useState<any>(defaultPresets);
   const [preset, setPreset] = useState<any | null>(defaultPreset);
+  const [selectedContact, setSelectedContact] = useState<any | null>(null);
 
 
-const getConversations = async () => {
+  const getConversations = async () => {
     try {
       // setIsLoading(true);
-   /*    axios.get(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`)
-      .then((response) => {
-          if(response.data){
-            setConversations(response.data)
-          }
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-      }) */
+      /*    axios.get(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`)
+         .then((response) => {
+             if(response.data){
+               setConversations(response.data)
+             }
+         })
+         .catch((error) => {
+           console.error("Error fetching user data:", error);
+         }) */
       const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
       }
-      
+
       const data = await response.json();
       console.log('RESP CONVO', data)
       if (data && Array.isArray(data)) {
         setMessages(data); // Assuming `data.data` contains the conversations array
       }
-      
+
     } catch (error) {
       console.error("Error fetching conversations:", error);
     } finally {
@@ -98,43 +101,43 @@ const getConversations = async () => {
   };
 
   useEffect(() => {
-    
-    if(selectedPreset){
-        setPreset({
-          ...preset,
-          ...selectedPreset,
-          systemBehavior: selectedPreset.systemBehavior,
-          temperature: selectedPreset.aiTemperature,
-          maxTokens: selectedPreset.aiMaxLength,
-          topP: selectedPreset.aiTopP,
-          aiModel: selectedPreset.modelName
-        })
-        getConversations()
-        axios.get(`/api/presets/chat/${selectedPreset._id}`)
+
+    if (selectedPreset) {
+      setPreset({
+        ...preset,
+        ...selectedPreset,
+        systemBehavior: selectedPreset.systemBehavior,
+        temperature: selectedPreset.aiTemperature,
+        maxTokens: selectedPreset.aiMaxLength,
+        topP: selectedPreset.aiTopP,
+        aiModel: selectedPreset.modelName
+      })
+      getConversations()
+      axios.get(`/api/presets/chat/${selectedPreset._id}`)
         .then((response) => {
-            if(response.data){
-              setConversations(response.data)
-            }
+          if (response.data) {
+            setConversations(response.data)
+          }
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
         })
     } else {
-        setConversations([]);
-        // setMessages()
-        setPreset(defaultPreset)
-        
+      setConversations([]);
+      // setMessages()
+      setPreset(defaultPreset)
+
     }
-    
-    
+
+
   }, [selectedPreset])
- 
+
 
 
 
 
   return (
-    <PlaygroundContext.Provider value={{ preset, setPreset, presets, setPresets, conversations, setConversations, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset }}>
+    <PlaygroundContext.Provider value={{ selectedContact, setSelectedContact, preset, setPreset, presets, setPresets, conversations, setConversations, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset }}>
       {children}
     </PlaygroundContext.Provider>
   );

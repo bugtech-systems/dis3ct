@@ -1,0 +1,10 @@
+[
+    {
+        "role": "user",
+        "content": "Subscribe"
+    },
+    {
+        "role": "assistant",
+        "content": "{\n  '  \"message\": \"Hello! We noticed you're not subscribed to our service. Would you like to place an order or subscribe for future updates?\",\n' +    \"  \"userData\": {\n' +    \"    \"name\": \"Raymund Ogsimer\",\n' +    \"    \"phone\": \"09541661261\",\n' +    \"    \"address\": null,\n' +    \"    \"quantity\": null,\n' +    \"    \"orderType\": null,\n' +    \"    \"deliverySchedule\": null,\n' +    \"    \"total\": 0\n' +    \"  },\n' +    \"  \"action\": [\"SMS\"]\n' + '}",
+    }
+]

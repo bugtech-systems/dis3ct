@@ -27,16 +27,19 @@ export const POST = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
+    await dbConnect()
+
     const userId = session.user.id;
     const { contactId } = params;
 
-    // if (!(await isAuthorized(userId, contactId))) {
-    //   return new NextResponse("Forbidden", { status: 403 });
-    // }
+    let contact = await Contact.findById(userId);
+
+
+
 
     const updatedContact = await Contact.updateOne(
-      { phone: sanitizePhoneNumber(contactId), deletedAt: null },
-      { $set: {subscribed: true} }
+      { phone: sanitizePhoneNumber(contactId), deletedAt: null, parNum: contact?.id },
+      { $set: { subscribed: true } }
     );
 
     if (!updatedContact.modifiedCount) {

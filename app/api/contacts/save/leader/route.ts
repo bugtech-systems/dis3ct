@@ -19,9 +19,9 @@ export const POST = async (req: NextRequest) => {
 
 
 
-  console.log('SEARCH', searchParams.type)
+    console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription } = await req.json();
 
     // Validate required fields
     if (!phone) {
@@ -36,7 +36,8 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Check if contact already exists
-    let existingContact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), refNum: referrer.id
+    let existingContact = await Contact.findOne({
+      phone: sanitizePhoneNumber(phone), refNum: referrer.id
     });
 
     if (existingContact) {
@@ -48,6 +49,8 @@ export const POST = async (req: NextRequest) => {
       existingContact.provCode = provCode;
       existingContact.citymunCode = citymunCode;
       existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
+      existingContact.subscription = subscription;
+
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 
       await existingContact.save();
@@ -58,13 +61,13 @@ export const POST = async (req: NextRequest) => {
       );
     } else {
       // Create new contact
-    await Mobile.create({phone: sanitizePhoneNumber(phone)}).catch(err => {
-      console.log('Mobile Error')
-    });
-      
-      
-      
-      
+      await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
+        console.log('Mobile Error')
+      });
+
+
+
+
       const newContact = new Contact({
         phone: sanitizePhoneNumber(phone),
         // mobile: newMobile,
@@ -77,10 +80,11 @@ export const POST = async (req: NextRequest) => {
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level
+        subscription: subscription
       });
-      
+
       newContact.parNum = parNum ? parNum : userLevel == 'system' ? newContact.id : referrer.parNum
-      
+
       await newContact.save();
 
       return NextResponse.json(

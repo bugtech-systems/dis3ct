@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
 
 
 
-  console.log('SEARCH', searchParams.type)
+    console.log('SEARCH', searchParams.type)
 
     const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel } = await req.json();
 
@@ -36,7 +36,8 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Check if contact already exists
-    let existingContact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), refNum: referrer.id
+    let existingContact = await Contact.findOne({
+      phone: sanitizePhoneNumber(phone), refNum: referrer.id
     });
 
     if (existingContact) {
@@ -58,13 +59,13 @@ export const POST = async (req: NextRequest) => {
       );
     } else {
       // Create new contact
-    await Mobile.create({phone: sanitizePhoneNumber(phone)}).catch(err => {
-      console.log('Mobile Error')
-    });
-      
-      
-      
-      
+      await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
+        console.log('Mobile Error')
+      });
+
+
+
+
       const newContact = new Contact({
         phone: sanitizePhoneNumber(phone),
         // mobile: newMobile,
@@ -79,7 +80,7 @@ export const POST = async (req: NextRequest) => {
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level
       });
-      
+
       newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum
       await newContact.save();
 

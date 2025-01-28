@@ -1,3 +1,4 @@
+import { useContact } from "@/components/providers/ContactProvider";
 import { usePlayground } from "@/components/providers/PlaygroundProvider";
 import { Button } from "@/components/ui/button"
 import {
@@ -16,7 +17,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 export function PresetSave() {
-  const {setPresets,   selectedPreset, preset, setPreset} = usePlayground();
+  const { setPresets, selectedPreset, preset, setPreset } = usePlayground();
+  const { system } = useContact();
   const [open, setOpen] = useState(false)
 
 
@@ -29,53 +31,54 @@ export function PresetSave() {
       const data = await response.json()
       setPresets(data.data) // Assuming API returns { success: true, data: [...] }
     } catch (err: any) {
-    console.log(err, 'FETCH ERROR')
+      console.log(err, 'FETCH ERROR')
       // setError(err.message || "An unexpected error occurred")
     }
   }
-  
 
-const handleChanges = (prop: any) => (event: any) => {
-    setPreset({...preset, [prop]: event.target.value})
-}
 
-const handleSavePreset = async () => {
-  // e.preventDefault()
+  const handleChanges = (prop: any) => (event: any) => {
+    setPreset({ ...preset, [prop]: event.target.value })
+  }
 
-  try {
-      if(selectedPreset && selectedPreset.id){
-        let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, preset);
+  const handleSavePreset = async () => {
+    // e.preventDefault()
+
+    try {
+      if (selectedPreset && selectedPreset.id) {
+        let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...preset, system: system.phone });
 
         console.log(resp.data, 'UPDATED PRESET')
 
-        if(resp.data){
+        if (resp.data) {
           toast.success("Preset Updated");
-        }        
+        }
 
       } else {
         let resp = await axios.post(`/api/presets`, {
-        ...preset,
- /*          systemBehavior,
-          modelName: selectedModel.id,
-          aiTemperature: temperature,
-          aiTopP: topP,
-          aiMaxLength: maxTokens */
+          ...preset,
+          system: system.phone
+          /*          systemBehavior,
+                   modelName: selectedModel.id,
+                   aiTemperature: temperature,
+                   aiTopP: topP,
+                   aiMaxLength: maxTokens */
         });
         console.log(resp.data, 'NEW PRESET')
-        if(resp.data){
+        if (resp.data) {
           toast.success("Preset Created");
-        }   
+        }
       }
-  
-  
+
+
       fetchPresets()
-    setOpen(false)
-    // router.refresh();
-  } catch (err) {
-    console.log("Failed to update the course", err);
-    toast.error("Something went wrong!");
-  }
-};
+      setOpen(false)
+      // router.refresh();
+    } catch (err) {
+      console.log("Failed to update the course", err);
+      toast.error("Something went wrong!");
+    }
+  };
 
 
   return (
@@ -94,23 +97,23 @@ const handleSavePreset = async () => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Name</Label>
-            <Input id="name" autoFocus 
+            <Input id="name" autoFocus
               value={preset.name}
               onChange={handleChanges('name')}
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
-            <Input id="description" 
-                 value={preset.description}
-                 onChange={handleChanges('description')}
+            <Input id="description"
+              value={preset.description}
+              onChange={handleChanges('description')}
             />
           </div>
         </div>
         <DialogFooter>
           <Button type="submit" onClick={() => handleSavePreset()}>Save</Button>
         </DialogFooter>
-        
+
       </DialogContent>
     </Dialog>
   )

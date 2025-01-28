@@ -50,29 +50,41 @@ export function cleanJsonObject(inputString: any) {
     return { success: false, error: "Invalid JSON format" };
   }
 }
+/**
+ * Extracts and validates a JSON object from a given string.
+ * @param input - The string containing a potential JSON object.
+ * @returns The cleaned JSON object as a string if valid, otherwise null.
+ */
+/**
+ * Extracts and validates a JSON object from a given string.
+ * @param input - The string containing a potential JSON object.
+ * @returns The cleaned JSON object as a string if valid, otherwise null.
+ */
+export function cleanToJson(input: any | null) {
+  try {
+    // Use a regex to find the JSON object in the string
+    const jsonMatch = input.match(/{[\s\S]*}/); // Match anything starting with `{` and ending with `}`, including newlines
 
-// export function cleanToJson(input: string) {
-//   try {
-//       // Use a regex to find the JSON object in the string
-//       const jsonMatch = input.match(/{.*}/s); // Match anything starting with `{` and ending with `}`
-//       if (jsonMatch && jsonMatch[0]) {
-//           const cleanedJsonString = jsonMatch[0]; // Extract matched JSON part
-//           // Try to parse it to confirm it's valid JSON
-//           JSON.parse(cleanedJsonString);
-//           return cleanedJsonString;
-//       } else {
-//           throw new Error("No JSON object found in the string.");
-//       }
-//   } catch (error: any) {
-//       console.error("Error cleaning JSON string:", error.message);
-//       return null;
-//   }
-// }
+    if (jsonMatch && jsonMatch[0]) {
+      const cleanedJsonString = jsonMatch[0]; // Extract the matched JSON part
+
+      // Try to parse it to confirm it's valid JSON
+      JSON.parse(cleanedJsonString);
+
+      return cleanedJsonString;
+    } else {
+      throw new Error("No JSON object found in the string.");
+    }
+  } catch (error) {
+    console.error("Error cleaning JSON string:", (error as Error).message);
+    return null;
+  }
+}
 
 
 
 export function convertRichTextToPlain(content: string): string {
-console.log(content, 'CONTET')
+  console.log(content, 'CONTET')
   // Parse the HTML content
   const document = parseDocument(content);
   console.log(content, 'DOCUE')
@@ -93,10 +105,10 @@ console.log(content, 'CONTET')
 
 export function isParsableObject(value: any) {
   try {
-      const parsed = JSON.parse(value);
-      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
+    const parsed = JSON.parse(value);
+    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
   } catch (e) {
-      return false;
+    return false;
   }
 }
 
@@ -153,9 +165,9 @@ export function textToQuillHTML(text: any) {
  * @param quillContent - The HTML string from React Quill.
  * @returns A structured AI-readable prompt string.
  */
- 
- 
- 
+
+
+
 export function convertQuillToPlainText(quillContent: string): string {
   // Parse the HTML content
   const root = parse(quillContent);
@@ -165,7 +177,7 @@ export function convertQuillToPlainText(quillContent: string): string {
    * @param node - HTML node to process.
    * @returns A structured text representation of the node.
    */
-   
+
   const processNode = (node: any): string => {
     if (!node) return '';
 
@@ -212,7 +224,7 @@ export function convertQuillToPlainText(quillContent: string): string {
   // Process all top-level child nodes
   const formattedContent = root.childNodes
     .map((child: any) => processNode(child))
-    .filter((line: string) => line.trim().length > 0) // Filter out empty lines
+    .filter((line: string) => line?.trim().length > 0) // Filter out empty lines
     .join('\n');
 
   // Wrap in AI-friendly structure
@@ -221,52 +233,51 @@ export function convertQuillToPlainText(quillContent: string): string {
 
 
 export function sanitizePhoneNumber(phoneNumber: any) {
-    // Remove any non-numeric characters from the phone number
-    const sanitized = String(phoneNumber).replace(/\D/g, '');
-      
-    if(sanitized.length > 12) throw Error('Invalid phone number format');
+  // Remove any non-numeric characters from the phone number
+  const sanitized = String(phoneNumber).replace(/\D/g, '');
 
-  
-    // Check for common prefixes and remove them
-    if (sanitized.startsWith('09')) {
-      return sanitized.slice(1); // Remove the '09' prefix
-    } else if (sanitized.startsWith('639')) {
-      return sanitized.slice(2); // Remove the '639' prefix
-    } else if (sanitized.startsWith('+639')) {
-      return sanitized.slice(3); // Remove the '+639' prefix
-    } else if (sanitized.length === 10) {
-      return sanitized; // Already a 10-digit number
-    } else {
-      return sanitized
-    }
-  
-    // If the number is not in a valid format, return null or throw an error
-    throw new Error('Invalid phone number format');
+  if (sanitized.length > 12) throw Error('Invalid phone number format');
+
+
+  // Check for common prefixes and remove them
+  if (sanitized.startsWith('09')) {
+    return sanitized.slice(1); // Remove the '09' prefix
+  } else if (sanitized.startsWith('639')) {
+    return sanitized.slice(2); // Remove the '639' prefix
+  } else if (sanitized.startsWith('+639')) {
+    return sanitized.slice(3); // Remove the '+639' prefix
+  } else if (sanitized.length === 10) {
+    return sanitized; // Already a 10-digit number
+  } else {
+    return sanitized
   }
-  
-  
-  
-  
-  export function internationalizePhoneNumber(phoneNumber: any) {
-    // Remove any non-numeric characters from the phone number
-    const sanitized = phoneNumber.replace(/\D/g, '');
-      
-    if(sanitized.length > 12) throw Error('Invalid phone number format');
-  
-  
-    // Check for common prefixes and remove them
-    if (sanitized.startsWith('09')) {
-      return '+63' + sanitized.slice(1); // Remove the '09' prefix
-    } else if (sanitized.startsWith('639')) {
-      return '+' + sanitized; // Remove the '639' prefix
-    } else if (sanitized.startsWith('+639')) {
-      return sanitized; // Remove the '+639' prefix
-    } else if (sanitized.length === 10 && sanitized.startsWith('9')) {
-      return '+63' + sanitized; // Already a 10-digit number
-    }
-  
-    // If the number is not in a valid format, return null or throw an error
-    throw new Error('Invalid phone number format');
+
+  // If the number is not in a valid format, return null or throw an error
+  throw new Error('Invalid phone number format');
+}
+
+
+
+
+export function internationalizePhoneNumber(phoneNumber: any) {
+  // Remove any non-numeric characters from the phone number
+  const sanitized = phoneNumber.replace(/\D/g, '');
+
+  if (sanitized.length > 12) throw Error('Invalid phone number format');
+
+
+  // Check for common prefixes and remove them
+  if (sanitized.startsWith('09')) {
+    return '+63' + sanitized.slice(1); // Remove the '09' prefix
+  } else if (sanitized.startsWith('639')) {
+    return '+' + sanitized; // Remove the '639' prefix
+  } else if (sanitized.startsWith('+639')) {
+    return sanitized; // Remove the '+639' prefix
+  } else if (sanitized.length === 10 && sanitized.startsWith('9')) {
+    return '+63' + sanitized; // Already a 10-digit number
   }
-  
-  
+
+  // If the number is not in a valid format, return null or throw an error
+  throw new Error('Invalid phone number format');
+}
+

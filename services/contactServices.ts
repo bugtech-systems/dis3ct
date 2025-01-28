@@ -1,5 +1,6 @@
 import { sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
+import AiPreset from "@/models/AiPreset";
 import Contact, { IContact } from "@/models/Contact";
 
 /**
@@ -12,7 +13,7 @@ export const createContact = async (
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
-    const newContact = new Contact({...data, phone: sanitizePhoneNumber(data.phone)});
+    const newContact = new Contact({ ...data, phone: sanitizePhoneNumber(data.phone) });
     const savedContact = await newContact.save();
     return { success: true, data: savedContact };
   } catch (error: any) {
@@ -52,7 +53,7 @@ export const updateContactByNumber = async (
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
-    const updatedContact = await Contact.findOneAndUpdate({phone: sanitizePhoneNumber(id)}, data, {
+    const updatedContact = await Contact.findOneAndUpdate({ phone: sanitizePhoneNumber(id) }, data, {
       new: true,
       runValidators: true,
     });
@@ -75,10 +76,10 @@ export const deleteContact = async (
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
-    const deletedContact = await Contact.findByIdAndUpdate(id, {isDeleted: true}, {
-        new: true,
-        runValidators: true,
-      });
+    const deletedContact = await Contact.findByIdAndUpdate(id, { isDeleted: true }, {
+      new: true,
+      runValidators: true,
+    });
     if (!deletedContact) {
       return { success: false, error: "Contact not found" };
     }
@@ -99,7 +100,7 @@ export const getAllContacts = async (): Promise<{
 }> => {
   try {
     await dbConnect();
-    const contacts = await Contact.find({ isDeleted: false});
+    const contacts = await Contact.find({ isDeleted: false });
     return { success: true, data: contacts };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch contacts" };
@@ -112,15 +113,60 @@ export const getAllContacts = async (): Promise<{
  * @returns {Promise<{ success: boolean; data?: IContact; error?: string }>}
  */
 export const getContactByNumber = async (
-  number: string | null
+  number: string | null,
+  system?: string
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
-    const contact = await Contact.findOne({ phone: sanitizePhoneNumber(number) });
+
+    let options = {
+      phone: sanitizePhoneNumber(number)
+    } as any;
+
+    const systemData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+    if (systemData) {
+      options.parNum = systemData.id
+    }
+
+
+
+    const contact = await Contact.findOne(options);
     if (!contact) {
       return { success: false, error: "Contact not found" };
     }
     return { success: true, data: contact };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to fetch contact" };
+  }
+};
+
+export const getSystemByNumber = async (
+  number: string | null
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+  try {
+    await dbConnect();
+
+    let options = {
+    } as any;
+
+
+    const systemData = await Contact.findOne({ phone: sanitizePhoneNumber(number), userLevel: 'system' });
+
+    if (!systemData) {
+      return { success: false, error: "System not found" };
+    }
+
+    options.contact = systemData.id
+
+    const presets = await AiPreset.find(options);
+
+    let newSystem = {
+      ...systemData,
+      presets: presets.map(preset => ({ name: preset.name, description: preset.description, value: preset.value, systemBehavior: preset.systemBehavior }))
+    }
+
+
+    return { success: true, data: newSystem };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch contact" };
   }
@@ -148,12 +194,23 @@ export const getContactById = async (
  * @returns {Promise<{ success: boolean; data?: IContact; error?: string }>}
  */
 export const optInContact = async (
-  number: string
+  number: string, system: string
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
+
+    let systemContact = await getContactByNumber(sanitizePhoneNumber(system));
+
+
+
+
+    if (!systemContact.success) {
+      return { success: false, error: "Failed to opt-in contact, system not found!" };
+    }
+
+
     const updatedContact = await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number) },
+      { phone: sanitizePhoneNumber(number), parNum: systemContact.data?.id },
       { subscribed: true },
       { new: true, runValidators: true }
     );
@@ -172,12 +229,25 @@ export const optInContact = async (
  * @returns {Promise<{ success: boolean; data?: IContact; error?: string }>}
  */
 export const optOutContact = async (
-  number: string
+  number: string,
+  system: string
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
+
+    let systemContact = await getContactByNumber(sanitizePhoneNumber(system));
+
+
+
+
+    if (!systemContact.success) {
+      return { success: false, error: "Failed to opt-out contact, system not found!" };
+    }
+
+
+
     const updatedContact = await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number) },
+      { phone: sanitizePhoneNumber(number), parNum: systemContact.data?.id },
       { subscribed: false },
       { new: true, runValidators: true }
     );

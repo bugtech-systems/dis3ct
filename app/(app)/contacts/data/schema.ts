@@ -18,14 +18,14 @@ export type Task = z.infer<typeof taskSchema>
 export const contactSchema = z.object({
   id: z.string(),
   phone: z.string(),
-  name: z.string().optional(),
+  name: z.string().optional().nullable(),
   address: z.string().optional(),
-  regCode: z.string().optional(),
-  provCode: z.string().optional(),
-  citymunCode: z.string().optional(),
-  brgyCode: z.string().optional(),
-  userLevel: z.string().optional(),
-  subscribed: z.boolean().optional()
+  regCode: z.string().optional().nullable(),
+  provCode: z.string().optional().nullable(),
+  citymunCode: z.string().optional().nullable(),
+  brgyCode: z.string().optional().nullable(),
+  userLevel: z.string().optional().nullable(),
+  subscribed: z.boolean().optional().nullable()
 })
 
 

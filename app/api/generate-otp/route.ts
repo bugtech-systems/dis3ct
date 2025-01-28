@@ -13,28 +13,34 @@ import axios from 'axios';
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { phone } = await req.json();
+    const { phone, system } = await req.json();
 
     if (!phone) {
-      return new NextResponse('Mobile number is required' , { status: 400 });
+      return new NextResponse('Mobile number is required', { status: 400 });
     }
 
     await connectToDatabase();
-     let contact;
-     
-     contact = await Contact.findOne({
-     $and: [ { phone: sanitizePhoneNumber(phone)}, {userLevel: {$ne: 'normal'}}]
-     });
-     
-     if(!contact){
-        return new NextResponse('Mobile number not user', { status: 400 });
-     }
-     
-     if(contact.userLevel == 'normal'){
+    let contact;
+
+
+    // const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+
+    // let options = [];
+
+
+    contact = await Contact.findOne({
+      $and: [{ phone: sanitizePhoneNumber(phone) }, { userLevel: { $ne: 'normal' } }]
+    });
+
+    if (!contact) {
+      return new NextResponse('Mobile number not user', { status: 400 });
+    }
+
+    if (contact.userLevel == 'normal') {
       return new NextResponse('Mobile number not authorized', { status: 400 });
-   }
-     
-        
+    }
+
+
 
 
 
@@ -51,7 +57,7 @@ export const POST = async (req: NextRequest) => {
     //   message: `One Time Password: ${otp}\n Maretext App.`,
     //   isFlash: false,
     // };
-  
+
     // const resp = await axios.post("/api/tasks/sms", payload);
     // console.log(resp, 'OTP RESP')
     // Set OTP expiration time (e.g., 10 minutes)
@@ -60,21 +66,21 @@ export const POST = async (req: NextRequest) => {
     // Store OTP in the database
     // await Contact.updateOne() ({ mobile, otp, expiresAt });
 
-  
-      // Insert tasks into MongoDB
-      await Task.create({
-        taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
-        title: "Send SMS OTP",
-        category: "Sms",
-        status: "Todo",
-        priority: "High",
-        taskObject: JSON.stringify({
-          phone: internationalizePhoneNumber(phone),
-          message: `One Time Password: ${otp}\n Maretext App.`,
-          isFlash: false,
-        }),
-      });
-  
+
+    // Insert tasks into MongoDB
+    await Task.create({
+      taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
+      title: "Send SMS OTP",
+      category: "Sms",
+      status: "Todo",
+      priority: "High",
+      taskObject: JSON.stringify({
+        phone: internationalizePhoneNumber(phone),
+        message: `One Time Password: ${otp}\n Maretext App.`,
+        isFlash: false,
+      }),
+    });
+
     //   return res.status(200).json(updatedContact);
     // Send OTP to the user's mobile number
     // await sendOtpToMobile(mobile, otp);
@@ -82,6 +88,6 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json({ message: 'OTP sent successfully', otp }, { status: 200 });
   } catch (error) {
     console.error('Error generating OTP:', error);
-    return new NextResponse('Internal Server Error' , { status: 500 });
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 };

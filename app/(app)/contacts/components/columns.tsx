@@ -6,22 +6,22 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
-import { TContact } from "@/utils/types"
 
 import regions from "@/data/regions/refregion.json"
 import provinces from "@/data/regions/refprovince.json"
 import municipalities from "@/data/regions/refcitymun.json"
 import barangays from "@/data/regions/refbrgy.json"
+import { Contact } from "../data/schema"
 
 
-let regionsOptions = regions.map(region => ({label: region.regDesc, value: region.regCode}))
-let provincesOptions = provinces.map(province => ({label: province.provDesc, value: province.provCode}))
-let municipalitiesOptions = municipalities.map(mun => ({label: mun.citymunDesc, value: mun.citymunCode}))
-let barangaysOptions = barangays.map(brgy => ({label: brgy.brgyDesc, value: brgy.brgyCode}))
+let regionsOptions = regions.map(region => ({ label: region.regDesc, value: region.regCode }))
+let provincesOptions = provinces.map(province => ({ label: province.provDesc, value: province.provCode }))
+let municipalitiesOptions = municipalities.map(mun => ({ label: mun.citymunDesc, value: mun.citymunCode }))
+// let barangaysOptions = barangays.map(brgy => ({ label: brgy.brgyDesc, value: brgy.brgyCode }))
 
 
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<Contact>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -65,9 +65,9 @@ export const columns: ColumnDef<any>[] = [
 
       return (
         <div className="flex space-x-2">
-   {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
           <span className="max-w-[500px] truncate font-medium"> */}
-            {row.getValue("name")}
+          {row.getValue("name")}
           {/* </span> */}
         </div>
       )
@@ -83,9 +83,9 @@ export const columns: ColumnDef<any>[] = [
 
       return (
         <div className="flex space-x-2">
-   {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
           <span className="max-w-[500px] truncate font-medium"> */}
-            {row.getValue("userLevel")}
+          {row.getValue("userLevel")}
           {/* </span> */}
         </div>
       )
@@ -104,9 +104,9 @@ export const columns: ColumnDef<any>[] = [
 
       return (
         <div className="flex space-x-2">
-   {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
           <span className="max-w-[500px] truncate font-medium"> */}
-            {row.getValue("address")}
+          {row.getValue("address")}
           {/* </span> */}
         </div>
       )
@@ -119,13 +119,13 @@ export const columns: ColumnDef<any>[] = [
     ),
     cell: ({ row }) => {
       const label = regionsOptions.find((label) => label.value === row.original.regCode)
-  
+
       return (
         <div className="flex space-x-2">
-   {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {label?.label}
-          </span> 
+          </span>
         </div>
       )
     },
@@ -140,13 +140,13 @@ export const columns: ColumnDef<any>[] = [
     ),
     cell: ({ row }) => {
       const label = provincesOptions.find((label) => label.value === row.original.provCode)
-  
+
       return (
         <div className="flex space-x-2">
-   {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {label?.label}
-          </span> 
+          </span>
         </div>
       )
     },
@@ -164,7 +164,7 @@ export const columns: ColumnDef<any>[] = [
 
       return (
         <div className="flex space-x-2">
-        <Badge variant="outline" className={`${row.getValue("subscribed") ? 'bg-green-400' : 'bg-inherit' } font-medium`}>{row.getValue("subscribed") ? "YES" : "NO"}</Badge>
+          <Badge variant="outline" className={`${row.getValue("subscribed") ? 'bg-green-400' : 'bg-inherit'} font-medium`}>{row.getValue("subscribed") ? "YES" : "NO"}</Badge>
         </div>
       )
     },
@@ -179,7 +179,7 @@ export const columns: ColumnDef<any>[] = [
 
       return (
         <div className="flex space-x-2">
-        {row.getValue("activePreset")}
+          {row.getValue("activePreset")}
         </div>
       )
     },
