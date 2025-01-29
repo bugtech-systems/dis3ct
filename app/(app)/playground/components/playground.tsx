@@ -53,7 +53,7 @@ export default function PlaygroundPage() {
 
     const getConversations = async () => {
         try {
-            // setLoading(true)
+            setLoading(true)
             // setMessages([]);
 
             // .finally(() => setLoading(false));
@@ -94,67 +94,61 @@ export default function PlaygroundPage() {
 
             // let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
             let apiUrl = '/api/presets/chat'
-            // let apiUrl =  '/api/tasks'
+
+            if (isTask) {
 
 
-            // await axios.post(apiUrl, {
-            //   status: 'Todo',
-            //   priority: 'High',
-            //   category: 'Api',
-            //   title: 'Chat AI',
-            //   taskObject: JSON.stringify({
-            //     url: `/chat/ai`,
-            //     method: 'post',
-            //     dataObject: {
-            //       sender: user?.phone,  
-            //       system: system?.phone,
-            //       message: userMessage,
-            //       instruction
-            //   }
-            //   })
-            // })
+                apiUrl = '/api/tasks'
 
-            /*       console.log({
+
+                await axios.post(apiUrl, {
                     status: 'Todo',
                     priority: 'High',
                     category: 'Api',
                     title: 'Chat AI',
                     taskObject: JSON.stringify({
-                      url: `${process.env.MARETEXT_URL}/chat/ai`,
-                      method: 'post',
-                      dataObject: {
-                        sender: user?.phone,  
-                        system: system?.phone,
-                        message: userMessage,
-                        instruction
-                    }
+                        url: `http://127.0.0.1:3000/api/presets/chat`,
+                        method: 'post',
+                        dataObject: {
+                            modelName: preset?.modelName ?? preset?.aiModel,
+                            sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
+                            system: system.phone,
+                            message: userMessage,
+                            /* instruction */
+                        }
                     })
-                  }); 
-             */
-
-            let resp = await axios.post(apiUrl, {
-                ...preset,
-                modelName: preset?.modelName ?? preset?.aiModel,
-                sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
-                system: system.phone,
-                message: userMessage,
-                instruction
-            });
-
-
-            if (resp.data.done) {
-                newMessages.push({
-                    role: 'assistant',
-                    content: resp.data.message.content
                 })
 
-                // setMessages(newMessages)
-                getConversations()
-                /*        if(resp.data.preset){
-                        setSelectedPreset(resp.data.preset)
-                      }  */
-            }
+            } else {
 
+
+
+
+
+                let resp = await axios.post(apiUrl, {
+                    ...preset,
+                    modelName: preset?.modelName ?? preset?.aiModel,
+                    sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
+                    system: system.phone,
+                    message: userMessage,
+                    instruction
+                });
+
+
+                if (resp.data.done) {
+                    newMessages.push({
+                        role: 'assistant',
+                        content: resp.data.message.content
+                    })
+
+                    // setMessages(newMessages)
+                    getConversations()
+                    /*        if(resp.data.preset){
+                            setSelectedPreset(resp.data.preset)
+                          }  */
+                }
+
+            }
 
             // router.refresh();
         } catch (err) {
@@ -526,7 +520,7 @@ export default function PlaygroundPage() {
                                         </div>
                                         <div className="flex items-center space-x-2">
                                             <Button disabled={isLoading} onClick={() => handleMessageSubmit()}>Submit</Button>
-                                            <Button disabled={isLoading} variant="secondary" onClick={() => handleMessageResubmit()}>
+                                            <Button disabled={isLoading} variant="secondary" onClick={() => getConversations()}>
                                                 <span className="sr-only">Show history</span>
                                                 <RotateCcw />
                                             </Button>
