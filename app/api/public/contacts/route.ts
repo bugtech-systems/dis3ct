@@ -29,13 +29,14 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    const refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer || system), parNum: parentData?._id });
+    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer || system), parNum: parentData?._id });
 
 
 
 
     if (!refData) {
-      return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
+      refData = parentData
+      // return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
     }
 
 

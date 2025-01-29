@@ -42,6 +42,9 @@ export const POST = async (
       { $set: { subscribed: true } }
     );
 
+    if (!updatedContact.modifiedCount) {
+      return new NextResponse("Contact not found or unchanged", { status: 404 });
+    }
 
     return NextResponse.json(updatedContact, { status: 200 });
   } catch (err) {
