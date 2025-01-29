@@ -13,64 +13,70 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { textToQuillHTML } from "@/lib/helpers";
+import { convertQuillToPlainText, convertRichTextToPlain, textToQuillHTML } from "@/lib/helpers";
 import ReadText from "@/components/playground/components/ReadText";
 import RichEditor from "@/components/playground/components/RichEditor";
 import { usePlayground } from "@/components/providers/PlaygroundProvider";
 import { useContact } from "@/components/providers/ContactProvider";
 import axios from "axios";
+import { Textarea } from "@/components/ui/textarea";
+import { IConversation } from "@/models/Conversation";
+import { Label } from "@/components/ui/label";
+import { IAiPreset } from "@/models/AiPreset";
 
-type Message = { role?: string; content: string };
+type Message = { role?: string; content?: string };
 
 interface ChatProps {
-  messages?: Message[];
+  messages?: IConversation[];
   setMessages?: (value: Message[]) => void;
 }
 
-export function CardsChat({messages}: ChatProps) {
-  const {selectedPreset, setMessages} = usePlayground();
-  const {user, system} = useContact();
+export function CardsChat({ messages }: ChatProps) {
+  const { presets, selectedPreset, selectedContact, setMessages } = usePlayground();
+  const { user, system } = useContact();
   const [open, setOpen] = React.useState(false);
-  const [selectedMessage, setSelectedMessage] = React.useState<Message & { index?: number } | null>(null);
+  const [selectedMessage, setSelectedMessage] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const chatContainerRef = React.useRef(null);
 
   // Function to fetch conversations
   const getConversations = async () => {
     try {
-      let newContact = await axios.get(`/api/contacts/${user?.phone}`)
-      .then((response) => {
-        return response.data
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-        return user
-      }) as any;
-      
-      console.log(newContact, 'NEW USER')
-      const response = await fetch(`/api/conversations?contact=${user?.phone}&system=${system?.phone}&preset=${newContact?.activePreset}&status=pending`); // Update the endpoint URL if necessary
-      
+      // setLoading(true)
+
+      // .finally(() => setLoading(false));
+
+      const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
+      console.log('response CONVO', response)
+
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
       }
-      
+
       const data = await response.json();
-      console.log(selectedPreset, 'RESP CONVO', data)
-      if (data && Array.isArray(data)) {
-        setMessages(data); // Assuming `data.data` contains the conversations array
-      }
-      
+      console.log('RESP CONVO', data)
+      /*     if (data && Array.isArray(data)) {
+            setMessages(data); // Assuming `data.data` contains the conversations array
+          } */
+
     } catch (error) {
       console.error("Error fetching conversations:", error);
-    } 
+    }
   };
 
   // // Fetch conversations on component mount
 
   // React.useEffect(() => {
   //   // Trigger function every 10 seconds
-    
+
   //   const intervalId = setInterval(() => {
   //     if(user){
   //     getConversations();
@@ -82,14 +88,51 @@ export function CardsChat({messages}: ChatProps) {
   // }, [selectedPreset, user]); // Empty dependency array ensures this runs only once on mount
 
   // Handle deleting a message
-  const handleDelete = (ind: number) => {
+  const handleDelete = async (ind: number) => {
     let newMessages = [...(messages || [])];
-    if (ind > -1 && ind < newMessages.length) {
-      newMessages.splice(ind, 1); // Removes 1 element at the specified index
+    let message = newMessages[ind];
+
+
+    const response = await axios.delete(`/api/conversations/${message._id}`);
+
+    console.log('DELETE', response)
+    if (response.status == 200) {
+      if (ind > -1 && ind < newMessages.length) {
+        newMessages.splice(ind, 1); // Removes 1 element at the specified index
+      }
+      setMessages(newMessages);
+      getConversations();
+
     }
-    setMessages(newMessages);
   };
 
+  const handleSave = async () => {
+    let newMessages = [...(messages || [])] as any;
+    console.log(selectedMessage, 'INDD', convertQuillToPlainText(selectedMessage?.content))
+
+    if (!selectedMessage?._id) return;
+
+
+    console.log(selectedMessage, 'MESSAGE SAVE')
+    const response = await axios.patch(`/api/conversations/${selectedMessage._id}`, {
+      content: convertQuillToPlainText(selectedMessage?.content),
+      preset: selectedMessage?.preset
+    }).catch(err => {
+      console.log(err)
+    });
+
+    if (response?.status == 200) {
+      newMessages[selectedMessage.index] = selectedMessage
+      setMessages(newMessages);
+      setOpen(false);
+      setSelectedMessage(null)
+      getConversations()
+    }
+  }
+
+
+
+  console.log(selectedMessage, selectedMessage?.preset, 'SELECTED')
   return (
     <>
       <div
@@ -110,8 +153,9 @@ export function CardsChat({messages}: ChatProps) {
             <div>
               <a onClick={() => handleDelete(index)}>Delete</a>&nbsp;&nbsp;
               <a onClick={() => {
+                console.log('CLICK', message, message?.preset?._id)
                 setOpen(true);
-                setSelectedMessage({ ...message, index });
+                setSelectedMessage({ ...message, preset: message?.preset?._id, index });
               }}>Edit</a>
             </div>
             <ReadText
@@ -121,11 +165,19 @@ export function CardsChat({messages}: ChatProps) {
         ))}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="gap-0 p-0 outline-none">
-          <DialogHeader className="px-4 pb-4 pt-5">
+        <DialogContent className="flex flex-col gap-1 p-1 py-5 outline-none">
+          <DialogHeader className="px-4">
             <DialogTitle>Edit message</DialogTitle>
           </DialogHeader>
-          <div className="px-4 pb-4 pt-5 min-h-[300px] mt-5">
+          <div className="mt-5 min-h-[300px] max-h-[500px]">
+            {/*  <Textarea
+              className="p-4"
+              placeholder="Write message (max 150 characters)..."
+              value={selectedMessage?.content}
+              onChange={(e) =>
+                setSelectedMessage({ ...selectedMessage, content: e.target.value })
+              }
+            /> */}
             <RichEditor
               placeholder="What is this content about?"
               value={selectedMessage?.content}
@@ -133,25 +185,50 @@ export function CardsChat({messages}: ChatProps) {
                 setSelectedMessage({ ...selectedMessage, content: e })
               }
             />
+
+            <div className="space-y-2">
+              <Label htmlFor="preset">Preset</Label>
+              <Select onValueChange={(e) =>
+                setSelectedMessage({ ...selectedMessage, preset: e })
+              } defaultValue={selectedMessage?.preset} value={selectedMessage?.preset}>
+
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a preset" />
+                </SelectTrigger>
+                <SelectContent>
+                  {presets.map((preset: any) => {
+                    console.log(preset._id, 'PRES')
+                    return (
+                      <SelectItem value={preset?._id} key={preset?._id}>
+                        <span className="font-medium">{preset.name}</span>
+                      </SelectItem>
+                    )
+                  })
+                  }
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter className="flex items-center border-t p-4 sm:justify-between">
             <Button
               onClick={() => {
                 if (selectedMessage?.index !== undefined) {
-                  const updatedMessages = [...(messages || [])];
-                  updatedMessages[selectedMessage.index] = {
-                    role: selectedMessage.role,
-                    content: selectedMessage.content || "",
-                  };
-                  setMessages(updatedMessages);
+                  /*     const updatedMessages = [...(messages || [])];
+                      updatedMessages[selectedMessage.index] = {
+                        role: selectedMessage.role,
+                        content: selectedMessage.content || "",
+                      }; */
+
+                  // setMessages(updatedMessages);
+                  handleSave()
                 }
-                setOpen(false);
               }}
             >
-              Continue
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
+
       </Dialog>
     </>
   );

@@ -12,9 +12,7 @@ export const GET = async (req: NextRequest) => {
     let contactParam = searchParams.get("contact");
     let presetParam = searchParams.get("preset");
 
-    let contact = null;
-    let system = null;
-    let preset = null;
+    let options = {} as any;
     // Validate required parameters
     if (!systemParam || !contactParam) {
       return NextResponse.json(
@@ -28,26 +26,26 @@ export const GET = async (req: NextRequest) => {
 
 
 
- let senderContact = await getContactByNumber(contactParam);
-  let systemContact = await getContactByNumber(systemParam);
-  let systemPreset = await getPresetByValue(presetParam);
-   
-   
-  if(senderContact.data){
-    contact = senderContact.data.id;
- }
- 
- if(systemContact.data){
-    system = systemContact.data.id;
-}
+    let senderContact = await getContactByNumber(contactParam);
+    let systemContact = await getContactByNumber(systemParam);
+    let systemPreset = await getPresetByValue(presetParam);
 
-if(systemPreset.data){
-  preset = systemPreset.data.id;
-}
+
+    if (senderContact.data) {
+      options.contact = senderContact.data._id;
+    }
+
+    if (systemContact.data) {
+      options.system = systemContact.data._id;
+    }
+
+    if (systemPreset.data) {
+      options.preset = systemPreset.data._id;
+    }
 
 
     // Fetch conversations filtered by system and contact
-    const result = await getAllConversations({ system, contact, preset });
+    const result = await getAllConversations(options);
 
     if (!result.success) {
       return NextResponse.json(
@@ -57,7 +55,7 @@ if(systemPreset.data){
     }
 
 
-console.log(result.data, 'RESULT CONVO')
+    console.log(result.data, 'RESULT CONVO')
     return NextResponse.json(result.data, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching conversations:", error);

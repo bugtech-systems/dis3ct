@@ -48,7 +48,6 @@ export function PresetActions() {
       if (selectedPreset && selectedPreset._id) {
         let resp = await axios.delete(`/api/presets/${selectedPreset._id}`);
 
-        console.log(resp.data, 'DELETED PRESET')
 
         if (resp.data) {
           toast.success("This preset has been deleted.");
@@ -66,7 +65,6 @@ export function PresetActions() {
   };
 
 
-  console.log('SELECTEDD PRESET', selectedPreset)
   return (
     <>
       <DropdownMenu>

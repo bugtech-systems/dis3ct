@@ -14,7 +14,6 @@ export default async function Page() {
   // let authUser = await getAuth();
   // console.log(authUser, 'AUTH USER')
   let authUser = await getAuth();
-  console.log(authUser, 'AUTH USER')
 
   if (!authUser) {
     // signOut()

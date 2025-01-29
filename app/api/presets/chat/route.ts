@@ -140,7 +140,7 @@ export const POST = async (req: NextRequest,
 
 
 
-
+    console.log(systemContact, 'SYSTEM CONT')
 
 
     if (senderContact.data) {
@@ -355,7 +355,7 @@ export const POST = async (req: NextRequest,
     }
 
     console.log(!String(preset?.name).toLowerCase().includes('opt'))
-    if (response.done && !String(preset?.name).toLowerCase().includes('opt')) {
+    if (response.done) {
 
       await createConversation({
         ...(systemParent ? { system: systemParent?._id } : {}),

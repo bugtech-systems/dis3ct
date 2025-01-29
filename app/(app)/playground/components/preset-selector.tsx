@@ -41,7 +41,7 @@ export function PresetSelector() {
 
   const fetchPresets = async () => {
     try {
-      const response = await fetch(`/api/presets?system=${system?.phone}`)
+      const response = await fetch(`/api/presets?system=${system.phone}`)
       if (!response.ok) {
         throw new Error("Failed to fetch presets")
       }
@@ -63,7 +63,6 @@ export function PresetSelector() {
     }
   }, [system])
 
-  console.log(system, 'SYSTEM')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

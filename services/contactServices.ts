@@ -156,7 +156,7 @@ export const getSystemByNumber = async (
       return { success: false, error: "System not found" };
     }
 
-    options.contact = systemData.id
+    options.contact = systemData._id
 
     const presets = await AiPreset.find(options);
 
@@ -165,7 +165,7 @@ export const getSystemByNumber = async (
       presets: presets.map(preset => ({ _id: String(preset._id), name: preset.name, description: preset.description, value: preset.value, systemBehavior: convertQuillToPlainText(preset.systemBehavior), modelName: preset.modelName, aiTemperature: preset.aiTemperature, aiMaxLength: preset.aiMaxLength, aiTopP: preset.aiTopP }))
     }
 
-
+    console.log(presets, 'PRESETS', options)
     return { success: true, data: newSystem };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch contact" };

@@ -48,7 +48,6 @@ export function PresetSave() {
       if (selectedPreset && selectedPreset.id) {
         let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...preset, system: system.phone });
 
-        console.log(resp.data, 'UPDATED PRESET')
 
         if (resp.data) {
           toast.success("Preset Updated");
@@ -64,7 +63,6 @@ export function PresetSave() {
                    aiTopP: topP,
                    aiMaxLength: maxTokens */
         });
-        console.log(resp.data, 'NEW PRESET')
         if (resp.data) {
           toast.success("Preset Created");
         }

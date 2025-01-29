@@ -18,6 +18,7 @@ const RichEditor = ({ placeholder, onChange, value }: RichEditorProps) => {
 
   return (
     <ReactQuill
+      className="h-full"
       theme="snow"
       placeholder={placeholder}
       value={value}

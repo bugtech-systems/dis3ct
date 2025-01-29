@@ -28,16 +28,18 @@ import { TopPSelector } from "./top-p-selector"
 import { models, types } from "../data/models"
 import { usePlayground } from "@/components/providers/PlaygroundProvider"
 import RichEditor from "@/components/playground/components/RichEditor"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import { CardsChat } from "./chat"
 import { useContact } from "@/components/providers/ContactProvider"
 import { ContactSelector } from "./contact-selector"
+import { Switch } from "@/components/ui/switch"
 
 
 export default function PlaygroundPage() {
     const [isLoading, setLoading] = useState(false);
     const [instruction, setInstruction] = useState('');
+    const [isTask, setIsTask] = useState(false);
     const { presets, selectedContact, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset } = usePlayground();
     const { user, system, parentSystem } = useContact();
 
@@ -52,19 +54,11 @@ export default function PlaygroundPage() {
     const getConversations = async () => {
         try {
             // setLoading(true)
-            setMessages([]);
-            let newContact = axios.get(`/api/contacts/${user?.phone}`)
-                .then((response) => {
-                    return response.data
-                })
-                .catch((error) => {
-                    console.error("Error fetching user data:", error);
-                    return user
-                }) as any;
+            // setMessages([]);
+
             // .finally(() => setLoading(false));
 
-
-            const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&status=pending`); // Update the endpoint URL if necessary
+            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
             console.log('response CONVO', response)
 
             if (!response.ok) {
@@ -138,7 +132,6 @@ export default function PlaygroundPage() {
                   }); 
              */
 
-            console.log(preset, 'PRESET')
             let resp = await axios.post(apiUrl, {
                 ...preset,
                 modelName: preset?.modelName ?? preset?.aiModel,
@@ -155,8 +148,8 @@ export default function PlaygroundPage() {
                     content: resp.data.message.content
                 })
 
-                setMessages(newMessages)
-
+                // setMessages(newMessages)
+                getConversations()
                 /*        if(resp.data.preset){
                         setSelectedPreset(resp.data.preset)
                       }  */
@@ -195,7 +188,6 @@ export default function PlaygroundPage() {
 
             setMessages(messages)
 
-            console.log(newMessages, messages, 'RESUBMIT')
 
             let resp = await axios.post(apiUrl, {
                 ...preset,
@@ -270,10 +262,22 @@ export default function PlaygroundPage() {
     };
 
 
+    useEffect(() => {
+
+        if (system) {
+            getConversations();
+        }
+
+        if (system && (!selectedContact && !selectedPreset)) {
+            setMessages([])
+        }
+
+
+    }, [selectedContact, system])
 
 
 
-    console.log(selectedContact?.phone, preset, 'CONTACTs')
+
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-3">
@@ -478,6 +482,11 @@ export default function PlaygroundPage() {
                                 <TemperatureSelector />
                                 <MaxLengthSelector />
                                 <TopPSelector />
+                                <div className="flex items-center">
+                                    <Label htmlFor="flash-message" className="flex items-center gap-2 text-xs font-normal">
+                                        <Switch id="flash-message" checked={isTask} onCheckedChange={setIsTask} /> Task Process
+                                    </Label>
+                                </div>
                             </div>
                             <div className="lg:max-h-[600px] md:order-1">
                                 <TabsContent value="complete" className="mt-0 border-0 p-0">
