@@ -138,10 +138,10 @@ export default function PlaygroundPage() {
                   }); 
              */
 
-
+            console.log(preset, 'PRESET')
             let resp = await axios.post(apiUrl, {
                 ...preset,
-                modelName: preset?.aiModel,
+                modelName: preset?.modelName ?? preset?.aiModel,
                 sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
                 system: system.phone,
                 message: userMessage,
@@ -199,7 +199,7 @@ export default function PlaygroundPage() {
 
             let resp = await axios.post(apiUrl, {
                 ...preset,
-                modelName: preset?.aiModel,
+                modelName: preset?.modelName ?? preset?.aiModel,
                 sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
                 system: system.phone,
                 message: lastUserMessage.content,

@@ -25,6 +25,7 @@ export const contactSchema = z.object({
   citymunCode: z.string().optional().nullable(),
   brgyCode: z.string().optional().nullable(),
   userLevel: z.string().optional().nullable(),
+  activePreset: z.string().optional().nullable(),
   subscribed: z.boolean().optional().nullable()
 })
 

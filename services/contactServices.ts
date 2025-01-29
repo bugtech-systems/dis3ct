@@ -162,7 +162,7 @@ export const getSystemByNumber = async (
 
     let newSystem = {
       ...systemData,
-      presets: presets.map(preset => ({ name: preset.name, description: preset.description, value: preset.value, systemBehavior: preset.systemBehavior }))
+      presets: presets.map(preset => ({ name: preset.name, description: preset.description, value: preset.value, systemBehavior: preset.systemBehavior, modelName: preset.modelName, aiTemperature: preset.aiTemperature, aiMaxLength: preset.aiMaxLength, aiTopP: preset.aiTopP }))
     }
 
 

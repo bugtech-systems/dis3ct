@@ -7,15 +7,7 @@ import dbConnect from "@/lib/mongodb";
 import AiPreset from "@/models/AiPreset";
 
 
-const isAuthorized = async (userId: string, contactId: string) => {
-  await dbConnect();
-  const contact = await Contact.findOne({ phone: sanitizePhoneNumber(contactId) });
 
-  if (!contact) return false;
-
-  // Check if user is the referrer (refNum) OR has admin access
-  return contact.refNum?.toString() === userId || contact.userLevel === "admin";
-};
 
 export const GET = async (
   req: NextRequest,
