@@ -195,20 +195,19 @@ export const POST = async (req: NextRequest,
       sampleConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}\n-Full Name: ${contact?.name}\n-Address: ${contact?.address}\n` })
     }
 
-
-
     // console.log(sampleConversations, messages, presetResult.data?.value, 'SAMPLE CONVOOOS')
     const ollamaService = new OllamaService();
     const aiResponse = presets.length ? await ollamaService.determineRelatedPreset(presets, contact?.activePreset, message, sampleConversations || []) as any : [];
 
+    if (!contact?.subscribed) {
+      console.log(presets, 'PRES')
+      preset = presets.filter(preset => { return String(preset?.value).toLowerCase().includes('opt') })[0];
 
-
-
-
-
-    if (aiResponse) {
-      console.log(sampleConversations, aiResponse, 'PRESETS')
+    } else if (aiResponse) {
       // Fetch the preset by presetId
+
+
+
       const aiPreset = presets.length == 1 ? presets[0] : presets.find(preset => preset.value == aiResponse.Value);
       if (aiPreset) {
         preset = aiPreset;
@@ -218,6 +217,19 @@ export const POST = async (req: NextRequest,
           { status: 400 }
         );
       }
+    }
+
+
+
+
+    console.log(sampleConversations, aiResponse, preset, 'PRESETS')
+
+
+    if (!preset) {
+      return NextResponse.json(
+        { error: "No Preset Match." },
+        { status: 400 }
+      );
     }
 
 
@@ -255,6 +267,7 @@ export const POST = async (req: NextRequest,
     let newConvos = await getAllConversations({ system: systemParent?._id, contact: contact?._id, preset: preset?._id, status: "pending" });
     if (newConvos.data) {
       recentConversations = newConvos.data.map(convo => ({ role: convo.role, content: convo.content }));
+      recentConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}\n-Full Name: ${contact?.name}\n-Address: ${contact?.address}\n` })
     }
 
 
@@ -273,11 +286,11 @@ export const POST = async (req: NextRequest,
 
 
     if (contact) {
-      // if (preset?.value != 'alayon_opting') {
-      setContactPreset(contact?.phone, preset?.value)
-      // } else {
-      // setContactPreset(contact?.phone, null)
-      // }
+      if (preset?.value == 'alayon_water') {
+        setContactPreset(contact?.phone, preset?.value)
+      } else {
+        setContactPreset(contact?.phone, null)
+      }
 
 
       userObject = {
@@ -300,9 +313,8 @@ export const POST = async (req: NextRequest,
       options.top_p = finalTopP;
     }
 
-
-    const response = await Ollama.chat({
-      model: finalModelName,
+    console.log(preset, contact, recentConversations, 'API CALL', {
+      model: finalModelName ?? "llama3.2",
       messages: [
 
         ...(systemBehavior ? [{ role: 'system', content: systemBehavior }] : []),
@@ -311,6 +323,19 @@ export const POST = async (req: NextRequest,
         // ...(preset?.value == 'alayon_water' ? sampleConversations : []),
         // (contact?.subscribed ? { role: 'assistant', content: `${preset?.value != 'alayon_opting' ? 'User not subscribe' : 'User should subscribe'}` } : {}),
         { role: 'user', content: (!contact?.subscribed && preset?.value == 'alayon_opting') ? `Instruction: Check **User Prompt** if the user is trying to subscribe or not. Response should be plain and valid JSON format without other description.  Find in System Instruction, User not subscribe template if not. If Subscribing, return User Request to Subscribe or Opt In template.\nUser Prompt: "${message}"` : message },
+      ],
+      options: options
+    })
+    const response = await Ollama.chat({
+      model: finalModelName ?? "llama3.2",
+      messages: [
+
+        ...(systemBehavior ? [{ role: 'system', content: systemBehavior }] : []),
+        // ...sampleConversations,
+        ...recentConversations,
+        // ...(preset?.value == 'alayon_water' ? sampleConversations : []),
+        // (contact?.subscribed ? { role: 'assistant', content: `${preset?.value != 'alayon_opting' ? 'User not subscribe' : 'User should subscribe'}` } : {}),
+        { role: 'user', content: (!contact?.subscribed && preset?.value == 'alayon_opting') ? `Instruction: Check **User Prompt** if the user is trying to subscribe or not. Response should be plain and valid JSON format without other description.  Find in System Instruction, User not subscribe template if not. If Subscribing, return User Request to Subscribe or Opt In template.\n**User Prompt**: "${message}"` : message },
       ],
       options: options
     });
@@ -328,12 +353,11 @@ export const POST = async (req: NextRequest,
       }
     }
 
-    await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
-
-    if (response.done) {
+    console.log(!String(preset?.name).toLowerCase().includes('opt'))
+    if (response.done && !String(preset?.name).toLowerCase().includes('opt')) {
 
       await createConversation({
-        ...(system ? { system: systemParent?.id } : {}),
+        ...(systemParent ? { system: systemParent?._id } : {}),
         ...(contact ? { contact: contact?.id } : {}),
         preset: preset?._id,
         content: message,
@@ -341,13 +365,14 @@ export const POST = async (req: NextRequest,
       })
 
       await createConversation({
-        ...(system ? { system: systemParent?.id } : {}),
+        ...(systemParent ? { system: systemParent?._id } : {}),
         ...(contact ? { contact: contact?.id } : {}),
         preset: preset?._id,
         content: response.message.content,
         role: 'assistant'
       })
     }
+    await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
 
 
 

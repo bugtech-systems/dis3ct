@@ -56,7 +56,7 @@ export const POST = async (req: NextRequest) => {
     if (!refExist && refData) {
       contact?.uplines?.push(refData.id)
     } else {
-      return NextResponse.json({ error: "Contact already exist." }, { status: 400 });
+      return NextResponse.json({ error: "Contact already exist." }, { status: 200 });
     }
 
     const newMobile = new Mobile({ phone: newPhone });

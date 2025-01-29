@@ -23,7 +23,7 @@ class OllamaService {
   constructor(model: string = 'preset_model') {
     this.model = model;
     this.options = {
-      temperature: 0.3,
+      temperature: 0.1,
       top_p: 0.9,
       max_tokens: 1000,
     };
@@ -85,14 +85,16 @@ ${currentPreset
         ? `2. **Current Preset**: ${JSON.stringify(currentPreset)}`
         : '2. **Current Preset**: None'
       }
+
+### **Chat History**:
+  ${convo}
       
 ### Instructions:
-1. Analyze the user's prompt and if applicable, consider the chat history in the system instruction.
-2. Determine the most relevant preset from the list above based on the user's intent and input.
-3. If Current Preset exist, and If the user's prompt is clearly linked to the **Current Preset**, return the **Current Preset**.
-4. If the user's prompt doesn't linked to the **Current Preset**, return the relevant Preset available.
-5. If the user's intent is to "subscribe" or "unsubscribe", return "Opting" Preset.  
-6. Select Only 1 Preset Name, Description, Value from Available Presets.
+1. Analyze the user's prompt and always consider the chat history.
+2. Determine the most relevant preset from the available presets based on the user's intent and input.
+3. Check If Current Preset exists, and If the user's prompt is clearly linked or related to chat history or the **Current Preset**, return the **Current Preset**.
+4. If the user's prompt doesn't linked to the **Chat History**, return the relevant Preset available or if not sure return "Help" preset.
+5. Select Only 1 Preset Name, Description, Value from Available Presets.
 
 
 
@@ -101,9 +103,6 @@ ${currentPreset
 ### Presets Available:
 ${presetDescriptions}
 
-
-### Chat History:
-${convo}
 
 
 ### Response Rules:
@@ -141,12 +140,27 @@ ${convo}
 
     // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
     try {
+
+      console.log({
+        model: this.model,
+        messages: [
+          //  ...newMessages,
+          // { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
+          ...sampleConversations,
+          { role: 'user', content: prompt }
+        ],
+        options: {
+          num_predict: this.options.max_tokens,
+          temperature: this.options.temperature,
+          top_p: this.options.top_p,
+        },
+      }, 'OLLAMA SERV')
       const response = await Ollama.chat({
         model: this.model,
         messages: [
           //  ...newMessages,
           // { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
-          // ...sampleConversations,
+          ...sampleConversations,
           { role: 'user', content: prompt }
         ],
         options: {
