@@ -1,4 +1,4 @@
-import { cleanJsonObject, cleanToJson } from '@/lib/helpers';
+import { cleanJsonObject, cleanToJson, isParsableObject } from '@/lib/helpers';
 import Ollama from 'ollama';
 
 interface Preset {
@@ -39,7 +39,14 @@ class OllamaService {
     try {
       this.setOptions('preset_model', this.options)
 
-      const structuredPrompt = this.createPrompt(presets, userPrompt, currentPreset);
+
+      const presetConvo = sampleConversations.map(
+        (convo: any) => {
+          return `${convo.role}: ${isParsableObject(convo.content) ? JSON.parse(convo.content)?.message : convo.content}.\n`
+        }
+      ).join('\n');
+
+      const structuredPrompt = this.createPrompt(presets, userPrompt, currentPreset, presetConvo);
       // console.log(presets, structuredPrompt, "PRESETS")
 
 
@@ -59,13 +66,15 @@ class OllamaService {
    * @param userPrompt - User input.
    * @returns - Structured prompt as a string.
    */
-  createPrompt(presets: Preset[], userPrompt: string, currentPreset: any): string {
+  createPrompt(presets: Preset[], userPrompt: string, currentPreset: any, convo: any): string {
     const presetDescriptions = presets
       .map(
         (preset, index) =>
           `${index + 1}. Name: ${preset.name}\n   Description: ${preset.description}\n   Value: ${preset.value}`
       )
       .join('\n');
+
+
 
     return `
 You are a highly intelligent AI assistant for matching prompts to presets. Your task is to analyze the user's input, evaluate the provided presets, and respond with the most relevant preset in the required JSON format.
@@ -83,6 +92,9 @@ ${currentPreset
 3. If Current Preset exist, and If the user's prompt is clearly linked to the **Current Preset**, return the **Current Preset**.
 4. If the user's prompt doesn't linked to the **Current Preset**, return the relevant Preset available.
 5. If the user's intent is to "subscribe" or "unsubscribe", return "Opting" Preset.  
+6. Select Only 1 Preset Name, Description, Value from Available Presets.
+
+
 
 
 
@@ -90,6 +102,8 @@ ${currentPreset
 ${presetDescriptions}
 
 
+### Chat History:
+${convo}
 
 
 ### Response Rules:
@@ -123,12 +137,7 @@ ${presetDescriptions}
    */
   async callOllamaAPI(prompt: string, sampleConversations: any): Promise<string> {
 
-    // let newMessages = sampleConversations.map((convo: any) => ({role: convo.role, content: convo.content}))
-    const presetConvo = sampleConversations.map(
-      (convo: any) => {
-        return `${convo.role}: ${convo.content}.`
-      }
-    ).join('\n');
+    // let newMessages = sampleConversations.map
 
     // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
     try {
@@ -136,8 +145,8 @@ ${presetDescriptions}
         model: this.model,
         messages: [
           //  ...newMessages,
-          { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
-          ...sampleConversations,
+          // { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
+          // ...sampleConversations,
           { role: 'user', content: prompt }
         ],
         options: {
@@ -146,6 +155,8 @@ ${presetDescriptions}
           top_p: this.options.top_p,
         },
       });
+
+
 
       if (response && response.message) {
         return response?.message.content;
