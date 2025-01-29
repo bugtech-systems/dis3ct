@@ -288,9 +288,10 @@ export const POST = async (req: NextRequest,
     if (contact) {
       if (preset?.value == 'alayon_water') {
         setContactPreset(contact?.phone, preset?.value)
-      } else {
-        setContactPreset(contact?.phone, null)
       }
+
+
+
 
 
       userObject = {
