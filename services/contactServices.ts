@@ -1,4 +1,4 @@
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { convertQuillToPlainText, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import AiPreset from "@/models/AiPreset";
 import Contact, { IContact } from "@/models/Contact";
@@ -162,7 +162,7 @@ export const getSystemByNumber = async (
 
     let newSystem = {
       ...systemData,
-      presets: presets.map(preset => ({ name: preset.name, description: preset.description, value: preset.value, systemBehavior: preset.systemBehavior, modelName: preset.modelName, aiTemperature: preset.aiTemperature, aiMaxLength: preset.aiMaxLength, aiTopP: preset.aiTopP }))
+      presets: presets.map(preset => ({ name: preset.name, description: preset.description, value: preset.value, systemBehavior: convertQuillToPlainText(preset.systemBehavior), modelName: preset.modelName, aiTemperature: preset.aiTemperature, aiMaxLength: preset.aiMaxLength, aiTopP: preset.aiTopP }))
     }
 
 
