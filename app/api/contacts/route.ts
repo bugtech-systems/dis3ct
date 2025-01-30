@@ -65,7 +65,11 @@ export const POST = async (req: NextRequest) => {
       contact = new Contact({
         phone: sanitizePhoneNumber(phone),
         refNum: refData?.id,
-        parNum: parentData?.id
+        parNum: parentData?.id,
+        ...(refData ? { brgyCode: refData.brgyCode } : { brgyCode: parentData.brgyCode }),
+        ...(refData ? { citymunCode: refData.citymunCode } : { citymunCode: parentData.citymunCode }),
+        ...(refData ? { provCode: refData.provCode } : { provCode: parentData.provCode }),
+        ...(refData ? { regCode: refData.regCode } : { regCode: parentData.regCode }),
       })
     }
 
