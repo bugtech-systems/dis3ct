@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";
 import { CardsDataTable } from "./data-table"
-import getLeadersContacts from "@/actions/getContacts"
 import { Contact } from "../data/schema";
 
 async function authenticate() {
@@ -25,12 +24,10 @@ export default async function ContactsPage({ contacts }: { contacts: Contact[] }
 
     return (
         <>
-
             <div className="flex-1 space-y-4 p-3">
-
                 {/* <DataTable data={tasks} columns={columns} /> */}
                 <CardsDataTable
-                    data={contacts.map(contact => ({ id: String(contact.id), phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel, subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode, activePreset: contact.activePreset }))}
+                    data={contacts.map(contact => ({ id: String(contact._id), phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel, subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode, activePreset: contact.activePreset, barangay: contact.barangay, citymun: contact.citymun, province: contact.province, region: contact.region }))}
                     columns={columns}
                 />
             </div>

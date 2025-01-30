@@ -70,6 +70,10 @@ export const userLevels = [
     value: "barangay",
   },
   {
+    label: "System",
+    value: "system",
+  },
+  {
     label: "Basic",
     value: "normal",
   },

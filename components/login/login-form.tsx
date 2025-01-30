@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 
 export function LoginForm({ className, ...props }: any) {
   const [phone, setPhone] = useState("");
+  const [user, setUser] = useState<any>(null);
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [phoneError, setPhoneError] = useState("");
@@ -58,15 +59,18 @@ export function LoginForm({ className, ...props }: any) {
     if (!validatePhone()) return;
 
     try {
-      const response = await axios.post("/api/generate-otp", { phone });
+      const response = await axios.post("/api/generate-otp", { phone, system: localStorage.getItem('system') });
+
+      console.log(response, 'RESPP')
       if (response.data) {
         setStep(2);
         startTimer(600);
+        setUser(response.data.data)
       } else {
         setPhoneError("Failed to send OTP. Please try again.");
       }
     } catch (error: any) {
-    console.log(error.response, 'ERR')
+      console.log(error.response, 'ERR')
       setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
@@ -80,6 +84,7 @@ export function LoginForm({ className, ...props }: any) {
         redirect: false,
         phone,
         otp,
+        userId: user?._id
       });
       if (res?.error) {
         setOtpError("Invalid OTP. Please try again.");
@@ -102,9 +107,12 @@ export function LoginForm({ className, ...props }: any) {
 
     try {
       setIsResendDisabled(true);
-      const response = await axios.post("/api/generate-otp", { phone });
+      const response = await axios.post("/api/generate-otp", { phone, system: localStorage.getItem('system') });
+
+      console.log(response, 'RESPP')
       if (response.data) {
         startTimer(600); // Restart 10-minute timer
+        setUser(response.data.data)
       } else {
         setPhoneError("Failed to resend OTP. Please try again.");
       }
@@ -119,6 +127,8 @@ export function LoginForm({ className, ...props }: any) {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
+
+  console.log(user, "USERR")
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form onSubmit={step === 1 ? handleSendOtp : handleVerifyOtp}>
@@ -175,8 +185,8 @@ export function LoginForm({ className, ...props }: any) {
               {step === 1
                 ? "Login"
                 : isTimerActive
-                ? "Verify"
-                : "Resend OTP"}
+                  ? "Verify"
+                  : "Resend OTP"}
             </Button>
           </div>
         </div>

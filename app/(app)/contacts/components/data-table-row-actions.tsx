@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { MoreHorizontal, Trash } from "lucide-react"
+import { MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +29,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
+import { useContact } from "@/components/providers/ContactProvider"
 
 
 interface DataTableRowActionsProps<TData> {
@@ -39,6 +40,7 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const contact = contactSchema.parse(row.original);
+  const { user } = useContact()
   const [open, setOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
@@ -46,7 +48,7 @@ export function DataTableRowActions<TData>({
   const handleDelete = async () => {
 
     try {
-      const response = await axios.delete(`/api/contacts/${contact.phone}`);
+      const response = await axios.delete(`/api/contacts/save/${contact.id}`);
       if (response.data) {
         toast.success('Deleted Successfully!')
         router.refresh();
@@ -82,6 +84,27 @@ export function DataTableRowActions<TData>({
     }
   };
 
+  const handleSetLeader = async () => {
+
+    try {
+      const response = await axios.patch(`/api/contacts/save/${contact.id}`, {
+        userLevel: contact.userLevel == 'system' ? 'normal' : 'system'
+      });
+      if (response.data) {
+        toast.success(`Updated User Level Successfully!`)
+        router.refresh();
+
+      } else {
+        toast.error("Failed to Update User Level. Please try again.")
+      }
+    } catch (error: any) {
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred while Update User Level.")
+
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    }
+  };
+
 
 
 
@@ -89,9 +112,9 @@ export function DataTableRowActions<TData>({
   return (
     <>
       <EditContactForm
-        contact={contact}
         open={open}
         setOpen={setOpen}
+        contact={contact}
       />
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -151,6 +174,18 @@ export function DataTableRowActions<TData>({
 
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          {(user?.userLevel == 'system' || user?.userLevel == 'admin') &&
+            <>
+              <DropdownMenuItem
+                onClick={() => handleSetLeader()}
+              >
+                Set as leader
+                <DropdownMenuShortcut><UserCheck2Icon size={18} /></DropdownMenuShortcut>
+
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
 
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}

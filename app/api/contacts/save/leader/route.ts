@@ -21,15 +21,15 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription, system } = await req.json();
 
     // Validate required fields
-    if (!phone) {
+    if (!phone && !name) {
       return NextResponse.json({ error: "Phone and Name are required." }, { status: 400 });
     }
 
     // Find the authenticated user's contact (referrer)
-    const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(session.user.phone) });
+    const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(session.user.phone), deletedAt: null });
 
     if (!referrer) {
       return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
@@ -37,7 +37,8 @@ export const POST = async (req: NextRequest) => {
 
     // Check if contact already exists
     let existingContact = await Contact.findOne({
-      phone: sanitizePhoneNumber(phone), refNum: referrer.id
+      phone: sanitizePhoneNumber(phone), refNum: referrer.id,
+      deletedAt: null
     });
 
     if (existingContact) {
@@ -80,7 +81,8 @@ export const POST = async (req: NextRequest) => {
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level
-        subscription: subscription
+        subscription: subscription,
+        parNum: system
       });
 
       newContact.parNum = parNum ? parNum : userLevel == 'system' ? newContact.id : referrer.parNum

@@ -21,12 +21,19 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
 
     // Validate required fields
-    if (!phone) {
+    if (!phone && !name) {
       return NextResponse.json({ error: "Phone and Name are required." }, { status: 400 });
     }
+
+    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+
+    if (!parentData) {
+      return NextResponse.json({ error: "System contact not found." }, { status: 400 });
+    }
+
 
     // Find the authenticated user's contact (referrer)
     const referrer = await Contact.findOne({ phone: sanitizePhoneNumber(session.user.phone) });
@@ -65,20 +72,21 @@ export const POST = async (req: NextRequest) => {
 
 
 
-
       const newContact = new Contact({
+        ...(brgyCode ? { brgyCode } : { brgyCode: referrer.brgyCode }),
+        ...(citymunCode ? { citymunCode } : { citymunCode: referrer.citymunCode }),
+        ...(provCode ? { provCode } : { provCode: referrer.provCode }),
+        ...(brgyCode ? { brgyCode } : { brgyCode: referrer.brgyCode }),
         phone: sanitizePhoneNumber(phone),
         // mobile: newMobile,
         name,
         address,
-        brgyCode,
-        regCode,
-        provCode,
-        citymunCode,
         // parNum: referrer.parNum,
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
-        userLevel: userLevel, // Default user level
+        userLevel: userLevel, // Default user level,
+        parNum: parentData?.id
+
       });
 
       newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum

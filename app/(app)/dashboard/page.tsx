@@ -1,10 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
@@ -27,9 +22,7 @@ import DashboardPage from "./components/dashboard";
 export default async function Page() {
   // await authenticate();
   // let authUser = await getAuth();
-  // console.log(authUser, 'AUTH USER')
   let authUser = await getAuth();
-  console.log(authUser, 'AUTH USER')
 
   if (!authUser) {
     // signOut()
@@ -43,7 +36,7 @@ export default async function Page() {
   return (
     <>
       <DashboardPage
-        dashboardData={dashboardData}
+      // dashboardData={dashboardData}
       />
     </>
 

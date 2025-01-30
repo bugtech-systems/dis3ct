@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 async function authenticate() {
   const session = await getServerSession(authOptions);
-  console.log(session, 'SESSSS')
   if (!session) return redirect('/login'); // Redirects the user to "/login" after logging out
+  return session
 }
 
 export default async function RootLayout({
@@ -33,13 +33,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await authenticate();
+  let { user } = await authenticate();
 
+  const systems = await getSystems(user.id);
 
-  const systems = await getSystems();
-
-
-  const systemData = systems.map(system => ({ id: String(system._id), name: system.name, plan: "Organization" }))
+  const systemData = systems.map(system => ({ id: String(system._id), name: system.name, phone: system.phone, user: system.userId, plan: "Organization" }))
 
   return (
     <SidebarProvider>

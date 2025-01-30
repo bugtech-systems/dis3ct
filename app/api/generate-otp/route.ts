@@ -23,13 +23,17 @@ export const POST = async (req: NextRequest) => {
     let contact;
 
 
-    // const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+    const parentData = await Contact.findById(system);
 
-    // let options = [];
+    let options = [{ phone: sanitizePhoneNumber(phone) }, { userLevel: { $ne: 'normal' } }] as any;
 
+
+    if (parentData) {
+      options.push({ parNum: parentData._id })
+    }
 
     contact = await Contact.findOne({
-      $and: [{ phone: sanitizePhoneNumber(phone) }, { userLevel: { $ne: 'normal' } }]
+      $and: options
     });
 
     if (!contact) {
@@ -85,7 +89,7 @@ export const POST = async (req: NextRequest) => {
     // Send OTP to the user's mobile number
     // await sendOtpToMobile(mobile, otp);
 
-    return NextResponse.json({ message: 'OTP sent successfully', otp }, { status: 200 });
+    return NextResponse.json({ message: 'OTP sent successfully', otp, data: contact }, { status: 200 });
   } catch (error) {
     console.error('Error generating OTP:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

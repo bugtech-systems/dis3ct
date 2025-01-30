@@ -35,12 +35,12 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { sanitizePhoneNumber } from "@/lib/helpers";
 
 
-export function CreateSystemForm({ user, contact, open, setOpen }: { 
+export function CreateSystemForm({ user, contact, open, setOpen }: {
   user?: Contact;
-  contact?: Contact; 
+  contact?: Contact;
   open: boolean;
-  setOpen: (value: boolean) => void 
-  }) {
+  setOpen: (value: boolean) => void
+}) {
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
@@ -96,8 +96,8 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       });
     }
   }, [selectedMunicipality, selectedProvince]);
-  
-  
+
+
 
 
   // 📌 Handle Form Submission
@@ -105,11 +105,11 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
     // e.preventDefault();
 
     // Validation
-    if (!phone) {
+    if (!phone && !name) {
       // toast({ title: "Error", description: "All fields are required!", status: "error" });
       // alert('Phone field is required!')
       // console.log('Phone field is required!')
-      toast.error("Phone field is required!");
+      toast.error("Phone or Name field is required!");
 
       return;
     }
@@ -131,7 +131,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       toast.success('System created Successfully');
       router.refresh();
     } catch (error: any) {
-    console.log(error, 'ERROR')
+      console.log(error, 'ERROR')
       // toast({ title: "Error", description: error.response?.data?.error || "Failed to save contact.", status: "error" });
       // alert('Failed to save contact.')
       toast.error(error.response?.data?.error || "Failed to save System.");
@@ -147,196 +147,196 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-          <DialogTitle>Create System</DialogTitle>
-          <DialogDescription>
-            Add a new system.
-          </DialogDescription>
+            <DialogTitle>Create System</DialogTitle>
+            <DialogDescription>
+              Add a new system.
+            </DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
-              <TabsList className="flex justify-center">
-                <TabsTrigger value="basic">System Details</TabsTrigger>
-                <TabsTrigger value="area">Area Location</TabsTrigger>
-                 {/* <TabsTrigger value="access" >
+            <TabsList className="flex justify-center">
+              <TabsTrigger value="basic">System Details</TabsTrigger>
+              <TabsTrigger value="area">Area Location</TabsTrigger>
+              {/* <TabsTrigger value="access" >
                                 Access Level
                               </TabsTrigger> */}
-              </TabsList>
-              <TabsContent value="basic" className="space-y-4">
-                <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" placeholder="09123123123" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="name">System Name</Label>
-                    <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                                              <Label htmlFor="subscription">Subscription plan</Label>
-                                              <Select onValueChange={setSubscription} value={subscription}>
-                                                <SelectTrigger>
-                                                  <SelectValue placeholder="Select a plan" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="basic">
-                                                    <span className="font-medium">Basic</span> -{" "}
-                                                    <span className="text-muted-foreground">
-                                                      Unlimited Sms 
-                                                    </span>
-                                                  </SelectItem>
-                                                  <SelectItem value="pro">
-                                                    <span className="font-medium">Pro</span> -{" "}
-                                                    <span className="text-muted-foreground">
-                                                     Unlimited Sms and Flash Sms
-                                                    </span>
-                                                  </SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                            </div>
+            </TabsList>
+            <TabsContent value="basic" className="space-y-4">
+              <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mobile">Mobile Number</Label>
+                  <Input id="mobile" placeholder="09123123123" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </div>
-              </TabsContent>
-              <TabsContent value="area" className="space-y-4">
-                <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                  {/* Region Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="name">System Name</Label>
+                  <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subscription">Subscription plan</Label>
+                  <Select onValueChange={setSubscription} value={subscription}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="basic">
+                        <span className="font-medium">Basic</span> -{" "}
+                        <span className="text-muted-foreground">
+                          Unlimited Sms
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="pro">
+                        <span className="font-medium">Pro</span> -{" "}
+                        <span className="text-muted-foreground">
+                          Unlimited Sms and Flash Sms
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="area" className="space-y-4">
+              <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                {/* Region Selection */}
+                <div className="space-y-2">
+                  <Label>Region</Label>
+                  <Select onValueChange={setSelectedRegion} value={selectedRegion}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Region" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regions.map((region: any) => (
+                        <SelectItem key={region.regCode} value={region.regCode}>
+                          {region.regDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Province Selection */}
+                <div className="space-y-2">
+                  <Label>Province</Label>
+                  <Select onValueChange={setSelectedProvince} value={selectedProvince} disabled={!selectedRegion}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {provinces.map((province: any) => (
+                        <SelectItem key={province.provCode} value={province.provCode}>
+                          {province.provDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Municipality Selection */}
+                <div className="space-y-2">
+                  <Label>City/Municipality</Label>
+                  <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!selectedProvince}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Municipality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {municipalities.map((mun: any) => (
+                        <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
+                          {mun.citymunDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Barangay Selection */}
+                <div className="space-y-2">
+                  <Label>Barangay</Label>
+                  <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Barangay" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {barangays.map((brgy: any) => (
+                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
+                          {brgy.brgyDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="access" className="space-y-4">
+              <div className="min-h-[300px]">
+                <div className="space-y-4 py-2 pb-4">
                   <div className="space-y-2">
-                    <Label>Region</Label>
-                    <Select onValueChange={setSelectedRegion} value={selectedRegion}>
+                    <Label htmlFor="subscription">Subscription plan</Label>
+                    <Select onValueChange={setSubscription} value={subscription}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Region" />
+                        <SelectValue placeholder="Select a plan" />
                       </SelectTrigger>
                       <SelectContent>
-                        {regions.map((region: any) => (
-                          <SelectItem key={region.regCode} value={region.regCode}>
-                            {region.regDesc}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="basic">
+                          <span className="font-medium">Basic</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Unlimited Sms
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="pro">
+                          <span className="font-medium">Pro</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Unlimited Sms and Flash Sms
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-
-                  {/* Province Selection */}
                   <div className="space-y-2">
-                    <Label>Province</Label>
-                    <Select onValueChange={setSelectedProvince} value={selectedProvince} disabled={!selectedRegion}>
+                    <Label htmlFor="userLevel">Access Level</Label>
+                    <Select onValueChange={setUserLevel} value={userLevel} >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Province" />
+                        <SelectValue placeholder="Select a level" />
                       </SelectTrigger>
                       <SelectContent>
-                        {provinces.map((province: any) => (
-                          <SelectItem key={province.provCode} value={province.provCode}>
-                            {province.provDesc}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Municipality Selection */}
-                  <div className="space-y-2">
-                    <Label>City/Municipality</Label>
-                    <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!selectedProvince}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Municipality" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {municipalities.map((mun: any) => (
-                          <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
-                            {mun.citymunDesc}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Barangay Selection */}
-                  <div className="space-y-2">
-                    <Label>Barangay</Label>
-                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Barangay" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {barangays.map((brgy: any) => (
-                          <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
-                            {brgy.brgyDesc}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="barangay">
+                          <span className="font-medium">Barangay</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Barangay Level
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="municipal">
+                          <span className="font-medium">City/Municipality</span> -{" "}
+                          <span className="text-muted-foreground">
+                            City or Municipality Level
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="provincial">
+                          <span className="font-medium">Province</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Provincial Level
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="regional">
+                          <span className="font-medium">Region</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Regional Level
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-              </TabsContent>
-                          <TabsContent value="access" className="space-y-4">
-                          <div className="min-h-[300px]">
-                        <div className="space-y-4 py-2 pb-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="subscription">Subscription plan</Label>
-                            <Select onValueChange={setSubscription} value={subscription}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a plan" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="basic">
-                                  <span className="font-medium">Basic</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                    Unlimited Sms 
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="pro">
-                                  <span className="font-medium">Pro</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                   Unlimited Sms and Flash Sms
-                                  </span>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="userLevel">Access Level</Label>
-                            <Select onValueChange={setUserLevel} value={userLevel} >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="barangay">
-                                  <span className="font-medium">Barangay</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                    Barangay Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="municipal">
-                                  <span className="font-medium">City/Municipality</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                    City or Municipality Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="provincial">
-                                  <span className="font-medium">Province</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                   Provincial Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="regional">
-                                  <span className="font-medium">Region</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                   Regional Level
-                                  </span>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                          </TabsContent>
-            </Tabs>
+              </div>
+            </TabsContent>
+          </Tabs>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button onClick={() => handleSubmit()}>Save</Button>
-            </DialogFooter>
-            
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={() => handleSubmit()}>Save</Button>
+          </DialogFooter>
+
         </DialogContent>
       </Dialog>
-      
+
     </>
   );
 }

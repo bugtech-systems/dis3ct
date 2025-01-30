@@ -19,10 +19,6 @@ export interface IContact extends Document {
   regCode?: string;
   provCode?: string;
   citymunCode?: string;
-  brgyDesc?: string;
-  regDesc?: string;
-  provDesc?: string;
-  citymunDesc?: string;
   activePreset?: string;
   otpCode?: string;
   refNum?: Types.ObjectId;
@@ -37,7 +33,7 @@ export interface IContact extends Document {
 const ContactSchema = new Schema<IContact>(
   {
     // mobile: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // Reference to Mobile document
-    phone: { type: String, required: true, maxlength: 20 },
+    phone: { type: String, maxlength: 20 },
     name: { type: String },
     address: { type: String, required: false },
     subscribed: { type: Boolean, default: false },
@@ -48,7 +44,6 @@ const ContactSchema = new Schema<IContact>(
     provCode: { type: String, maxlength: 255 },
     citymunCode: { type: String, maxlength: 255 },
     activePreset: { type: String, maxlength: 255 },
-    citymunDesc: { type: String, maxlength: 255 },
     otpCode: { type: String },
     refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
     parNum: { type: Schema.Types.ObjectId, ref: 'Contact' },

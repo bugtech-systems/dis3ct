@@ -14,10 +14,7 @@ import getLeadersContacts from "@/actions/getContacts";
 export default async function Page() {
   // await authenticate();
   // let authUser = await getAuth();
-  // console.log(authUser, 'AUTH USER')
   let authUser = await getAuth();
-  console.log(authUser, 'AUTH USER')
-
   if (!authUser) {
     // signOut()
     return redirect('/login')

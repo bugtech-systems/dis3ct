@@ -125,7 +125,7 @@ export function EditContactForm({ contact, open, setOpen }: {
     }
 
     try {
-      const response = await axios.post("/api/contacts/save", {
+      const response = await axios.post(`/api/contacts/save/${contact.id}`, {
         phone,
         name,
         address,
@@ -151,13 +151,12 @@ export function EditContactForm({ contact, open, setOpen }: {
   };
 
 
-
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Contact</DialogTitle>
+            <DialogTitle>Edit {contact.userLevel == 'system' ? 'System' : 'Contact'} </DialogTitle>
             <DialogDescription>Edit contact details.</DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">

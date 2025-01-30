@@ -36,6 +36,7 @@
     "cmdk": "^1.0.4",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
+    "fs": "^0.0.1-security",
     "htmlparser2": "^10.0.0",
     "jotai": "^2.11.0",
     "jsonwebtoken": "^9.0.2",

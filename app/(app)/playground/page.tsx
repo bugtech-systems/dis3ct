@@ -12,7 +12,6 @@ import PlaygroundPage from "./components/playground";
 export default async function Page() {
   // await authenticate();
   // let authUser = await getAuth();
-  // console.log(authUser, 'AUTH USER')
   let authUser = await getAuth();
 
   if (!authUser) {

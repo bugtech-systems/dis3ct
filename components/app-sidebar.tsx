@@ -1,6 +1,3 @@
-'use client'
-
-
 import * as React from "react"
 
 import { NavMain } from "@/components/nav-main"
@@ -15,17 +12,17 @@ import {
 import { SidebarOptInForm } from "./sidebar-opt-in-form"
 
 import {
-    AudioWaveform,
-    // Blocks,
-    // Calendar,
-    Command,
-    BookOpen,
-    PieChart,
-    MessageCircleQuestion,
-    Settings2,
-    Sparkles,
-    GalleryVerticalEnd
-  } from "lucide-react"
+  AudioWaveform,
+  // Blocks,
+  // Calendar,
+  Command,
+  BookOpen,
+  PieChart,
+  MessageCircleQuestion,
+  Settings2,
+  Sparkles,
+  GalleryVerticalEnd
+} from "lucide-react"
 
 // This is sample data.
 const data = {
@@ -42,31 +39,31 @@ const data = {
     }
   ],
   navMain: [
-  
 
-      {
-        title: "Dashboard",
-        url: "/dashboard",
-        icon: PieChart,
-        isActive: true,
-      },
-      {
-        title: "Contacts",
-        url: "/contacts",
-        icon: BookOpen,
-        badge: "10",
-      },
-      {
-        title: "Ask AI",
-        url: "/playground",
-        icon: Sparkles,
-      },
+
     {
-        title: "Tasks",
-        url: "/tasks",
-        icon: Settings2,
-      }, 
-      
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: PieChart,
+      isActive: true,
+    },
+    {
+      title: "Contacts",
+      url: "/contacts",
+      icon: BookOpen,
+      badge: "10",
+    },
+    {
+      title: "Ask AI",
+      url: "/playground",
+      icon: Sparkles,
+    },
+    {
+      title: "Tasks",
+      url: "/tasks",
+      icon: Settings2,
+    },
+
 
   ],
 
@@ -76,16 +73,16 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
   return (
     <Sidebar  {...props}>
       <SidebarHeader>
-        <TeamSwitchers  teams={props.systems || []}/>
+        <TeamSwitchers teams={props.systems || []} />
       </SidebarHeader>
       <SidebarContent>
-      <NavMain />
+        <NavMain />
       </SidebarContent>
       <SidebarFooter>
-          <SidebarOptInForm />
+        <SidebarOptInForm />
         {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
-     {/* <SidebarRail />    */}
+      {/* <SidebarRail />    */}
     </Sidebar>
   )
 }

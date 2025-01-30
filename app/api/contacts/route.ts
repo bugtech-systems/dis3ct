@@ -50,7 +50,7 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer), parNum: parentData?._id });
+    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer), parNum: parentData?._id }) as any;
 
 
     if (!refData) {
@@ -70,10 +70,12 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    let refExist = contact?.uplines?.find(contact => contact == refData.id)
+    let refExist = contact?.uplines?.find(contact => String(contact) == String(refData?._id))
 
-    if (!refExist && refData) {
-      contact?.uplines?.push(refData.id)
+    console.log(refExist, refData._id, 'REFEX')
+
+    if (!refExist && refData._id) {
+      contact?.uplines?.push(refData._id)
     } else {
       return NextResponse.json({ error: "Contact already exist." }, { status: 200 });
     }

@@ -7,7 +7,6 @@ import { signOut } from "next-auth/react";
 
 async function authenticate() {
   const session = await getServerSession(authOptions);
-  console.log(session, 'SESSSS')
   if (!session) return redirect('/login'); // Redirects the user to "/login" after logging out
 }
 export default async function Private() {

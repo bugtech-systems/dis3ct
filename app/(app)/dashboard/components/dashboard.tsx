@@ -1,3 +1,5 @@
+'use client'
+
 import {
     Card,
     CardContent,
@@ -8,32 +10,35 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useContact } from "@/components/providers/ContactProvider";
 
 
 
-export default function DashboardPage({ dashboardData }: { dashboardData?: any }) {
+export default function DashboardPage() {
+    const { user, system } = useContact()
 
+    const [dashboardData, setDashboardData] = useState({
+        teamReach: 0,
+        subscriptions: 0,
+        contacts: 0,
+        recentContacts: [],
+        overviewChartData: [],
+    });
 
-    // const [dashboardData, setDashboardData] = useState({
-    //   teamReach: 0,
-    //   subscriptions: 0,
-    //   contacts: 0,
-    //   recentContacts: [],
-    //   overviewChartData: [],
-    // });
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await axios.get(`/api/dashboard?user=${user._id}&parent=${system.id}`);
+                setDashboardData(response.data);
+            } catch (error) {
+                console.error("Failed to fetch dashboard data", error);
+            }
+        };
 
-    // useEffect(() => {
-    //   const fetchDashboardData = async () => {
-    //     try {
-    //       const response = await axios.get("/api/dashboard");
-    //       setDashboardData(response.data);
-    //     } catch (error) {
-    //       console.error("Failed to fetch dashboard data", error);
-    //     }
-    //   };
-
-    //   fetchDashboardData();
-    // }, []);
+        fetchDashboardData();
+    }, [user, system]);
 
 
 

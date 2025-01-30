@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 import { Contact } from '@/app/(app)/contacts/data/schema';
 import IContact from '@/models/Contact';
+import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 
 const getLeadersContacts = async (): Promise<Contact[]> => {
 
@@ -22,16 +23,17 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
     let contact = await IContact.findById(userId);
     let contacts = [];
 
+
     if (contact?.userLevel == 'admin') {
       contacts = await IContact.find({
-        phone: { $ne: sanitizePhoneNumber(phone) },
+        // phone: { $ne: sanitizePhoneNumber(phone) },
 
         // refNum: userId,
         deletedAt: null
       }).lean();
     } else if (contact?.userLevel == 'system') {
       contacts = await IContact.find({
-        phone: { $ne: sanitizePhoneNumber(phone) },
+        // phone: { $ne: sanitizePhoneNumber(phone) },
         parNum: contact?.parNum,
         deletedAt: null
       }).lean() as any;
@@ -39,16 +41,35 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
     } else {
 
       contacts = await IContact.find({
-        phone: { $ne: sanitizePhoneNumber(phone) },
-        uplines: { $in: [contact?.id] }, // Check if referrer.id is in the uplines array
+        // phone: { $ne: sanitizePhoneNumber(phone) },
+        uplines: { $in: [String(contact?._id)] }, // Check if referrer.id is in the uplines array
         parNum: contact?.parNum,
         deletedAt: null
       }).lean() as any;
-
     }
 
 
-    return contacts
+
+    console.log(contacts, String(contact?._id), 'Contacts')
+
+    let newContacts = []
+
+    newContacts = contacts.map((contact: any) => {
+      let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
+      let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
+      let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
+      let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
+
+      return { ...contact, barangay, citymun, province, region }
+    })
+
+
+
+
+
+
+
+    return newContacts
   } catch (err) {
     return []
   }

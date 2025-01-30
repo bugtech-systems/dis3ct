@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
 
-const getLeaderDashboard = async (parent?: any): Promise<any | null> => {
+const getLeaderDashboard = async (userId?: any): Promise<any | null> => {
   let teamReach = 0;
   let subscriptions = 0;
   let contacts = 0;
@@ -19,36 +19,36 @@ const getLeaderDashboard = async (parent?: any): Promise<any | null> => {
 
 
 
-    const session = await getServerSession(authOptions) as any;
-    if (!session || !session.user) {
-      return { teamReach, subscriptions, contacts, recentContacts, overviewChartData };
-    }
+    // const session = await getServerSession(authOptions) as any;
+    // if (!session || !session.user) {
+    //   return { teamReach, subscriptions, contacts, recentContacts, overviewChartData };
+    // }
 
-    const userId = session.user.id;
+    // const userId = session.user.id;
 
     await connectToDatabase()
     let options = {
-      deletedAt: null,
-      parNum: null
+      deletedAt: null
     } as any;
 
-    const user = await Contact.findById(userId || parent);
-    if (user) {
-      options.parNum = userId ? user.parNum : user._id;
+    const user = await Contact.findById(userId);
+    if (user?.userLevel != 'admin') {
+      options.parNum = user?._id ? user?.parNum : user?._id;
     }
 
 
-    console.log(userId, 'USERID')
 
     teamReach = await Contact.countDocuments({ ...options });
     subscriptions = await Contact.countDocuments({ subscribed: true, ...options });
     contacts = await Contact.countDocuments({ uplines: { $in: userId }, ...options });
 
 
-    console.log(teamReach, subscriptions, contacts, 'DSHBOAR', options)
+    if (user?.userLevel != 'admin') {
+      options.refNum = user?._id
+    }
 
     // Fetch 5 recent contacts
-    recentContacts = await Contact.find({ refNum: userId, ...options })
+    recentContacts = await Contact.find({ ...options })
       .sort({ createdAt: -1 })
       .limit(5)
       .select("name phone createdAt");
