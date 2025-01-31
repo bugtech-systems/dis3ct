@@ -1,4 +1,4 @@
-name: Deploy Next.js to Local Ubuntu Server
+name: Deploy Alayon Next App to Alayon Ubuntu Server
 
 on:
   push:
