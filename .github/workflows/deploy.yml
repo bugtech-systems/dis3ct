@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: 20
           
+      - name: Checkout Dev
+        run: git checkout development
+          
       - name: Pull Repo
         run: git pull
 
