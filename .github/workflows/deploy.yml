@@ -1,4 +1,4 @@
-name: Deploy Alayon Next App to Alayon Ubuntu Server
+name: Deploy Next.js to Local Ubuntu Server
 
 on:
   push:
@@ -6,30 +6,25 @@ on:
       - development
 
 jobs:
-  build-and-deploy:
-    runs-on: self-hosted
+  deploy:
+    runs-on: self-hosted  # Runs on your local Ubuntu machine
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          
-      - name: Checkout Dev
-        run: git checkout development
-          
-      - name: Pull Repo
-        run: git pull
+          node-version: 18
+          cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: Build Application
+      - name: Build the Next.js app
         run: npm run build
 
-      - name: Restart Application
+      - name: Start the Next.js app with PM2
         run: |
+          npm install -g pm2
           pm2 restart 1
-
