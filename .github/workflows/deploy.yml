@@ -9,6 +9,10 @@ jobs:
   deploy:
     runs-on: self-hosted  # Runs on your local Ubuntu machine
     steps:
+    
+      - name: Change to project directory
+        run: cd /home/bugtechadmin/apps/alayon-next
+    
       - name: Checkout repository
         uses: actions/checkout@v4
 
