@@ -16,6 +16,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          
+      - name: Pull Repo
+        run: git pull
 
       - name: Install Dependencies
         run: npm ci
