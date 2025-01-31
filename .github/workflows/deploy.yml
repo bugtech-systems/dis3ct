@@ -6,14 +6,12 @@ on:
       - development
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: self-hosted  # Runs on your local Ubuntu machine
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-	with:
-          fetch-depth: 0  # Ensures full repo history for safe pulls
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -38,7 +36,6 @@ jobs:
           cd /home/bugtechadmin/apps/alayon-next
           npm run build
 
-      - name: Start the Next.js app with PM2
+      - name: Restart Next.js app with PM2
         run: |
-          npm install -g pm2
           pm2 restart 1
