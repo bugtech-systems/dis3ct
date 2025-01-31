@@ -20,6 +20,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     await connectToDatabase();
+    let myContact;
     let contact;
 
 
@@ -28,13 +29,22 @@ export const POST = async (req: NextRequest) => {
     let options = [{ phone: sanitizePhoneNumber(phone) }, { userLevel: { $ne: 'normal' } }] as any;
 
 
-    if (parentData) {
-      options.push({ parNum: parentData._id })
-    }
 
-    contact = await Contact.findOne({
+
+    myContact = await Contact.find({
       $and: options
     });
+
+
+    console.log(myContact, parentData, 'CO')
+
+    if (parentData) {
+      contact = myContact.find(doc => (doc.userLevel == 'admin'
+        || doc.parNum == parentData._id))
+    } else {
+      contact = myContact[0];
+    }
+
 
     if (!contact) {
       return new NextResponse('Mobile number not user', { status: 400 });
