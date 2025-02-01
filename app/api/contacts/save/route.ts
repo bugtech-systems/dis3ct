@@ -49,6 +49,7 @@ export const POST = async (req: NextRequest) => {
 
     if (existingContact) {
       // Update existing contact
+      existingContact.phone = sanitizePhoneNumber(phone);
       existingContact.name = name;
       existingContact.address = address;
       existingContact.brgyCode = brgyCode;
