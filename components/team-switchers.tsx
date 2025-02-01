@@ -43,7 +43,9 @@ export function TeamSwitchers({
     console.log(e, 'sysss')
     setActiveTeam(e)
     setSystem(e)
-    localStorage.setItem('system', e.id)
+    if (e) {
+      localStorage.setItem('system', e.id)
+    }
     // signOut({ callbackUrl: '/login' })
   }
 
@@ -136,6 +138,20 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
+              {system &&
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handleSystems(null)}
+                    className="gap-2 p-2"
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      <GalleryVerticalEnd className="size-4 shrink-0" />
+                    </div>
+                    Clear Selection
+                  </DropdownMenuItem>
+                </>
+              }
               <DropdownMenuSeparator />
               {user?.userLevel == 'admin' &&
                 <DropdownMenuItem className="gap-2 p-2">
@@ -155,7 +171,7 @@ export function TeamSwitchers({
         </SidebarMenuItem>
 
 
-      </SidebarMenu>
+      </SidebarMenu >
     </>
   )
 }

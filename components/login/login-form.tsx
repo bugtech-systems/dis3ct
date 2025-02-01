@@ -59,6 +59,7 @@ export function LoginForm({ className, ...props }: any) {
     if (!validatePhone()) return;
 
     try {
+
       const response = await axios.post("/api/generate-otp", { phone, system: localStorage.getItem('system') });
 
       console.log(response, 'RESPP')

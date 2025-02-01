@@ -25,6 +25,7 @@ import {
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import { regions } from "@/lib/locationData"
+import { useContact } from "@/components/providers/ContactProvider"
 // import { DataTableToolbar } from "./data-table-toolbar"
 
 
@@ -161,14 +162,16 @@ import { regions } from "@/lib/locationData"
 // ]
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: any[]
 }
 
 export function CardsDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const { system } = useContact()
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [contacts, setContacts] = React.useState<TData[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -188,7 +191,7 @@ export function CardsDataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
-    data,
+    data: contacts,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -206,6 +209,22 @@ export function CardsDataTable<TData, TValue>({
     },
   })
 
+  React.useEffect(() => {
+    setContacts([])
+    console.log(system?.id, 'SYSID')
+    if (system?.id) {
+      let newData = data.filter(row => { return row?.parNum == system.id })
+      setContacts(newData)
+      console.log(system, 'SYSTEEM')
+    } else {
+      console.log(system, 'SYSTEEM NON')
+      setContacts(data)
+    }
+
+  }, [data, system])
+
+
+  console.log(contacts, 'CONTACTS', system, data)
 
 
   return (

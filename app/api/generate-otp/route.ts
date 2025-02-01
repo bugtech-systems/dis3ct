@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
 
     if (parentData) {
       contact = myContact.find(doc => (doc.userLevel == 'admin'
-        || doc.parNum == parentData._id))
+        || String(doc.parNum) == String(parentData._id)))
     } else {
       contact = myContact[0];
     }

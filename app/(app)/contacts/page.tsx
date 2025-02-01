@@ -30,6 +30,5 @@ export default async function Page() {
         contacts={contacts}
       />
     </>
-
   );
 }

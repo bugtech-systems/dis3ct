@@ -31,7 +31,9 @@ export const contactSchema = z.object({
   barangay: z.string().optional().nullable(),
   userLevel: z.string().optional().nullable(),
   activePreset: z.string().optional().nullable(),
-  subscribed: z.boolean().optional().nullable()
+  subscribed: z.boolean().optional().nullable(),
+  parNum: z.string().optional().nullable()
+
 })
 
 
