@@ -16,7 +16,7 @@ const SystemSchema: Schema = new mongoose.Schema(
     number: { type: String, required: true, maxlength: 15 },
     totalSent: { type: Number, default: 0 },
     totalFailed: { type: Number, default: 0 },
-    port: { type: String, required: true, maxlength: 10 },
+    port: { type: String, required: true, maxlength: 255 },
     credits: { type: Number, default: 0.0 },
     description: { type: String, maxlength: 255 },
     isActive: { type: Boolean, default: true },
