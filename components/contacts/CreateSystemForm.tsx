@@ -50,7 +50,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   const [address, setAddress] = React.useState("");
   const [userLevel, setUserLevel] = React.useState("normal");
   const [subscription, setSubscription] = React.useState("basic");
-  const [port, setPort] = React.useState(null);
+  const [port, setPort] = React.useState("");
   const [system, setSystem] = React.useState(null);
 
   // State for dynamic location selections
@@ -129,7 +129,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       setSelectedMunicipality("")
       setSelectedBarangay("")
       setSystem(null);
-      setPort(null);
+      setPort("");
     }
 
   }, [])
@@ -241,7 +241,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="mobile">Port</Label>
-                  <Input id="port" placeholder="COM PORT" value={port} onChange={(e) => setPort(e.target.value)} />
+                  <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
                 </div>
               </div>
             </TabsContent>
@@ -377,7 +377,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Port</Label>
-                    <Input id="port" placeholder="COM PORT" value={port} onChange={(e) => setPort(e.target.value)} />
+                    <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
                   </div>
                 </div>
               </div>
