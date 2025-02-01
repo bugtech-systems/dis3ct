@@ -1,4 +1,4 @@
-name: Deploy Alayon Next App to Alayon Ubuntu Server
+name: (atod@test) Deploy Alayon Next App to Alayon Ubuntu Server
 
 on:
   push:
@@ -6,13 +6,10 @@ on:
       - development
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: self-hosted  # Runs on your local Ubuntu machine
     steps:
-    
-      - name: Change to project directory
-        run: cd /home/bugtechadmin/apps/alayon-next
-    
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -22,13 +19,23 @@ jobs:
           node-version: 18
           cache: 'npm'
 
+      - name: Pull latest changes in project directory
+        run: |
+          cd /home/bugtechadmin/apps/alayon-next
+          git reset --hard
+          git fetch origin development
+          git pull origin development
+
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd /home/bugtechadmin/apps/alayon-next
+          npm install
 
       - name: Build the Next.js app
-        run: npm run build
-
-      - name: Start the Next.js app with PM2
         run: |
-          npm install -g pm2
+          cd /home/bugtechadmin/apps/alayon-next
+          npm run build
+
+      - name: Restart Next.js app with PM2
+        run: |
           pm2 restart 1
