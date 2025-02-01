@@ -41,7 +41,7 @@ export default function PlaygroundPage() {
     const [instruction, setInstruction] = useState('');
     const [isTask, setIsTask] = useState(false);
     const { presets, selectedContact, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset } = usePlayground();
-    const { user, system, parentSystem } = useContact();
+    const { user, system } = useContact();
 
 
     // const handleAddMessage = async (message: any) => {

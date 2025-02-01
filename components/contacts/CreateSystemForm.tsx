@@ -30,17 +30,19 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 import { TContact } from "@/utils/types";
-import { Contact } from "@/data/schema"
+import { Contact } from "@/app/(app)/contacts/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { sanitizePhoneNumber } from "@/lib/helpers";
+import { useContact } from "../providers/ContactProvider";
 
 
 export function CreateSystemForm({ user, contact, open, setOpen }: {
   user?: Contact;
   contact?: Contact;
-  open: boolean;
+  open?: boolean;
   setOpen: (value: boolean) => void
 }) {
+  const { parentSystem, setParentSystem } = useContact()
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
@@ -48,6 +50,8 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   const [address, setAddress] = React.useState("");
   const [userLevel, setUserLevel] = React.useState("normal");
   const [subscription, setSubscription] = React.useState("basic");
+  const [port, setPort] = React.useState(null);
+  const [system, setSystem] = React.useState(null);
 
   // State for dynamic location selections
   const [regions, setRegions] = React.useState([]);
@@ -99,6 +103,40 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
 
 
 
+  React.useEffect(() => {
+    if (contact) {
+      setPhone(contact.phone)
+      setName(contact.name || "")
+      setAddress(contact.address || "")
+      setSelectedRegion(contact.regCode || "")
+      setSelectedProvince(contact.provCode || "")
+      setSelectedMunicipality(contact.citymunCode || "")
+      setSelectedBarangay(contact.brgyCode || "")
+
+      axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
+        setParentSystem(res.data);
+        setSystem(res.data);
+        setPort(res.data.port)
+      });
+    }
+
+    return () => {
+      setPhone("")
+      setName("")
+      setAddress("")
+      setSelectedRegion("")
+      setSelectedProvince("")
+      setSelectedMunicipality("")
+      setSelectedBarangay("")
+      setSystem(null);
+      setPort(null);
+    }
+
+  }, [])
+
+
+
+
 
   // 📌 Handle Form Submission
   const handleSubmit = async () => {
@@ -124,6 +162,13 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
         brgyCode: selectedBarangay,
         userLevel: 'system',
         subscription: subscription
+      }).then(() => {
+
+        return axios.post("/api/contacts/save/system", {
+          phone: sanitizePhoneNumber(phone),
+          port,
+          description: name
+        })
       });
 
       // toast({ title: "Success", description: response.data.message, status: "success" });
@@ -142,12 +187,14 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
 
 
 
+  console.log(system, 'SSS')
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create System</DialogTitle>
+            <DialogTitle>{contact?.id ? 'Edit' : 'Create'} System</DialogTitle>
             <DialogDescription>
               Add a new system.
             </DialogDescription>
@@ -191,6 +238,10 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mobile">Port</Label>
+                  <Input id="port" placeholder="COM PORT" value={port} onChange={(e) => setPort(e.target.value)} />
                 </div>
               </div>
             </TabsContent>
@@ -323,6 +374,10 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Port</Label>
+                    <Input id="port" placeholder="COM PORT" value={port} onChange={(e) => setPort(e.target.value)} />
                   </div>
                 </div>
               </div>

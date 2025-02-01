@@ -138,7 +138,7 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
-              {system &&
+              {(system && user?.userLevel == 'admin') &&
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

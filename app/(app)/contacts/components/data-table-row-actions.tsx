@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { ListRestartIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +30,7 @@ import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
+import { CreateSystemForm } from "@/components/contacts/CreateSystemForm"
 
 
 interface DataTableRowActionsProps<TData> {
@@ -40,7 +41,7 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const contact = contactSchema.parse(row.original);
-  const { user } = useContact()
+  const { user, parentSystem } = useContact()
   const [open, setOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
@@ -106,16 +107,52 @@ export function DataTableRowActions<TData>({
   };
 
 
+  const handleRestart = async () => {
+    let apiUrl = '/api/tasks'
+    let system = await axios.get(`/api/contacts/save/system/${contact.phone}`);
+
+    if (system.data) {
+
+      await axios.post(apiUrl, {
+        status: 'Todo',
+        priority: 'Low',
+        category: 'Background',
+        title: 'GSM Module',
+        taskObject: JSON.stringify({
+          url: `http://127.0.0.1:23006/api/gsm/restart`,
+          method: 'post',
+          dataObject: {
+            port: system.data.port
+            /* instruction */
+          }
+        })
+      })
+    }
+
+    console.log(system, 'PORT')
+
+
+  }
+
 
 
 
   return (
     <>
-      <EditContactForm
-        open={open}
-        setOpen={setOpen}
-        contact={contact}
-      />
+      {contact.userLevel == 'system' ?
+        <CreateSystemForm
+          open={open}
+          setOpen={setOpen}
+          contact={contact}
+        />
+        :
+        <EditContactForm
+          open={open}
+          setOpen={setOpen}
+          contact={contact}
+        />
+      }
+
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -173,6 +210,21 @@ export function DataTableRowActions<TData>({
             <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
 
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+          {(contact?.userLevel == 'system') &&
+            <>
+              <DropdownMenuItem
+                onClick={() => handleRestart()}
+              >
+                Restart GSM
+                <DropdownMenuShortcut><ListRestartIcon size={18} /></DropdownMenuShortcut>
+
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
+
           <DropdownMenuSeparator />
           {(user?.userLevel == 'system' || user?.userLevel == 'admin') &&
             <>

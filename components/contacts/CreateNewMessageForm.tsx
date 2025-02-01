@@ -19,9 +19,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useContact } from "../providers/ContactProvider";
 
 export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContacts: any }) {
   const [showContactDialog, setShowContactDialog] = React.useState(false);
+  const { system } = useContact()
   const [message, setMessage] = React.useState("");
   const [isFlash, setIsFlash] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -58,6 +60,7 @@ export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContac
         recipients: selectedContacts.map((contact: any) => contact.phone), // Extract phone numbers
         message,
         isFlash,
+        system: system.phone
       };
 
       const response = await axios.post("/api/tasks/sms", payload);

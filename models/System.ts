@@ -6,7 +6,6 @@ export interface ISystem extends Document {
   totalFailed: number;
   port: string;
   credits: number;
-  presets?: mongoose.Types.ObjectId[]; // Array of references to Conversation
   description?: string;
   isActive: boolean;
   createdAt: Date;
@@ -21,13 +20,8 @@ const SystemSchema: Schema = new mongoose.Schema(
     credits: { type: Number, default: 0.0 },
     description: { type: String, maxlength: 255 },
     isActive: { type: Boolean, default: true },
-    createdAt: { type: Date, default: Date.now },
-    presets: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "AiPreset", // Reference to the Conversation model
-          },
-        ],
+    createdAt: { type: Date, default: Date.now }
+
   },
   { timestamps: true }
 );
