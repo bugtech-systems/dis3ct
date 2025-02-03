@@ -7,6 +7,7 @@ import {
   deleteTask,
 } from "@/services/taskServices";
 import { v4 as uuidv4 } from "uuid";
+import { isParsableObject } from "@/lib/helpers";
 
 // Get all tasks or a single task by ID
 export const GET = async (req: NextRequest) => {
@@ -36,16 +37,18 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    
-    let newObject = {...body,
+
+    let newObject = {
+      ...body,
+      taskObject: isParsableObject(body.taskObject) ? body.taskObject : JSON.stringify(body.taskObject),
       taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
     };
-    
+
     const result = await createTask(newObject);
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });
     }
-    
+
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     return NextResponse.json(
