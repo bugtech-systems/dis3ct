@@ -194,6 +194,8 @@ export const POST = async (req: NextRequest,
       sampleConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}\n-Full Name: ${contact?.name}\n-Address: ${contact?.address}\n` })
     }
 
+
+    console.log(sampleConversations, "CONVOO")
     const ollamaService = new OllamaService();
     const aiResponse = presets.length ? await ollamaService.determineRelatedPreset(presets, contact?.activePreset, message, sampleConversations || []) as any : [];
 

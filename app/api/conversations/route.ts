@@ -11,8 +11,11 @@ export const GET = async (req: NextRequest) => {
     let systemParam = searchParams.get("system");
     let contactParam = searchParams.get("contact");
     let presetParam = searchParams.get("preset");
+    let statusParam = searchParams.get("status");
 
-    let options = {} as any;
+    let options = {
+      status: statusParam ? statusParam : 'pending'
+    } as any;
     // Validate required parameters
     if (!systemParam || !contactParam) {
       return NextResponse.json(

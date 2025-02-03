@@ -26,6 +26,7 @@ export interface IContact extends Document {
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
   userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal' | 'system' | 'rider';
+  coordinates: any;
   subscription: 'basic' | 'pro' | 'cancelled';
   isDeleted: boolean;
 }
@@ -52,6 +53,10 @@ const ContactSchema = new Schema<IContact>(
       type: String,
       enum: ['regional', 'provincial', 'municipal', 'barangay', 'admin', 'system', 'normal', 'rider'],
       default: 'normal',
+    },
+    coordinates: {
+      latitude: String,
+      longitude: String
     },
     subscription: {
       type: String,
