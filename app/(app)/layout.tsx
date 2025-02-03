@@ -16,6 +16,7 @@ import { CreateContactForm } from "@/components/contacts/CreateContactForm";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/authOptions";
+import getAuth from "@/actions/getAuth";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -35,7 +36,10 @@ export default async function RootLayout({
 }>) {
   let { user } = await authenticate();
 
+  const currentUser = await getAuth();
+
   const systems = await getSystems(user.id);
+
 
   const systemData = systems.map(system => ({ id: String(system._id), name: system.name, phone: system.phone, user: system.userId, plan: "Organization" }))
 
@@ -45,6 +49,7 @@ export default async function RootLayout({
 
         <AppSidebar
           systems={systemData}
+          currentUser={String(currentUser._id)}
         />
         <SidebarInset>
           {/* <div className="border-b w-100 d-flex flex-row justify-between">

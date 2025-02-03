@@ -28,18 +28,23 @@ export default function DashboardPage() {
     });
 
     useEffect(() => {
+
         const fetchDashboardData = async () => {
             try {
-                const response = await axios.get(`/api/dashboard?user=${user._id}&parent=${system.id}`);
+                const response = await axios.get(`/api/dashboard?user=${user?._id}&parent=${system?.id}`);
                 setDashboardData(response.data);
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
             }
         };
 
-        fetchDashboardData();
+        if (user && system) {
+            fetchDashboardData();
+        }
+
     }, [user, system]);
 
+    console.log(system, user, 'SYST')
 
 
     return (
