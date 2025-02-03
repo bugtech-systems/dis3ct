@@ -33,10 +33,9 @@ export const POST = async (req: NextRequest) => {
 
     myContact = await Contact.find({
       $and: options
-    });
+    }).populate('parNum');
 
 
-    console.log(myContact, parentData, 'CO')
 
     contact = myContact.find(doc => (doc.userLevel == 'admin'
       || String(doc.parNum) == String(parentData?._id)))
@@ -58,11 +57,15 @@ export const POST = async (req: NextRequest) => {
 
 
 
+    const systemData = await Contact.findById(system);
+
 
     // Generate a 6-digit OTP
     const otp = await generateOTP();
     contact.otpCode = await bcrypt.hash(otp, 10);
     contact.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+
+
     await contact.save();
     // await sendOTP(phone, otp);
     // const payload = {
@@ -88,6 +91,7 @@ export const POST = async (req: NextRequest) => {
       status: "Todo",
       priority: "High",
       taskObject: JSON.stringify({
+        system: systemData?.phone,
         phone: internationalizePhoneNumber(phone),
         message: `One Time Password: ${otp}\n Maretext App.`,
         isFlash: false,
