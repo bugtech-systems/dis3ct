@@ -22,14 +22,14 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer) });
+    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer), userLevel: 'system', deletedAt: null });
 
     if (!parentData) {
       return NextResponse.json({ error: "System contact not found." }, { status: 400 });
     }
 
 
-    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer ?? system), parNum: parentData?._id });
+    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer ?? system), parNum: parentData?._id, deletedAt: null });
 
 
 
@@ -40,13 +40,13 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id })
+    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id, deletedAt: null })
 
     if (!contact) {
       contact = new Contact({
         phone: sanitizePhoneNumber(phone),
-        refNum: refData?.id,
-        parNum: parentData?.id
+        refNum: refData?._id,
+        parNum: parentData?._id
       })
     }
 
