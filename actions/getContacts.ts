@@ -49,7 +49,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
 
       contacts = await IContact.find({
         // phone: { $ne: sanitizePhoneNumber(phone) },
-        uplines: { $in: [String(contact?._id)] }, // Check if referrer.id is in the uplines array
+        $or: [{ uplines: { $in: [String(contact?._id)] } }, { refNum: contact?._id }],
         parNum: contact?.parNum,
         deletedAt: null
       }).lean() as any;
