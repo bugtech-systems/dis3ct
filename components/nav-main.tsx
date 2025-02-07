@@ -17,7 +17,7 @@ const navAdmin = [
     isActive: true,
   },
   {
-    title: "Contacts",
+    title: "Records",
     url: "/contacts",
     icon: BookOpen,
     badge: "10",
@@ -42,7 +42,7 @@ const navSystem = [
     isActive: true,
   },
   {
-    title: "Contacts",
+    title: "Records",
     url: "/contacts",
     icon: BookOpen,
     badge: "10",
@@ -63,7 +63,7 @@ const navNormal = [
     isActive: true,
   },
   {
-    title: "Contacts",
+    title: "Records",
     url: "/contacts",
     icon: BookOpen,
     badge: "10",

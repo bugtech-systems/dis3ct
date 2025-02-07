@@ -58,7 +58,7 @@ export default function PlaygroundPage() {
 
             // .finally(() => setLoading(false));
 
-            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
+            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}${system?.phone ? `&system=${system.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?.value}` : ''}&status=pending`); // Update the endpoint URL if necessary
             console.log('response CONVO', response)
 
             if (!response.ok) {
@@ -264,6 +264,7 @@ export default function PlaygroundPage() {
 
         if (system && (!selectedContact && !selectedPreset)) {
             setMessages([])
+            getConversations()
         }
 
 

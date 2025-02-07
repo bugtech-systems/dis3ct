@@ -11,8 +11,11 @@ export const GET = async (req: NextRequest) => {
     let systemParam = searchParams.get("system");
     let contactParam = searchParams.get("contact");
     let presetParam = searchParams.get("preset");
+    let statusParam = searchParams.get("status");
 
-    let options = {} as any;
+    let options = {
+      status: statusParam ? statusParam : 'pending'
+    } as any;
     // Validate required parameters
     if (!systemParam || !contactParam) {
       return NextResponse.json(
@@ -26,8 +29,9 @@ export const GET = async (req: NextRequest) => {
 
 
 
-    let senderContact = await getContactByNumber(contactParam);
+
     let systemContact = await getContactByNumber(systemParam);
+    let senderContact = await getContactByNumber(contactParam, systemContact.data?.phone);
     let systemPreset = await getPresetByValue(presetParam);
 
 
@@ -55,7 +59,6 @@ export const GET = async (req: NextRequest) => {
     }
 
 
-    console.log(result.data, 'RESULT CONVO')
     return NextResponse.json(result.data, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching conversations:", error);

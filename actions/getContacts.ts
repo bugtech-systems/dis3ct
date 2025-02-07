@@ -7,6 +7,13 @@ import { Contact } from '@/app/(app)/contacts/data/schema';
 import IContact from '@/models/Contact';
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 
+
+
+function objectToString(obj: any, separator = " ") {
+  return Object.values(obj).join(separator);
+}
+
+
 const getLeadersContacts = async (): Promise<Contact[]> => {
 
   try {
@@ -50,7 +57,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
 
 
 
-    console.log(contacts, String(contact?._id), 'Contacts')
+    console.log(contacts, String(contact?._id), String(contact?.parNum), 'Contacts')
 
     let newContacts = []
 
@@ -59,8 +66,8 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
       let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
-
-      return { ...contact, barangay, citymun, province, region }
+      let keyStr = objectToString({ ...contact, barangay, citymun, province, region })
+      return { ...contact, barangay, citymun, province, region, keyStr }
     })
 
 

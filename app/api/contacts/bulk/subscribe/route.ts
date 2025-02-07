@@ -1,4 +1,4 @@
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
@@ -27,77 +27,46 @@ const convertToAndCondition = (option: any) => {
 export const POST = async (req: NextRequest) => {
 
   try {
+    const session = await getServerSession(authOptions) as any;
+    const { searchParams } = new URL(req.url) as any;
 
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
     const data = await req.json()
 
-    if (!data?.phone) return new NextResponse("Not Found", { status: 404 })
+    const userId = session.user.id;
 
-    let { phone, system, referrer } = data;
+    await connectToDatabase()
 
-    let newPhone = sanitizePhoneNumber(data?.phone);
-
-
-    await connectToDatabase();
+    let contact = await Contact.findById(userId);
+    let { rows } = data;
 
 
+    console.log(rows, 'DELETING')
+    let objectIds = [];
 
+    objectIds = rows.map((row: any) => row.id);
 
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system), userLevel: 'system' });
+    let options = {
+      _id: { $in: objectIds }
+    } as any;
 
-    if (!parentData) {
-      return NextResponse.json({ error: "System contact not found." }, { status: 400 });
+    if (contact?.userLevel != 'system') {
+      options.uplines = { $in: [String(contact?._id)] }// Check if referrer.id is in the uplines array
     }
 
 
+    const updatedContact = await Contact.updateMany(options, { $set: { subscribed: true } });
 
-    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer), parNum: parentData?._id }) as any;
-
-
-    if (!refData) {
-      refData = parentData;
-      // return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
-    }
-
-
-    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id })
-
-    if (!contact) {
-      contact = new Contact({
-        phone: sanitizePhoneNumber(phone),
-        refNum: refData?.id,
-        parNum: parentData?.id,
-        // ...(refData ? { brgyCode: refData.brgyCode } : { brgyCode: parentData.brgyCode }),
-        // ...(refData ? { citymunCode: refData.citymunCode } : { citymunCode: parentData.citymunCode }),
-        ...(refData ? { provCode: refData.provCode } : { provCode: parentData.provCode }),
-        ...(refData ? { regCode: refData.regCode } : { regCode: parentData.regCode }),
-      })
-    }
-
-
-    let refExist = contact?.uplines?.find(contact => String(contact) == String(refData?._id))
-
-    console.log(refExist, refData._id, 'REFEX')
-
-    if (!refExist && refData._id) {
-      contact?.uplines?.push(refData._id)
-    } else {
-      return NextResponse.json({ error: "Contact already exist." }, { status: 200 });
-    }
-
-    const newMobile = new Mobile({ phone: newPhone });
-
-
-    const savedContact = await contact.save();
-
-
-
-    return NextResponse.json(savedContact, { status: 201 });
+    // return NextResponse.json(updatedContact, { status: 201 });
+    return NextResponse.json('Subscribed Successfully', { status: 201 });
 
   } catch (error) {
     console.error('Error creating contact:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
-
 }
 
 
@@ -155,4 +124,39 @@ export const GET = async (req: NextRequest) => {
 
 
 
+export const PATCH = async (
+  req: NextRequest
+) => {
+  try {
+    const session = await getServerSession(authOptions) as any;
+    if (!session || !session.user) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
+
+    // if (!(await isAuthorized(userId, contactId))) {
+    //   return new NextResponse("Forbidden", { status: 403 });
+    // }
+
+
+    // if (!(await isAuthorized(userId, contactId))) {
+    //   return new NextResponse("Forbidden", { status: 403 });
+    // }
+    const data = await req.json()
+
+
+    console.log(data, "DELETE")
+
+    // const updatedContact = await Contact.findByIdAndUpdate(id,
+    //   { $set: { deletedAt: new Date } }
+    // );
+
+
+
+
+    return new NextResponse("Contact deleted", { status: 200 });
+  } catch (err) {
+    console.error("Error deleting contact:", err);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+};

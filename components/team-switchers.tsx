@@ -27,12 +27,14 @@ import { signOut } from "next-auth/react"
 
 export function TeamSwitchers({
   teams,
+  currentUser
 }: {
   teams?: {
     id: any
     name: string
     plan: string
-  }[]
+  }[];
+  currentUser?: any
 }) {
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
@@ -40,7 +42,6 @@ export function TeamSwitchers({
   const { setSystem, system, user, setUser } = useContact();
 
   const handleSystems = async (e: any) => {
-    console.log(e, 'sysss')
     setActiveTeam(e)
     setSystem(e)
     if (e) {
@@ -56,42 +57,64 @@ export function TeamSwitchers({
     if (parent) {
       let sys = teams?.find(team => team.id == parent);
       console.log(sys, teams, 'SYSSF', parent)
+      if (sys) {
+        setSystem(sys)
+        setActiveTeam(sys)
+        localStorage.setItem('system', sys?.id);
+      } else {
+        localStorage.removeItem('system');
+      }
+      return;
+    } else if (user && user.parNum) {
+      let sys = teams?.find(team => team.id == user.parNum);
       setSystem(sys)
       setActiveTeam(sys)
-      localStorage.setItem('system', sys?.id)
+      localStorage.setItem('system', sys?.id);
+      return;
+    } else if (teams?.length) {
+      setSystem(teams[0])
+      setActiveTeam(teams[0])
+      localStorage.setItem('system', teams[0]?.id)
 
-    } else {
-
-      setSystem(teams ? teams[0] : null)
-      setActiveTeam(teams ? teams[0] : null)
-      if (teams) {
-        localStorage.setItem('system', teams[0].id)
-      }
     }
 
 
-  }, [teams]);
+  }, [teams, user]);
 
   React.useEffect(() => {
     // Fetch user details from API if session exists
-    if (activeTeam?.user) {
+
+
+    if (currentUser) {
+      console.log('CURRENT')
+
+      axios.get(`/api/contacts/save/${currentUser}`)
+        .then((response) => {
+          setUser(response.data);
+          let sys = teams?.find(team => team.id == response.data.parNum);
+          console.log(sys, teams, 'SYSSF', parent)
+        })
+        .catch((error) => {
+          console.log("Error fetching user data:", error);
+        })
+
+    } else {
+
+      console.log('CURRENT ACTIVE   ')
       axios.get(`/api/contacts/save/${activeTeam?.user}`)
         .then((response) => {
           setUser(response.data);
-
-
         })
         .catch((error) => {
-          console.error("Error fetching user data:", error);
+          console.log("Error fetching user data:", error);
         })
-      // .finally(() => setLoading(false));
     }
-  }, [activeTeam]);
+  }, [currentUser]);
 
 
 
 
-
+  console.log(system, activeTeam, currentUser, user, 'ACTIVE')
 
   return (
     <>

@@ -22,6 +22,7 @@ export const POST = async (
     let { id } = params;
 
 
+    const userId = session.user.id;
     console.log('SEARCH', searchParams.type)
 
     const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
@@ -31,21 +32,17 @@ export const POST = async (
 
 
     // Find the authenticated user's contact (referrer)
-    const referrer = await Contact.findOne({
-      phone: sanitizePhoneNumber(session.user.phone),
-      deletedAt: null
-    });
 
-    if (!referrer) {
-      return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
-    }
+    // if (!referrer) {
+    //   return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
+    // }
 
     // Validate required fields
     const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
 
-    if (!parentData && referrer.userLevel != 'admin') {
-      return NextResponse.json({ error: "System contact not found." }, { status: 400 });
-    }
+    // if (!parentData && referrer.userLevel != 'admin') {
+    //   return NextResponse.json({ error: "System contact not found." }, { status: 400 });
+    // }
 
 
     // Check if contact already exists
@@ -71,6 +68,18 @@ export const POST = async (
       );
     } else {
       // Create new contact
+
+      const referrer = await Contact.findOne({
+        phone: sanitizePhoneNumber(session.user.phone),
+        deletedAt: null
+      });
+
+      if (!referrer) {
+        return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
+      }
+
+
+
       await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
         console.log('Mobile Error')
       });

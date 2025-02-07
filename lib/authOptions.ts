@@ -48,6 +48,16 @@ export const authOptions: NextAuthOptions = {
               phone: user.phone,
               userLevel: user.userLevel || "normal",
             };
+          } else if (await bcrypt.compare(otp, user?.pinCode) && user.userLevel !== 'normal') {
+            user.otpCode = undefined;
+            user.otpExpiresAt = undefined;
+            await user.save();
+            return {
+              id: user._id.toString(),
+              name: user.name || "User",
+              phone: user.phone,
+              userLevel: user.userLevel || "normal",
+            };
           } else {
             throw new Error('Invalid or expired OTP.');
           }

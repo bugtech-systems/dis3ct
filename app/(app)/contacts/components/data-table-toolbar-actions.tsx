@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { ListRestartIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { ListRestartIcon, MessageSquarePlusIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -31,26 +31,24 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
 import { CreateSystemForm } from "@/components/contacts/CreateSystemForm"
-import { CreateLeaderFormDialog } from "@/components/contacts/CreateLeaderForm"
+import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm"
+import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
 
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>
-}
 
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
-  const contact = contactSchema.parse(row.original);
+export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
+  // const contact = contactSchema.parse(row.original);
   const { user, parentSystem } = useContact()
   const [open, setOpen] = useState(false);
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [showAreaDialog, setShowAreaDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
 
   const handleDelete = async () => {
 
     try {
-      const response = await axios.delete(`/api/contacts/save/${contact.id}`);
+      const response = await axios.post(`/api/contacts/bulk/delete`, { rows });
       if (response.data) {
         toast.success('Deleted Successfully!')
         router.refresh();
@@ -70,94 +68,52 @@ export function DataTableRowActions<TData>({
   const handleSubscribed = async () => {
 
     try {
-      const response = await axios.post(`/api/contacts/${contact.phone}/${contact.subscribed ? 'unsubscribe' : 'subscribe'}`);
+      const response = await axios.post(`/api/contacts/bulk/subscribe`, { rows });
       if (response.data) {
-        toast.success(`${contact.subscribed ? 'Unsubscribed' : 'Subscribed'} Successfully!`)
+        toast.success(`Subscribed Successfully!`)
         router.refresh();
 
       } else {
-        toast.error("Failed to send OTP. Please try again.")
+        toast.error("Failed to subscribe. Please try again.")
       }
     } catch (error: any) {
       console.log(error.response, 'ERR')
-      toast.error("An error occurred while sending OTP.")
+      toast.error("An error occurred while Subscribing.")
 
       // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
 
-  const handleSetLeader = async () => {
+
+  const handleUnsubscribed = async () => {
 
     try {
-      const response = await axios.patch(`/api/contacts/save/${contact.id}`, {
-        userLevel: contact.userLevel == 'system' ? 'normal' : 'system'
-      });
+      const response = await axios.post(`/api/contacts/bulk/unsubscribe`, { rows });
       if (response.data) {
-        toast.success(`Updated User Level Successfully!`)
+        toast.success(`Unsubscribed Successfully!`)
         router.refresh();
 
       } else {
-        toast.error("Failed to Update User Level. Please try again.")
+        toast.error("Failed to unsubscribe. Please try again.")
       }
     } catch (error: any) {
       console.log(error.response, 'ERR')
-      toast.error("An error occurred while Update User Level.")
+      toast.error("An error occurred while subscribing.")
 
       // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
 
 
-  const handleRestart = async () => {
-    let apiUrl = '/api/tasks'
-    let system = await axios.get(`/api/contacts/save/system/${contact.phone}`);
 
-    if (system.data) {
-
-      await axios.post(apiUrl, {
-        status: 'Todo',
-        priority: 'Low',
-        category: 'Background',
-        title: 'GSM Module',
-        taskObject: JSON.stringify({
-          url: `http://127.0.0.1:23006/api/gsm/restart`,
-          method: 'post',
-          dataObject: {
-            port: system.data.port
-            /* instruction */
-          }
-        })
-      })
-    }
-
-    console.log(system, 'PORT')
-
-
-  }
 
 
 
 
   return (
     <>
-      {contact.userLevel == 'system' ?
-        <CreateSystemForm
-          open={open}
-          setOpen={setOpen}
-          contact={contact}
-        />
-        : contact.userLevel == 'normal' ?
-          <EditContactForm
-            open={open}
-            setOpen={setOpen}
-            contact={contact}
-          /> :
-          <CreateLeaderFormDialog
-            open={open}
-            setOpen={setOpen}
-            contact={contact}
-          />
-      }
+      <CreateNewMessageForm showContactDialog={showContactDialog} setShowContactDialog={setShowContactDialog} selectedContacts={rows} />
+      <AreaLocationForm showContactDialog={showAreaDialog} setShowContactDialog={setShowAreaDialog} selectedContacts={rows} />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -195,44 +151,40 @@ export function DataTableRowActions<TData>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[180px]">
 
-          <DropdownMenuItem
-            onClick={() => setOpen(true)}
-          >Edit</DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => handleSubscribed()}
-          >
-            {contact.subscribed ? 'Unsubscribe' : 'Subscribe'}
-            <DropdownMenuShortcut>{contact.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
-
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem
-            onClick={() => navigator.clipboard.writeText(contact.phone)}
-          >
-            Copy
-            <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
-
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-          {(contact?.userLevel == 'system') &&
+          {(user?.userLevel == 'system' || user?.userLevel == 'admin' || user.subscription == 'pro') &&
             <>
               <DropdownMenuItem
-                onClick={() => handleRestart()}
+                onClick={() => setShowContactDialog(true)}
               >
-                Restart GSM
-                <DropdownMenuShortcut><ListRestartIcon size={18} /></DropdownMenuShortcut>
-
+                New Message
+                <DropdownMenuShortcut><MessageSquarePlusIcon size={18} /></DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           }
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => handleSubscribed()}
+          >
+            Subscribe
+            <DropdownMenuShortcut><Bell size={18} /></DropdownMenuShortcut>
 
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => handleUnsubscribed()}
+          >
+            Unsubscribe
+            <DropdownMenuShortcut><BellOff size={18} /></DropdownMenuShortcut>
 
+          </DropdownMenuItem>
 
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setShowAreaDialog(true)}
+          >Set Area Location</DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
           >
@@ -240,7 +192,7 @@ export function DataTableRowActions<TData>({
             <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu >
+      </DropdownMenu>
     </>
   )
 }

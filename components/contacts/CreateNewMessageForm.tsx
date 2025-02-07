@@ -21,8 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useContact } from "../providers/ContactProvider";
 
-export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContacts: any }) {
-  const [showContactDialog, setShowContactDialog] = React.useState(false);
+export function CreateNewMessageForm({ setShowContactDialog, showContactDialog, selectedContacts = [] }: { setShowContactDialog: any, showContactDialog: any; selectedContacts: any; }) {
   const { system } = useContact()
   const [message, setMessage] = React.useState("");
   const [isFlash, setIsFlash] = React.useState(false);
@@ -80,9 +79,7 @@ export function CreateNewMessageForm({ selectedContacts = [] }: { selectedContac
 
   return (
     <>
-      <Button onClick={() => setShowContactDialog(true)}>
-        <MessageSquarePlusIcon />
-      </Button>
+
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
         <DialogContent>
           <DialogHeader>

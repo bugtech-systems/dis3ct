@@ -39,7 +39,6 @@ async function processApiResponse(response: any) {
 
   try {
     let { system, sender } = response
-    console.log(response.message.content && isParsableObject(cleanJsonObject(response.message.content)), response, 'PROCESS API')
     if (response.message.content && isParsableObject(cleanJsonObject(response.message.content))) {
       let contentData = JSON.parse(cleanJsonObject(response.message.content))
 
@@ -80,7 +79,7 @@ async function processApiResponse(response: any) {
         if (userData.name || userData.phone || userData.address) {
           await updateContactByNumber(userData.phone, { name: userData.name, address: userData.address })
           // await updateAllPendingConversationsToClose(sender, system)
-          // await axios.patch(`${process.env.ALAYON_NEXT_URL}/contacts/${sanitizePhoneNumber(sender)}`, {name: userData.name, address: userData.address})
+          await axios.post(`https://sharewin.pro/apiv3/order/create`, { ...userData, system, phone: sender, address: userData?.address, order_quantity: userData?.quantity, name: userData?.name, price: userData?.price })
         }
 
 
@@ -135,12 +134,12 @@ export const POST = async (req: NextRequest,
     }
 
     //Find Contact if any
-    let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
+
     let systemContact = await getSystemByNumber(sanitizePhoneNumber(system));
+    let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
 
 
 
-    console.log(systemContact, 'SYSTEM CONT')
 
 
     if (senderContact.data) {
@@ -195,12 +194,12 @@ export const POST = async (req: NextRequest,
       sampleConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}\n-Full Name: ${contact?.name}\n-Address: ${contact?.address}\n` })
     }
 
-    // console.log(sampleConversations, messages, presetResult.data?.value, 'SAMPLE CONVOOOS')
+
+    console.log(sampleConversations, "CONVOO")
     const ollamaService = new OllamaService();
     const aiResponse = presets.length ? await ollamaService.determineRelatedPreset(presets, contact?.activePreset, message, sampleConversations || []) as any : [];
 
     if (!contact?.subscribed) {
-      console.log(presets, 'PRES')
       preset = presets.filter(preset => { return String(preset?.value).toLowerCase().includes('opt') })[0];
 
     } else if (aiResponse) {
@@ -222,7 +221,6 @@ export const POST = async (req: NextRequest,
 
 
 
-    console.log(sampleConversations, aiResponse, preset, 'PRESETS')
 
 
     if (!preset) {
@@ -354,7 +352,6 @@ export const POST = async (req: NextRequest,
       }
     }
 
-    console.log(!String(preset?.name).toLowerCase().includes('opt'))
     if (response.done) {
 
       await createConversation({

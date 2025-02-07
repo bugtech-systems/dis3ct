@@ -11,6 +11,7 @@ const getLeaderDashboard = async (userId?: any): Promise<any | null> => {
   let contacts = 0;
   let recentContacts = [] as any;
   let overviewChartData = [] as any;
+  let newChartData = [] as any;
 
 
   try {
@@ -36,22 +37,41 @@ const getLeaderDashboard = async (userId?: any): Promise<any | null> => {
       options.parNum = user?._id ? user?.parNum : user?._id;
     }
 
-
+    console.log(user?._id, 'REF ID', userId, options)
 
     teamReach = await Contact.countDocuments({ ...options });
     subscriptions = await Contact.countDocuments({ subscribed: true, ...options });
-    contacts = await Contact.countDocuments({ uplines: { $in: userId }, ...options });
+    contacts = await Contact.countDocuments({ uplines: { $in: user?._id }, ...options });
+
+
+    let overview = await Contact.find({ ...options })
+      .sort({ createdAt: 1 }) // Sort in ascending order
+      .select("name phone createdAt");
 
 
     if (user?.userLevel != 'admin') {
-      options.refNum = user?._id
+      options.uplines = { $in: [String(user?._id)] }// Check if referrer.id is in the uplines array
     }
 
     // Fetch 5 recent contacts
     recentContacts = await Contact.find({ ...options })
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(5)
       .select("name phone createdAt");
+
+
+
+    const groupedContacts = overview.reduce((acc: any, contact) => {
+      const month = new Date(contact.createdAt).toLocaleString("default", { month: "short" });
+
+      if (!acc[month]) {
+        acc[month] = [];
+      }
+
+      acc[month].push(contact);
+      return acc;
+    }, {});
+
 
     // Generate Dummy Chart Data
     overviewChartData = [
@@ -69,12 +89,21 @@ const getLeaderDashboard = async (userId?: any): Promise<any | null> => {
       { name: "Dec", total: 3700 },
     ];
 
+    console.log(groupedContacts, 'GROUPED')
 
 
+    overviewChartData.forEach((row: any) => {
+      console.log(row, 'ROW')
+      newChartData.push({
+        name: row.name, total: groupedContacts[row.name] ? groupedContacts[row.name].length : 0
+      })
 
-    return { teamReach, subscriptions, contacts, recentContacts, overviewChartData }
+    })
+
+    return { teamReach, subscriptions, contacts, recentContacts, overviewChartData: newChartData }
   } catch (err) {
-    return { teamReach, subscriptions, contacts, recentContacts, overviewChartData }
+    console.log(err, "ERROR")
+    return { teamReach, subscriptions, contacts, recentContacts, overviewChartData: newChartData }
   }
 }
 

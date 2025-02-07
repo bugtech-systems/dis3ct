@@ -141,7 +141,7 @@ export function LoginForm({ className, ...props }: any) {
               </div>
               <span className="sr-only">Bugtech Inc.</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to Maretext App.</h1>
+            <h1 className="text-xl font-bold">Welcome to Dis3ct App.</h1>
           </div>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
