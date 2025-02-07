@@ -316,6 +316,15 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false
   },
   {
+    accessorKey: "keyStr",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Key String" />
+    ),
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("keyStr")}</div>,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },

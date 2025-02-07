@@ -49,7 +49,7 @@ export default async function RootLayout({
 
         <AppSidebar
           systems={systemData}
-          currentUser={String(currentUser._id)}
+          currentuser={String(currentUser?._id)}
         />
         <SidebarInset>
           {/* <div className="border-b w-100 d-flex flex-row justify-between">

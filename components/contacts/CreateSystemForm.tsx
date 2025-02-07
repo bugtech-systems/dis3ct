@@ -187,7 +187,6 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
 
 
 
-  console.log(system, 'SSS')
 
   return (
     <>

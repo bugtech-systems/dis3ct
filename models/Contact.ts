@@ -21,6 +21,7 @@ export interface IContact extends Document {
   citymunCode?: string;
   activePreset?: string;
   otpCode?: string;
+  pinCode?: string;
   refNum?: Types.ObjectId;
   parNum?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
@@ -46,6 +47,7 @@ const ContactSchema = new Schema<IContact>(
     citymunCode: { type: String, maxlength: 255 },
     activePreset: { type: String, maxlength: 255 },
     otpCode: { type: String },
+    pinCode: { type: String },
     refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
     parNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],

@@ -42,7 +42,6 @@ export function TeamSwitchers({
   const { setSystem, system, user, setUser } = useContact();
 
   const handleSystems = async (e: any) => {
-    console.log(e, 'sysss')
     setActiveTeam(e)
     setSystem(e)
     if (e) {

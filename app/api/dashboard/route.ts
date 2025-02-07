@@ -31,7 +31,7 @@ export const GET = async (req: NextRequest) => {
 
         await connectToDatabase()
 
-        let dashboardDdata = await getLeaderDashboard(systemParam ?? user);
+        let dashboardDdata = await getLeaderDashboard(user ?? systemParam);
 
 
 

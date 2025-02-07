@@ -32,6 +32,7 @@ export default function DashboardPage() {
         const fetchDashboardData = async () => {
             try {
                 const response = await axios.get(`/api/dashboard?user=${user?._id}&parent=${system?.id}`);
+                console.log(response.data, "DASS")
                 setDashboardData(response.data);
             } catch (error) {
                 console.error("Failed to fetch dashboard data", error);
@@ -44,7 +45,6 @@ export default function DashboardPage() {
 
     }, [user, system]);
 
-    console.log(system, user, 'SYST')
 
 
     return (
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                         </Card>
                         <Card className="col-span-3">
                             <CardHeader>
-                                <CardTitle>Recently Added</CardTitle>
+                                <CardTitle>Recently Updated</CardTitle>
                                 <CardDescription>You saved {dashboardData.recentContacts.length} contacts.</CardDescription>
                             </CardHeader>
                             <CardContent>

@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer) });
+    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer), userLevel: 'system' });
 
     if (!parentData) {
       return NextResponse.json({ error: "System contact not found." }, { status: 400 });

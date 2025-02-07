@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import Contact from "@/models/Contact";
 import { sanitizePhoneNumber } from "@/lib/helpers";
 import Mobile from "@/models/Mobile";
+import bcrypt from 'bcryptjs';
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -21,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system, pinCode } = await req.json();
 
     // Validate required fields
     if (!phone && !name) {
@@ -51,12 +52,14 @@ export const POST = async (req: NextRequest) => {
       // Update existing contact
       existingContact.phone = sanitizePhoneNumber(phone);
       existingContact.name = name;
-      existingContact.address = address;
-      existingContact.brgyCode = brgyCode;
-      existingContact.regCode = regCode;
-      existingContact.provCode = provCode;
-      existingContact.citymunCode = citymunCode;
-      // existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
+      existingContact.address = address ?? existingContact.address;
+      existingContact.brgyCode = brgyCode ?? existingContact.brgyCode;
+      existingContact.regCode = regCode ?? existingContact.regCode;
+      existingContact.provCode = provCode ?? existingContact.provCode;
+      existingContact.citymunCode = citymunCode ?? existingContact.citymunCode;
+      existingContact.pinCode = pinCode ? await bcrypt.hash(pinCode, 10) : existingContact.pinCode;      // existingContact.refNum = referrer.id; // Update referrer
+      existingContact.userLevel = userLevel ?? existingContact.userLevel;      // existingContact.refNum = referrer.id; // Update referrer
+
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 
       await existingContact.save();
@@ -86,7 +89,8 @@ export const POST = async (req: NextRequest) => {
         refNum: referrer.id, // Assign current user's ID as refNum
         uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
         userLevel: userLevel, // Default user level,
-        parNum: parentData?.id
+        parNum: parentData?.id,
+        pinCode: await bcrypt.hash(pinCode, 10)
 
       });
 

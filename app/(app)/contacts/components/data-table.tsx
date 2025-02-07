@@ -185,8 +185,8 @@ export function CardsDataTable<TData, TValue>({
       provCode: false,
       citymunCode: false,
       brgyCode: false,
-      activePreset: false
-
+      activePreset: false,
+      keyStr: false
     })
   const [rowSelection, setRowSelection] = React.useState({})
 
@@ -211,13 +211,10 @@ export function CardsDataTable<TData, TValue>({
 
   React.useEffect(() => {
     setContacts([])
-    console.log(system?.id, 'SYSID')
     if (system?.id) {
       let newData = data.filter(row => { return row?.parNum == system.id })
       setContacts(newData)
-      console.log(system, 'SYSTEEM')
     } else {
-      console.log(system, 'SYSTEEM NON')
       setContacts(data)
     }
 

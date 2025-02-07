@@ -24,56 +24,13 @@ import {
   GalleryVerticalEnd
 } from "lucide-react"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Maretext",
-      logo: GalleryVerticalEnd,
-      plan: "Organization",
-    }
-  ],
-  navMain: [
 
-
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: PieChart,
-      isActive: true,
-    },
-    {
-      title: "Contacts",
-      url: "/contacts",
-      icon: BookOpen,
-      badge: "10",
-    },
-    {
-      title: "Ask AI",
-      url: "/playground",
-      icon: Sparkles,
-    },
-    {
-      title: "Tasks",
-      url: "/tasks",
-      icon: Settings2,
-    },
-
-
-  ],
-
-}
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar | any>) {
   return (
     <Sidebar  {...props}>
       <SidebarHeader>
-        <TeamSwitchers teams={props.systems || []} currentUser={props.currentUser} />
+        <TeamSwitchers teams={props.systems || []} currentUser={props.currentuser} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain />

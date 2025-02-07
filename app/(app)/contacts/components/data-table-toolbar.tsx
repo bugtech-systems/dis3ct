@@ -17,6 +17,8 @@ import barangays from "@/data/regions/refbrgy.json"
 import { useContact } from "@/components/providers/ContactProvider"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { DataTableToolbarActions } from "./data-table-toolbar-actions"
+import { UploadContactForm } from "@/components/contacts/UploadContactForm"
 
 
 interface DataTableToolbarProps<TData> {
@@ -29,6 +31,7 @@ export function DataTableToolbar<TData>({
   selectedRow = {}
 }: DataTableToolbarProps<TData>) {
   const { user } = useContact();
+  const [uploadOpen, setUploadOpen] = useState(false);
   const [regions, setRegions] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [citymuns, setCitymuns] = useState([]);
@@ -74,9 +77,9 @@ export function DataTableToolbar<TData>({
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter contact..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("keyStr")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("keyStr")?.setFilterValue(event.target.value)
             // table.getColumn("name")?.setFilterValue(event.target.value)
           }
           }
@@ -131,11 +134,14 @@ export function DataTableToolbar<TData>({
       {isSelected
         ?
         <div className="mr-3">
-          <CreateNewMessageForm selectedContacts={selectedRows} />
+          <DataTableToolbarActions rows={selectedRows} />
         </div>
 
         :
-        <DataTableViewOptions table={table} />
+        <>
+          <UploadContactForm />
+          <DataTableViewOptions table={table} />
+        </>
       }
     </div>
   )

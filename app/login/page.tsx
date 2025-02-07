@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 
 async function authenticationPrecheck(): Promise<void> {
   const session = await getServerSession(authOptions);
-  console.log(session, 'SESSS')
   if (session?.user) return redirect("/dashboard")
 }
 

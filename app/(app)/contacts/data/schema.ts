@@ -32,7 +32,9 @@ export const contactSchema = z.object({
   userLevel: z.string().optional().nullable(),
   activePreset: z.string().optional().nullable(),
   subscribed: z.boolean().optional().nullable(),
-  parNum: z.string().optional().nullable()
+  parNum: z.string().optional().nullable(),
+  subscription: z.string().optional().nullable(),
+  keyStr: z.string().optional().nullable()
 
 })
 

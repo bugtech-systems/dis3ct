@@ -38,7 +38,7 @@ import { useContact } from "../providers/ContactProvider";
 
 
 export function CreateLeaderFormDialog({ contact, open, setOpen }: {
-  contact?: Contact;
+  contact?: any;
   open: boolean;
   setOpen: (value: boolean) => void
 }) {
@@ -50,6 +50,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
   const [address, setAddress] = React.useState("");
   const [userLevel, setUserLevel] = React.useState("normal");
   const [subscription, setSubscription] = React.useState("basic");
+  const [pin, setPinCode] = React.useState("");
 
   // State for dynamic location selections
   const [regions, setRegions] = React.useState([]);
@@ -134,6 +135,15 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
       return;
     }
 
+    if (pin && String(pin).length < 6) {
+      // toast({ title: "Error", description: "All fields are required!", status: "error" });
+      // alert('Phone field is required!')
+      // console.log('Phone field is required!')
+      toast.error("Pin Should be 6 digit!");
+
+      return;
+    }
+
     try {
       const response = await axios.post("/api/contacts/save/leader", {
         phone: sanitizePhoneNumber(phone),
@@ -144,7 +154,9 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
         citymunCode: selectedMunicipality,
         brgyCode: selectedBarangay,
         userLevel: userLevel,
-        system: system?.phone
+        system: system?.phone,
+        pinCode: pin,
+        subscription
         // parNum: system.id
       });
 
@@ -274,26 +286,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
               <div className="min-h-[300px]">
                 <div className="space-y-4 py-2 pb-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subscription">Subscription plan</Label>
-                    <Select onValueChange={setSubscription} value={subscription}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">
-                          <span className="font-medium">Basic</span> -{" "}
-                          <span className="text-muted-foreground">
-                            Unlimited Sms
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="pro">
-                          <span className="font-medium">Pro</span> -{" "}
-                          <span className="text-muted-foreground">
-                            Unlimited Sms and Flash Sms
-                          </span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="pin">Pin Code</Label>
+                    <Input id="pin" placeholder="000000" value={pin} onChange={(e) => setPinCode(e.target.value)} />
                   </div>
                   <div className="space-y-2">
                     <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel} />
@@ -328,6 +322,28 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
                                 </SelectItem>
                               </SelectContent>
                             </Select>  */}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subscription">Subscription plan</Label>
+                    <Select onValueChange={setSubscription} value={subscription}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a plan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">
+                          <span className="font-medium">Basic</span> -{" "}
+                          <span className="text-muted-foreground">
+                            No Sms
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="pro">
+                          <span className="font-medium">Pro</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Unlimited Sms and Flash Sms
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
