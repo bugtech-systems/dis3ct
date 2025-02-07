@@ -177,6 +177,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
 
 
+
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -290,7 +292,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
                     <Input id="pin" placeholder="000000" value={pin} onChange={(e) => setPinCode(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <UserLevelSelect userLevel={user?.userLevel || "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel} />
+                    <UserLevelSelect userLevel={user?.userLevel ?? "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel} />
                     {/*           <Select onValueChange={setUserLevel} value={userLevel} >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a level" />

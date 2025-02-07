@@ -9,6 +9,12 @@ import {
 import { Label } from "@/components/ui/label";
 
 const userLevelOptions: Record<string, { value: string; label: string }[]> = {
+  admin: [
+    { value: "regional", label: "Region" },
+    { value: "provincial", label: "Province" },
+    { value: "municipal", label: "City/Municipality" },
+    { value: "barangay", label: "Barangay" },
+  ],
   system: [
     { value: "regional", label: "Region" },
     { value: "provincial", label: "Province" },
@@ -20,7 +26,7 @@ const userLevelOptions: Record<string, { value: string; label: string }[]> = {
     { value: "municipal", label: "City/Municipality" },
     { value: "barangay", label: "Barangay" },
   ],
-  
+
   provincial: [
     { value: "municipal", label: "City/Municipality" },
     { value: "barangay", label: "Barangay" },
@@ -29,8 +35,8 @@ const userLevelOptions: Record<string, { value: string; label: string }[]> = {
   barangay: [],
 };
 
-export function UserLevelSelect({ userLevel, selectedLevel, setSelectedLevel }: { userLevel: string, selectedLevel: string, setSelectedLevel: (event: string) => void  }) {
-//   const [selectedLevel, setSelectedLevel] = useState("");
+export function UserLevelSelect({ userLevel, selectedLevel, setSelectedLevel }: { userLevel: string, selectedLevel: string, setSelectedLevel: (event: string) => void }) {
+  //   const [selectedLevel, setSelectedLevel] = useState("");
 
   // Get options dynamically based on userLevel
   const options = userLevelOptions[userLevel] || [];
@@ -39,22 +45,22 @@ export function UserLevelSelect({ userLevel, selectedLevel, setSelectedLevel }: 
   if (options.length === 0) return null;
 
   return (
-  <>
-    <Label htmlFor="userLevel">Access Level</Label>
-    <Select onValueChange={setSelectedLevel} value={selectedLevel}>
-      <SelectTrigger>
-        <SelectValue placeholder="Select a level" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            <span className="font-medium">{option.label}</span> -{" "}
-            <span className="text-muted-foreground">{option.label} Level</span>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </>
-    
+    <>
+      <Label htmlFor="userLevel">Access Level</Label>
+      <Select onValueChange={setSelectedLevel} value={selectedLevel}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select a level" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              <span className="font-medium">{option.label}</span> -{" "}
+              <span className="text-muted-foreground">{option.label} Level</span>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+
   );
 }
