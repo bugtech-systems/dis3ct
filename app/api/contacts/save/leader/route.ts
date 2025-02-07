@@ -87,7 +87,7 @@ export const POST = async (req: NextRequest) => {
         userLevel: userLevel, // Default user level
         subscription: subscription,
         parNum: system,
-        pinCode: await bcrypt.hash(pinCode, 10)
+        pinCode: pinCode ? await bcrypt.hash(pinCode, 10) : null
       });
 
       newContact.parNum = parNum ? parNum : userLevel == 'system' ? newContact.id : referrer.parNum
