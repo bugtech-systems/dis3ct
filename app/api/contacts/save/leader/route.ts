@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import Contact from "@/models/Contact";
 import { sanitizePhoneNumber } from "@/lib/helpers";
 import Mobile from "@/models/Mobile";
+import bcrypt from 'bcryptjs';
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -21,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription, system } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription, system, pinCode } = await req.json();
 
     // Validate required fields
     if (!phone && !name) {
@@ -52,6 +53,7 @@ export const POST = async (req: NextRequest) => {
       existingContact.citymunCode = citymunCode;
       existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
       existingContact.subscription = subscription;
+      existingContact.pinCode = pinCode ? await bcrypt.hash(pinCode, 10) : existingContact.pinCode;      // existingContact.refNum = referrer.id; // Update referrer
 
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 

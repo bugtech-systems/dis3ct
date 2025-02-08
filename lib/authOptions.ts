@@ -24,8 +24,10 @@ export const authOptions: NextAuthOptions = {
         // Find the user by phone number
         const user = await Contact.findById(userId) as any;
         console.log('AUTH CONTACT', user)
+
         // If OTP is provided, verify it
         if ((user && user._id) && otp) {
+
           if (user.otpExpiresAt && user.otpExpiresAt > new Date() && await bcrypt.compare(otp, user?.otpCode)) {
             // OTP is valid
             user.otpCode = undefined;
