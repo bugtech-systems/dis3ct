@@ -152,7 +152,7 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
         <DropdownMenuContent align="end" className="w-[180px]">
 
 
-          {(user?.userLevel == 'system' || user?.userLevel == 'admin' || user.subscription == 'pro') &&
+          {(user?.userLevel == 'system' || user?.userLevel == 'admin' || user?.subscription == 'pro') &&
             <>
               <DropdownMenuItem
                 onClick={() => setShowContactDialog(true)}
