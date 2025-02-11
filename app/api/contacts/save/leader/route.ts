@@ -38,7 +38,7 @@ export const POST = async (req: NextRequest) => {
 
     // Check if contact already exists
     let existingContact = await Contact.findOne({
-      phone: sanitizePhoneNumber(phone), parNum: referrer.parNum,
+      phone: sanitizePhoneNumber(phone), refNum: referrer.id,
       deletedAt: null
     });
 
@@ -54,7 +54,6 @@ export const POST = async (req: NextRequest) => {
       existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
       existingContact.subscription = subscription;
       existingContact.pinCode = pinCode ? await bcrypt.hash(pinCode, 10) : existingContact.pinCode;      // existingContact.refNum = referrer.id; // Update referrer
-
 
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 

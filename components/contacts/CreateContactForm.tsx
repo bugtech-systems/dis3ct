@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { useContact } from "../providers/ContactProvider";
+import WebcamSelector from "../webcam-selector";
 
 export function CreateContactForm() {
   const { user, system } = useContact();
@@ -158,6 +159,7 @@ export function CreateContactForm() {
             <TabsList className="flex justify-center">
               <TabsTrigger value="basic">Basic Details</TabsTrigger>
               <TabsTrigger value="area">Area Location</TabsTrigger>
+              <TabsTrigger value="image">Image</TabsTrigger>
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
@@ -247,6 +249,11 @@ export function CreateContactForm() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="image" className="space-y-4">
+              <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                <WebcamSelector />
               </div>
             </TabsContent>
           </Tabs>

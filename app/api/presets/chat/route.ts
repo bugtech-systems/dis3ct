@@ -1,6 +1,7 @@
 import { cleanJsonObject, convertQuillToPlainText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
-import { getContactByNumber, getSystemByNumber, optInContact, optOutContact, setContactPreset, updateContactByNumber } from '@/services/contactServices';
+import { getContactByNumber, getSystemByNumber, optInContact, optOutContact, setContactPreset, updateContact, updateContactByNumber } from '@/services/contactServices';
 import { createConversation, getAllConversations, getContactConversations, updateAllPendingConversationsToClose } from '@/services/conversationServices';
+import { createInteraction } from '@/services/interactionServices';
 import OllamaService from '@/services/ollamaServices';
 import { getAllPresets, getPresetById, getPresetByValue } from '@/services/presetServices';
 import axios from 'axios';
@@ -38,7 +39,8 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
 async function processApiResponse(response: any) {
 
   try {
-    let { system, sender } = response
+    let { system, sender } = response;
+    let contact: any;
     if (response.message.content && isParsableObject(cleanJsonObject(response.message.content))) {
       let contentData = JSON.parse(cleanJsonObject(response.message.content))
 
@@ -77,7 +79,13 @@ async function processApiResponse(response: any) {
       if (contentData.action?.includes("API")) {
         let { userData } = contentData;
         if (userData.name || userData.phone || userData.address) {
-          await updateContactByNumber(userData.phone, { name: userData.name, address: userData.address })
+          let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
+
+          if (senderContact.data) {
+            contact = senderContact.data;
+          }
+
+          await updateContact(contact?._id, { name: userData.name, address: userData.address })
           // await updateAllPendingConversationsToClose(sender, system)
           await axios.post(`https://sharewin.pro/apiv3/order/create`, { ...userData, system, phone: sender, address: userData?.address, order_quantity: userData?.quantity, name: userData?.name, price: userData?.price })
         }
@@ -265,7 +273,7 @@ export const POST = async (req: NextRequest,
     let newConvos = await getAllConversations({ system: systemParent?._id, contact: contact?._id, preset: preset?._id, status: "pending" });
     if (newConvos.data) {
       recentConversations = newConvos.data.map(convo => ({ role: convo.role, content: convo.content }));
-      recentConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}\n-Full Name: ${contact?.name}\n-Address: ${contact?.address}\n` })
+      // recentConversations.push({ role: "user", content: `User Object: \n-phone: ${contact?.phone}` })
     }
 
 
@@ -369,7 +377,19 @@ export const POST = async (req: NextRequest,
         content: response.message.content,
         role: 'assistant'
       })
+
+
+      let contentData = isParsableObject(cleanJsonObject(response.message.content)) ? JSON.parse(cleanJsonObject(response.message.content)) : response.message.content;
+
+
+      await createInteraction({
+        contact: contact?.phone,
+        inputText: message,
+        responseText: (contentData && contentData?.message) ? contentData?.message : contentData,
+      })
     }
+
+
     await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
 
 
