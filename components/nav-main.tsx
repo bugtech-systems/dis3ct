@@ -79,7 +79,7 @@ export function NavMain() {
 
 
   const pathname = usePathname();
-
+  console.log(user, 'USER')
   let items = (user && user.userLevel == 'admin') ? navAdmin : (user && (user.userLevel == 'system' && user.subscription == 'pro')) ? navSystem : navNormal;
   return (
     <SidebarMenu>

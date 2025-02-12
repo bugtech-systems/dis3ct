@@ -20,6 +20,7 @@ export const contactSchema = z.object({
   id: z.string(),
   phone: z.string(),
   name: z.string().optional().nullable(),
+  username: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
   regCode: z.string().optional().nullable(),
   provCode: z.string().optional().nullable(),

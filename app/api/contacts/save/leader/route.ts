@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription, system, pinCode } = await req.json();
+    const { userId, phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, parNum, subscription, system, pinCode, username } = await req.json();
 
     // Validate required fields
     if (!phone && !name) {
@@ -38,13 +38,15 @@ export const POST = async (req: NextRequest) => {
 
     // Check if contact already exists
     let existingContact = await Contact.findOne({
-      phone: sanitizePhoneNumber(phone), refNum: referrer.id,
-      deletedAt: null
+      $or: [{
+        phone: sanitizePhoneNumber(phone), refNum: referrer.id, deletedAt: null
+      }, { _id: userId }]
     });
 
     if (existingContact) {
       // Update existing contact
       existingContact.phone = sanitizePhoneNumber(phone);
+      existingContact.username = String(username).toLowerCase().trim();
       existingContact.name = name;
       existingContact.address = address;
       existingContact.brgyCode = brgyCode;
@@ -86,6 +88,7 @@ export const POST = async (req: NextRequest) => {
         userLevel: userLevel, // Default user level
         subscription: subscription,
         parNum: system,
+        username: String(username).toLowerCase().trim(),
         pinCode: pinCode ? await bcrypt.hash(pinCode, 10) : null
       });
 

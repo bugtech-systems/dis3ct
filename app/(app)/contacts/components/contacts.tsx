@@ -27,7 +27,7 @@ export default async function ContactsPage({ contacts }: { contacts: Contact[] }
             <div className="flex-1 space-y-4 p-3">
                 {/* <DataTable data={tasks} columns={columns} /> */}
                 <CardsDataTable
-                    data={contacts.map(contact => ({ id: String(contact._id), phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel, subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode, activePreset: contact.activePreset, barangay: contact.barangay, citymun: contact.citymun, province: contact.province, region: contact.region, parNum: String(contact.parNum), subscription: contact.subscription, keyStr: contact.keyStr }))}
+                    data={contacts.map(contact => ({ id: String(contact._id), username: contact.username, phone: contact.phone, name: contact.name, address: contact.address, userLevel: contact.userLevel, subscribed: contact.subscribed, regCode: contact.regCode, provCode: contact.provCode, citymunCode: contact.citymunCode, brgyCode: contact.brgyCode, activePreset: contact.activePreset, barangay: contact.barangay, citymun: contact.citymun, province: contact.province, region: contact.region, parNum: String(contact.parNum), subscription: contact.subscription, keyStr: contact.keyStr }))}
                     columns={columns}
                 />
             </div>

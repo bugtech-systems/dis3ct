@@ -1,52 +1,81 @@
-'use client';
+import React, { useRef, useState, useEffect } from 'react';
 
-import { useEffect, useState, useRef } from 'react';
-
-export default function WebcamSelector() {
-    const [devices, setDevices] = useState<any>([]);
-    const [selectedDeviceId, setSelectedDeviceId] = useState('');
-    const videoRef = useRef<any>(null);
-
-    useEffect(() => {
-        async function getDevices() {
-            const deviceList = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = deviceList.filter(device => device.kind === 'videoinput') as any;
-            setDevices(videoDevices);
-            if (videoDevices.length > 0) {
-                setSelectedDeviceId(videoDevices[0].deviceId);
-            }
-        }
-        getDevices();
-    }, []);
+const CamScreen = () => {
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const [mediaStream, setMediaStream] = useState(null);
+    const [capturedImage, setCapturedImage] = useState(null);
 
     useEffect(() => {
-        async function startStream() {
-            if (!selectedDeviceId) return;
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { deviceId: { exact: selectedDeviceId } }
-            });
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+
+        const enableVideoStream = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                setMediaStream(stream);
+            } catch (error) {
+                console.error('Error accessing webcam', error);
             }
+        };
+
+        if (!capturedImage) {
+            enableVideoStream();
         }
-        startStream();
-    }, [selectedDeviceId]);
+
+    }, [capturedImage]);
+
+    useEffect(() => {
+        if (videoRef.current && mediaStream) {
+            videoRef.current.srcObject = mediaStream;
+        }
+    }, [mediaStream]);
+
+    const captureImage = () => {
+        if (videoRef.current && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataUrl = canvas.toDataURL('image/png');
+            setCapturedImage(imageDataUrl);
+        }
+    };
+
+    const retakeImage = () => {
+        setCapturedImage(null);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach((track) => {
+                    track.stop();
+                });
+            }
+        };
+    }, [mediaStream]);
+
+
+
+    console.log(capturedImage, 'CAPTURED IMAGE')
 
     return (
-        <div className="flex flex-col items-center space-y-4 p-6">
-            <h1 className="text-xl font-bold">Webcam Selector</h1>
-            <select
-                className="p-2 border rounded"
-                value={selectedDeviceId}
-                onChange={(e) => setSelectedDeviceId(e.target.value)}
-            >
-                {devices.map((device: any) => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                        {device.label || `Camera ${devices.indexOf(device) + 1}`}
-                    </option>
-                ))}
-            </select>
-            <video ref={videoRef} autoPlay playsInline className="border rounded w-full max-w-md" />
+        <div>
+            {capturedImage ? (
+                <div>
+                    <img src={capturedImage} alt="Captured" />
+                    <button onClick={retakeImage}>Retake Photo</button>
+                </div>
+            ) : (
+                <div>
+                    <video ref={videoRef} autoPlay />
+                    <button onClick={captureImage}>Capture Photo</button>
+                </div>
+            )}
+            <canvas ref={canvasRef} style={{ display: 'none' }} />
         </div>
     );
-}
+};
+
+export default CamScreen;

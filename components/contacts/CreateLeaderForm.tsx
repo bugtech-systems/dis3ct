@@ -46,6 +46,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [name, setName] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [userLevel, setUserLevel] = React.useState("normal");
@@ -102,8 +103,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
 
   React.useEffect(() => {
+    console.log(contact, 'SELECTED')
     if (contact) {
       setPhone(contact.phone)
+      setUsername(contact.username)
       setName(contact.name || "")
       setAddress(contact.address || "")
       setSelectedRegion(contact.regCode || "")
@@ -146,8 +149,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
     try {
       const response = await axios.post("/api/contacts/save/leader", {
+        userId: contact.id,
         phone: sanitizePhoneNumber(phone),
         name,
+        username,
         address,
         regCode: selectedRegion,
         provCode: selectedProvince,
@@ -191,10 +196,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
             <TabsList className="flex justify-center">
-              <TabsTrigger value="basic">Basic Details</TabsTrigger>
-              <TabsTrigger value="area">Area Location</TabsTrigger>
+              <TabsTrigger value="basic">Details</TabsTrigger>
+              <TabsTrigger value="area">Area</TabsTrigger>
               <TabsTrigger value="access" >
-                Access Level
+                Access
               </TabsTrigger>
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
@@ -287,6 +292,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
             <TabsContent value="access" className="space-y-4">
               <div className="min-h-[300px]">
                 <div className="space-y-4 py-2 pb-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pin">Username</Label>
+                    <Input id="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="pin">Pin Code</Label>
                     <Input id="pin" placeholder="000000" value={pin} onChange={(e) => setPinCode(e.target.value)} />

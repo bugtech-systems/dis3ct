@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function LoginForm({ className, ...props }: any) {
+  const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [user, setUser] = useState<any>(null);
   const [otp, setOtp] = useState("");
@@ -56,19 +57,41 @@ export function LoginForm({ className, ...props }: any) {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validatePhone()) return;
 
     try {
 
-      const response = await axios.post("/api/generate-otp", { phone, system: localStorage.getItem('system') });
+      if (!username && !phone) {
+        setPhoneError("Username or Phone is required");
+        return
+      }
 
-      console.log(response, 'RESPP')
-      if (response.data) {
-        setStep(2);
-        startTimer(600);
-        setUser(response.data.data)
-      } else {
-        setPhoneError("Failed to send OTP. Please try again.");
+      if (username) {
+        const res = await signIn("credentials", {
+          redirect: false,
+          username,
+          otp,
+          // userId: user?._id
+        });
+
+        console.log(res, 'RESS')
+        if (res?.error) {
+          setPhoneError("Invalid Username. Please try again.");
+        } else {
+          router.push("/");
+          return;
+        }
+      } else if (phone) {
+        if (!validatePhone()) return;
+
+        setOtp("")
+        const response = await axios.post("/api/generate-otp", { phone, system: localStorage.getItem('system') });
+        if (response.data) {
+          setStep(2);
+          startTimer(600);
+          setUser(response.data.data)
+        } else {
+          setPhoneError("Failed to send OTP. Please try again.");
+        }
       }
     } catch (error: any) {
       console.log(error.response, 'ERR')
@@ -132,77 +155,113 @@ export function LoginForm({ className, ...props }: any) {
   console.log(user, "USERR")
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form onSubmit={step === 1 ? handleSendOtp : handleVerifyOtp}>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <a href="#" className="flex flex-col items-center gap-2 font-medium">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col items-center gap-2">
+          <a href="#" className="flex flex-col items-center gap-2 font-medium">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md">
+              <GalleryVerticalEnd className="size-6" />
+            </div>
+            <span className="sr-only">Bugtech Inc.</span>
+          </a>
+          <h1 className="text-xl font-bold">Welcome to Dis3ct App.</h1>
+        </div>
+        {step == 1 &&
+          <form onSubmit={handleSendOtp}>
+
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="username"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
               </div>
-              <span className="sr-only">Bugtech Inc.</span>
-            </a>
-            <h1 className="text-xl font-bold">Welcome to Dis3ct App.</h1>
-          </div>
-          <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Password"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+              </div>
+            </div>
+            {/* <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+              <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                Or
+              </span>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="phone">Phone Number</Label>
               <Input
                 id="phone"
                 placeholder="09774461641"
-                required
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
               {phoneError && (
                 <p className="text-red-500 text-sm mt-1">{phoneError}</p>
               )}
-            </div>
-            {step === 2 && (
-              <>
-                <div className="grid gap-2">
-                  <Label htmlFor="otp">One Time Password</Label>
-                  <Input
-                    id="otp"
-                    placeholder="000000"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                  />
-                  {otpError && (
-                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
-                  )}
-                </div>
-                {isTimerActive && (
-                  <p className="text-center text-sm text-muted-foreground">
-                    Time remaining: {formatTime(timer)}
-                  </p>
-                )}
-              </>
-            )}
+            </div> */}
+            <br />
             <Button
               type="submit"
               className="w-full"
-              disabled={step === 2 && !isTimerActive}
             >
-              {step === 1
-                ? "Login"
-                : isTimerActive
-                  ? "Verify"
-                  : "Resend OTP"}
+              Login
             </Button>
-          </div>
-        </div>
-      </form>
-      {step === 2 && !isTimerActive && (
-        <div className="text-center text-xs text-muted-foreground">
-          <button
-            onClick={handleResendOtp}
-            className="underline"
-            disabled={isResendDisabled}
+          </form>
+        }
+
+      </div>
+      {/*  {step == 2 &&
+        <form onSubmit={handleVerifyOtp}>
+          {step === 2 && (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="otp">One Time Password</Label>
+                <Input
+                  id="otp"
+                  placeholder="000000"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+                {otpError && (
+                  <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                )}
+              </div>
+              {isTimerActive && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Time remaining: {formatTime(timer)}
+                </p>
+              )}
+            </>
+          )}
+          {step === 2 && !isTimerActive && (
+            <div className="text-center text-xs text-muted-foreground">
+              <button
+                onClick={handleResendOtp}
+                className="underline"
+                disabled={isResendDisabled}
+              >
+                {isResendDisabled ? "Please wait..." : "Resend OTP"}
+              </button>
+            </div>
+          )}
+          <br />
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!isTimerActive}
           >
-            {isResendDisabled ? "Please wait..." : "Resend OTP"}
-          </button>
-        </div>
-      )}
+            Login
+          </Button>
+        </form>
+      } */}
       <div className="text-center text-xs text-muted-foreground">
         By clicking continue, you agree to our{" "}
         <a href="#" className="underline">

@@ -52,6 +52,8 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   const [subscription, setSubscription] = React.useState("basic");
   const [port, setPort] = React.useState("");
   const [system, setSystem] = React.useState(null);
+  const [username, setUsername] = React.useState("");
+  const [pin, setPinCode] = React.useState("");
 
   // State for dynamic location selections
   const [regions, setRegions] = React.useState([]);
@@ -106,6 +108,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   React.useEffect(() => {
     if (contact) {
       setPhone(contact.phone)
+      setUsername(contact.username || "")
       setName(contact.name || "")
       setAddress(contact.address || "")
       setSelectedRegion(contact.regCode || "")
@@ -154,8 +157,11 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
 
     try {
       const response = await axios.post("/api/contacts/save/leader", {
+        userId: contact?.id,
         phone: sanitizePhoneNumber(phone),
         name,
+        username,
+        pinCode: pin,
         regCode: selectedRegion,
         provCode: selectedProvince,
         citymunCode: selectedMunicipality,
@@ -201,10 +207,10 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
           <Tabs defaultValue="basic" className="space-y-4">
             <TabsList className="flex justify-center">
               <TabsTrigger value="basic">System Details</TabsTrigger>
-              <TabsTrigger value="area">Area Location</TabsTrigger>
-              {/* <TabsTrigger value="access" >
-                                Access Level
-                              </TabsTrigger> */}
+              <TabsTrigger value="area">Area</TabsTrigger>
+              <TabsTrigger value="access" >
+                Access
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
@@ -319,6 +325,14 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
               <div className="min-h-[300px]">
                 <div className="space-y-4 py-2 pb-4">
                   <div className="space-y-2">
+                    <Label htmlFor="pin">Username</Label>
+                    <Input id="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pin">Pin Code</Label>
+                    <Input id="pin" placeholder="000000" value={pin} onChange={(e) => setPinCode(e.target.value)} />
+                  </div>
+                  {/*  <div className="space-y-2">
                     <Label htmlFor="subscription">Subscription plan</Label>
                     <Select onValueChange={setSubscription} value={subscription}>
                       <SelectTrigger>
@@ -377,7 +391,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Port</Label>
                     <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </TabsContent>

@@ -9,7 +9,8 @@ import mongoose, { Schema, Document, Types, Model } from 'mongoose';
 // Define Contact Interface
 export interface IContact extends Document {
   mobile: Types.ObjectId; // Reference to the associated Mobile document
-  phone: string;
+  phone?: string;
+  username?: string;
   name?: string;
   address?: string;
   subscribed?: boolean;
@@ -36,6 +37,7 @@ const ContactSchema = new Schema<IContact>(
   {
     // mobile: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // Reference to Mobile document
     phone: { type: String, maxlength: 20 },
+    username: { type: String, required: false },
     name: { type: String },
     address: { type: String, required: false },
     subscribed: { type: Boolean, default: false },

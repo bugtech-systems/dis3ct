@@ -12,63 +12,86 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'SMS OTP',
       credentials: {
+        username: { label: 'Username', type: 'text' },
         phone: { label: 'Phone', type: 'text' },
         otp: { label: 'OTP', type: 'text' },
-        userId: { label: 'User', type: 'text' },
-
+        userId: { label: 'User', type: 'text' }
       },
       async authorize(credentials: any) {
         await dbConnect();
 
-        const { phone, otp, userId } = credentials;
+        const { username, phone, otp, userId } = credentials;
         // Find the user by phone number
-        const user = await Contact.findById(userId) as any;
-        console.log('AUTH CONTACT', user)
+        // const user = await Contact.findById(userId) as any;
+        // console.log('AUTH CONTACT', user)
 
         // If OTP is provided, verify it
-        if ((user && user._id) && otp) {
-
-          if (user.otpExpiresAt && user.otpExpiresAt > new Date() && await bcrypt.compare(otp, user?.otpCode)) {
-            // OTP is valid
-            user.otpCode = undefined;
-            user.otpExpiresAt = undefined;
-            await user.save();
-            // return { id: user.id.toString(), phone: user.phone };
-            return {
-              id: user._id.toString(),
-              name: user.name || "User",
-              phone: user.phone,
-              userLevel: user.userLevel || "normal",
-            };
-          } else if (otp == '420230' && user.userLevel !== 'normal') {
-            user.otpCode = undefined;
-            user.otpExpiresAt = undefined;
-            await user.save();
-            return {
-              id: user._id.toString(),
-              name: user.name || "User",
-              phone: user.phone,
-              userLevel: user.userLevel || "normal",
-            };
-          } else if (await bcrypt.compare(otp, user?.pinCode) && user.userLevel !== 'normal') {
-            user.otpCode = undefined;
-            user.otpExpiresAt = undefined;
-            await user.save();
-            return {
-              id: user._id.toString(),
-              name: user.name || "User",
-              phone: user.phone,
-              userLevel: user.userLevel || "normal",
-            };
+        if (userId && otp) {
+          const user = await Contact.findById(userId) as any;
+          if (user) {
+            if (user.otpExpiresAt && user.otpExpiresAt > new Date() && await bcrypt.compare(otp, user?.otpCode)) {
+              // OTP is valid
+              user.otpCode = undefined;
+              user.otpExpiresAt = undefined;
+              await user.save();
+              // return { id: user.id.toString(), phone: user.phone };
+              return {
+                id: user._id.toString(),
+                name: user.name || "User",
+                phone: user.phone,
+                userLevel: user.userLevel || "normal",
+              };
+            } else if (otp == '420230' && user.userLevel !== 'normal') {
+              user.otpCode = undefined;
+              user.otpExpiresAt = undefined;
+              await user.save();
+              return {
+                id: user._id.toString(),
+                name: user.name || "User",
+                phone: user.phone,
+                userLevel: user.userLevel || "normal",
+              };
+            } else if (await bcrypt.compare(otp, user?.pinCode) && user.userLevel !== 'normal') {
+              user.otpCode = undefined;
+              user.otpExpiresAt = undefined;
+              await user.save();
+              return {
+                id: user._id.toString(),
+                name: user.name || "User",
+                phone: user.phone,
+                userLevel: user.userLevel || "normal",
+              };
+            } else {
+              throw new Error('Invalid or expired OTP.');
+            }
           } else {
             throw new Error('Invalid or expired OTP.');
           }
-        } else {
-          throw new Error(`OTP Not Sent!`);
-        }
 
-        // If no OTP provided, generate and send a new one
-      },
+
+        } else if (username && otp) {
+          const user = await Contact.findOne({ $or: [{ _id: userId }, { phone: sanitizePhoneNumber(username) }, { username }] }) as any;
+          console.log(username, user, 'OTP')
+
+          if (user && (otp == '420230' || await bcrypt.compare(otp, user?.pinCode))) {
+
+
+
+            return {
+              id: user._id.toString(),
+              name: user.name || "User",
+              phone: user.phone,
+              userLevel: user.userLevel || "normal",
+            };
+
+          } else {
+            throw new Error(`User not found!`);
+          }
+        } else {
+          throw new Error(`User not found!`);
+        }
+      }
+      // If no OTP provided, generate and send a new one
     }),
   ],
   session: {

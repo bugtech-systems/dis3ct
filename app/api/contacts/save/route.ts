@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
 
     console.log('SEARCH', searchParams.type)
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system, pinCode } = await req.json();
+    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system, pinCode, username } = await req.json();
 
     // Validate required fields
     if (!phone && !name) {
@@ -59,7 +59,6 @@ export const POST = async (req: NextRequest) => {
       existingContact.citymunCode = citymunCode ?? existingContact.citymunCode;
       existingContact.pinCode = pinCode ? await bcrypt.hash(pinCode, 10) : existingContact.pinCode;      // existingContact.refNum = referrer.id; // Update referrer
       existingContact.userLevel = userLevel ?? existingContact.userLevel;      // existingContact.refNum = referrer.id; // Update referrer
-
       // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
 
       await existingContact.save();
