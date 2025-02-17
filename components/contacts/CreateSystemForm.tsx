@@ -42,7 +42,6 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   open?: boolean;
   setOpen: (value: boolean) => void
 }) {
-  const { parentSystem, setParentSystem } = useContact()
   const router = useRouter(); // ⬅ Initialize useRouter
   // State for form fields
   const [phone, setPhone] = React.useState("");
@@ -51,7 +50,6 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
   const [userLevel, setUserLevel] = React.useState("normal");
   const [subscription, setSubscription] = React.useState("basic");
   const [port, setPort] = React.useState("");
-  const [system, setSystem] = React.useState(null);
   const [username, setUsername] = React.useState("");
   const [pin, setPinCode] = React.useState("");
 
@@ -116,11 +114,11 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       setSelectedMunicipality(contact.citymunCode || "")
       setSelectedBarangay(contact.brgyCode || "")
 
-      axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
-        setParentSystem(res.data);
-        setSystem(res.data);
-        setPort(res.data.port)
-      });
+      // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
+      //   setParentSystem(res.data);
+      //   setSystem(res.data);
+      //   setPort(res.data.port)
+      // });
     }
 
     return () => {
@@ -131,7 +129,7 @@ export function CreateSystemForm({ user, contact, open, setOpen }: {
       setSelectedProvince("")
       setSelectedMunicipality("")
       setSelectedBarangay("")
-      setSystem(null);
+      // setSystem(null);
       setPort("");
     }
 

@@ -30,7 +30,7 @@ export function CreateNewMessageForm({ setShowContactDialog, showContactDialog, 
 
   // 📌 Max characters allowed
   const MAX_CHARACTERS = 500;
-  const recipientCount = selectedContacts.length;
+  const recipientCount = selectedContacts.filter((doc: any) => { return doc.phone }).length;
 
   // 📌 Handle message change
   const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

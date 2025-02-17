@@ -103,7 +103,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
 
   React.useEffect(() => {
-    console.log(contact, 'SELECTED')
     if (contact) {
       setPhone(contact.phone)
       setUsername(contact.username)

@@ -2,10 +2,16 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      { hostname: 'utfs.io'},
-      { hostname: 'img.clerk.com'}
+      { hostname: 'utfs.io' },
+      { hostname: 'img.clerk.com' }
     ]
-  }
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;

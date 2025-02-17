@@ -33,7 +33,8 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
         <TeamSwitchers teams={props.systems || []} currentUser={props.currentuser} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
+        <NavMain
+        />
       </SidebarContent>
       <SidebarFooter>
         <SidebarOptInForm />

@@ -7,22 +7,6 @@ import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 // import { withAuth } from '@/lib/withAuth';
 
-const convertToAndCondition = (option: any) => {
-  if (!option || typeof option !== "object") {
-    throw new Error("Invalid option provided. Must be an object.");
-  }
-
-  let options = [] as any;
-  Object.entries(option).map(([key, value]) => {
-    if (value && value != 'undefined')
-      options.push({ [key]: value })
-  })
-  // Convert each key-value pair to a separate condition in the $and array
-  return {
-    $and: options
-  };
-};
-
 
 export const POST = async (req: NextRequest) => {
 
@@ -59,7 +43,7 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    const updatedContact = await Contact.updateMany(options, { $set: { deletedAt: new Date } });
+    const updatedContact = await Contact.deleteMany(options);
 
 
     // return NextResponse.json(updatedContact, { status: 201 });
@@ -81,35 +65,24 @@ export const GET = async (req: NextRequest) => {
 
     const session = await getServerSession(authOptions) as any;
     const { searchParams } = new URL(req.url) as any;
+    let fieldParam = searchParams.get("field");
 
     // Check if user is authenticated
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-    }
+    // if (!session || !session.user) {
+    //   return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    // }
 
-    const phone = session.user.phone;
-    const userId = session.user.id;
+
 
     await connectToDatabase()
 
-    let contact = await Contact.findById(userId);
-
-
-    if (!contact) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
-
-
-    const contacts = await Contact.find({ parNum: contact.parNum }).sort({ createdAt: -1 }).populate('parNum');
 
 
 
 
 
 
-
-
-
+    await Contact.deleteMany({ [fieldParam]: { $exists: true } });
 
     // if(!user){
     //   return new NextResponse('Unauthorized!', { status: 401 });
@@ -118,7 +91,7 @@ export const GET = async (req: NextRequest) => {
 
 
     // console.log(contacts, 'CONTACTSssss')
-    return NextResponse.json(contacts, { status: 200 });
+    return NextResponse.json({ message: 'Deleted Success' }, { status: 200 });
   } catch (error) {
     console.error('Error fetching contacts:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });

@@ -7,19 +7,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
 
-import regions from "@/data/regions/refregion.json"
-import provinces from "@/data/regions/refprovince.json"
-import municipalities from "@/data/regions/refcitymun.json"
-import barangays from "@/data/regions/refbrgy.json"
 // import { barangays } from "@/lib/locationData";
 
 import { Contact } from "../data/schema"
 
-
-let regionsOptions = regions.map(region => ({ label: region.regDesc, value: region.regCode }))
-let provincesOptions = provinces.map(province => ({ label: province.provDesc, value: province.provCode }))
-let municipalitiesOptions = municipalities.map(mun => ({ label: mun.citymunDesc, value: mun.citymunCode }))
-// let barangaysOptions = barangays.map((brgy: any) => ({ label: brgy.brgyDesc, value: brgy.brgyCode }));
 
 
 
@@ -58,7 +49,7 @@ export const columns: ColumnDef<Contact>[] = [
       // const label = labels.find((label) => label.value === row.original.label)
 
       return (
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 w-[150px]">
           {/*        {label && <Badge variant="outline">{label.label}</Badge>}
           <span className="max-w-[500px] truncate font-medium"> */}
           {row.getValue("name")}
@@ -72,9 +63,17 @@ export const columns: ColumnDef<Contact>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Phone" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("phone")}</div>,
-    enableSorting: false,
-    enableHiding: false,
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex space-x-2">
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+        <span className="max-w-[500px] truncate font-medium"> */}
+          {row.getValue("phone")}
+          {/* </span> */}
+        </div>
+      )
+    },
   },
   {
     accessorKey: "userLevel",
@@ -106,10 +105,46 @@ export const columns: ColumnDef<Contact>[] = [
       // const label = labels.find((label) => label.value === row.original.label)
 
       return (
+        <div className="flex space-x-2 max-w-[300px]">
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>} */}
+          <span className="max-w-[300px] truncate font-medium">
+            {row.getValue("address")}
+          </span>
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "marker",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Type" />
+    ),
+    cell: ({ row }) => {
+      // const label = labels.find((label) => label.value === row.original.label)
+
+      return (
         <div className="flex space-x-2">
           {/*        {label && <Badge variant="outline">{label.label}</Badge>}
           <span className="max-w-[500px] truncate font-medium"> */}
-          {row.getValue("address")}
+          {row.getValue("marker")}
+          {/* </span> */}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "precinct",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Precinct" />
+    ),
+    cell: ({ row }) => {
+      // const label = labels.find((label) => label.value === row.original.label)
+
+      return (
+        <div className="flex space-x-2">
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+          <span className="max-w-[500px] truncate font-medium"> */}
+          {row.getValue("precinct")}
           {/* </span> */}
         </div>
       )

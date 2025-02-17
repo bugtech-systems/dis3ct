@@ -36,13 +36,13 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
         // phone: { $ne: sanitizePhoneNumber(phone) },
 
         // refNum: userId,
-        deletedAt: null
+        // deletedAt: null
       }).lean();
     } else if (contact?.userLevel == 'system') {
       contacts = await IContact.find({
         // phone: { $ne: sanitizePhoneNumber(phone) },
         parNum: contact?.parNum,
-        deletedAt: null
+        // deletedAt: null
       }).lean() as any;
 
     } else {
@@ -51,13 +51,12 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
         // phone: { $ne: sanitizePhoneNumber(phone) },
         $or: [{ uplines: { $in: [String(contact?._id)] } }, { refNum: contact?._id }],
         parNum: contact?.parNum,
-        deletedAt: null
+        // deletedAt: null
       }).lean() as any;
     }
 
 
 
-    console.log(contacts, String(contact?._id), String(contact?.parNum), 'Contacts')
 
     let newContacts = []
 
@@ -69,7 +68,6 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
       let keyStr = objectToString({ ...contact, barangay, citymun, province, region })
       return { ...contact, barangay, citymun, province, region, keyStr }
     })
-
 
 
 

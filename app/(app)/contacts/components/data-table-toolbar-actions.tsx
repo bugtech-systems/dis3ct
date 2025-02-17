@@ -22,15 +22,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import { contactSchema } from "../data/schema"
 import { useState } from "react"
-import { EditContactForm } from "@/components/contacts/EditContactForm"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
-import { CreateSystemForm } from "@/components/contacts/CreateSystemForm"
 import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm"
 import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
 
@@ -39,7 +36,6 @@ import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
 export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
   // const contact = contactSchema.parse(row.original);
   const { user, parentSystem } = useContact()
-  const [open, setOpen] = useState(false);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showAreaDialog, setShowAreaDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);

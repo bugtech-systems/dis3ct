@@ -114,6 +114,7 @@ export default function PlaygroundPage() {
                             sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
                             system: system.phone,
                             message: userMessage,
+                            ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {})
                             /* instruction */
                         }
                     })
@@ -131,6 +132,7 @@ export default function PlaygroundPage() {
                     sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
                     system: system.phone,
                     message: userMessage,
+                    ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),
                     instruction
                 });
 

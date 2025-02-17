@@ -1,5 +1,6 @@
-'use client'
+"use client";
 
+import { useEffect, useState, useCallback } from "react";
 import {
     Card,
     CardContent,
@@ -10,14 +11,11 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { useContact } from "@/components/providers/ContactProvider";
-
-
+import { getLeaderDashboard } from "@/actions/getDashboard";
 
 export default function DashboardPage() {
-    const { user, system } = useContact()
+    const { user, setUser } = useContact();
 
     const [dashboardData, setDashboardData] = useState({
         teamReach: 0,
@@ -27,24 +25,51 @@ export default function DashboardPage() {
         overviewChartData: [],
     });
 
-    useEffect(() => {
+    // Memoized function to fetch dashboard data
+    const fetchDashboardData = useCallback(async () => {
+        if (!user) return;
 
-        const fetchDashboardData = async () => {
-            try {
-                const response = await axios.get(`/api/dashboard?user=${user?._id}&parent=${system?.id}`);
-                console.log(response.data, "DASS")
-                setDashboardData(response.data);
-            } catch (error) {
-                console.error("Failed to fetch dashboard data", error);
-            }
-        };
+        try {
+            const dashData = await getLeaderDashboard(user._id);
+            console.log("FETCHING DASH", dashData);
 
-        if (user && system) {
-            fetchDashboardData();
+            // Only update state if data actually changes
+            /*     setDashboardData((prevData) => {
+                    return JSON.stringify(prevData) !== JSON.stringify(dashData)
+                        ? dashData
+                        : prevData;
+                }); */
+        } catch (error) {
+            console.error("Failed to fetch dashboard data", error);
         }
+    }, []);
 
-    }, [user, system]);
+    // Fetch user data and set it in context
+    // const handleGetUser = useCallback(async () => {
+    //     try {
+    //         const userData = await fetch("/api/contacts/auth").then((res) =>
+    //             res.json()
+    //         );
 
+    //         if (userData) {
+    //             setUser(userData);
+    //         }
+    //     } catch (err) {
+    //         console.log("Error fetching user data:", err);
+    //     }
+    // }, [setUser]);
+
+    // // Fetch user on mount
+    // useEffect(() => {
+    //     if (!user) {
+    //         handleGetUser();
+    //     }
+    // }, []);
+
+    // Fetch dashboard data when user changes
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
 
 
     return (
@@ -52,18 +77,10 @@ export default function DashboardPage() {
             <Tabs defaultValue="overview" className="space-y-4">
                 <TabsContent value="overview" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-
                         {/* Team Reach */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Team Reach
-                                </CardTitle>
-                                <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                                    <circle cx="9" cy="7" r="4" />
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                                </svg>
+                                <CardTitle className="text-sm font-medium">Team Reach</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{dashboardData?.teamReach}</div>
@@ -73,15 +90,10 @@ export default function DashboardPage() {
                         {/* Subscriptions */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    Subscriptions
-                                </CardTitle>
-                                <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                                </svg>
+                                <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{dashboardData.subscriptions}</div>
+                                <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
                             </CardContent>
                         </Card>
 
@@ -89,16 +101,11 @@ export default function DashboardPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">My Contacts</CardTitle>
-                                <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect width="20" height="14" x="2" y="5" rx="2" />
-                                    <path d="M2 10h20" />
-                                </svg>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{dashboardData.contacts}</div>
+                                <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
                             </CardContent>
                         </Card>
-
                     </div>
 
                     {/* Chart & Recent Contacts */}
@@ -108,16 +115,18 @@ export default function DashboardPage() {
                                 <CardTitle>Overview</CardTitle>
                             </CardHeader>
                             <CardContent className="pl-2">
-                                <Overview chartData={dashboardData.overviewChartData} />
+                                <Overview chartData={dashboardData?.overviewChartData} />
                             </CardContent>
                         </Card>
                         <Card className="col-span-3">
                             <CardHeader>
                                 <CardTitle>Recently Updated</CardTitle>
-                                <CardDescription>You saved {dashboardData.recentContacts.length} contacts.</CardDescription>
+                                <CardDescription>
+                                    You saved {dashboardData?.recentContacts?.length} contacts.
+                                </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <RecentSales contacts={dashboardData.recentContacts} />
+                                <RecentSales contacts={dashboardData?.recentContacts} />
                             </CardContent>
                         </Card>
                     </div>

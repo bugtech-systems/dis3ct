@@ -11,6 +11,9 @@ export interface IContact extends Document {
   mobile: Types.ObjectId; // Reference to the associated Mobile document
   phone?: string;
   username?: string;
+  precinct?: string;
+  marker?: string;
+  idNum?: string;
   name?: string;
   address?: string;
   subscribed?: boolean;
@@ -29,6 +32,7 @@ export interface IContact extends Document {
   otpExpiresAt?: Date;
   userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal' | 'system' | 'rider';
   coordinates: any;
+
   subscription: 'basic' | 'pro' | 'cancelled';
   isDeleted: boolean;
 }
@@ -38,6 +42,9 @@ const ContactSchema = new Schema<IContact>(
     // mobile: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // Reference to Mobile document
     phone: { type: String, maxlength: 20 },
     username: { type: String, required: false },
+    precinct: { type: String, required: false },
+    marker: { type: String, required: false },
+    idNum: { type: Number, required: false },
     name: { type: String },
     address: { type: String, required: false },
     subscribed: { type: Boolean, default: false },

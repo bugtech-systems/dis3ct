@@ -152,7 +152,6 @@ export function LoginForm({ className, ...props }: any) {
   };
 
 
-  console.log(user, "USERR")
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col gap-6">

@@ -69,19 +69,6 @@ export function SidebarOptInForm() {
     }
   };
 
-  useEffect(() => {
-    // Fetch user details from API if session exists
-    if (session?.user?.id) {
-      axios.get(`/api/contacts/${session.user.phone}`)
-        .then((response) => {
-          setUser(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        })
-      // .finally(() => setLoading(false));
-    }
-  }, [session]);
 
 
   return (

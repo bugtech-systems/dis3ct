@@ -178,7 +178,11 @@ export function CardsDataTable<TData, TValue>({
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      address: false, // Hide address column by default.
+      phone: false,
+      province: false,
+      citymun: false,
+      barangay: false,
+      address: true, // Hide address column by default.
       userLevel: false,
       regCode: false,
       region: false,
@@ -221,7 +225,6 @@ export function CardsDataTable<TData, TValue>({
   }, [data, system])
 
 
-  console.log(contacts, 'CONTACTS', system, data)
 
 
   return (
@@ -297,7 +300,7 @@ export function CardsDataTable<TData, TValue>({
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-            >
+            > 
               Previous
             </Button>
             <Button

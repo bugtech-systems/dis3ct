@@ -236,7 +236,7 @@ export function sanitizePhoneNumber(phoneNumber: any) {
   // Remove any non-numeric characters from the phone number
   const sanitized = String(phoneNumber).replace(/\D/g, '');
 
-  if (sanitized.length > 12) throw Error('Invalid phone number format');
+  if (sanitized.length > 12) return null;
 
 
   // Check for common prefixes and remove them
@@ -253,7 +253,6 @@ export function sanitizePhoneNumber(phoneNumber: any) {
   }
 
   // If the number is not in a valid format, return null or throw an error
-  throw new Error('Invalid phone number format');
 }
 
 
@@ -261,6 +260,7 @@ export function sanitizePhoneNumber(phoneNumber: any) {
 
 export function internationalizePhoneNumber(phoneNumber: any) {
   // Remove any non-numeric characters from the phone number
+  if (!phoneNumber) return "";
   const sanitized = phoneNumber.replace(/\D/g, '');
 
   if (sanitized.length > 12) throw Error('Invalid phone number format');
@@ -278,6 +278,6 @@ export function internationalizePhoneNumber(phoneNumber: any) {
   }
 
   // If the number is not in a valid format, return null or throw an error
-  throw new Error('Invalid phone number format');
+  throw phoneNumber;
 }
 

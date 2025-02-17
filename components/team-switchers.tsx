@@ -52,6 +52,7 @@ export function TeamSwitchers({
 
 
   React.useEffect(() => {
+    // if(user)
     // Fetch user details from API if session exists
     let parent = localStorage.getItem('system')
     if (parent) {
@@ -71,50 +72,30 @@ export function TeamSwitchers({
       setActiveTeam(sys)
       localStorage.setItem('system', sys?.id);
       return;
-    } else if (teams?.length) {
-      setSystem(teams[0])
-      setActiveTeam(teams[0])
-      localStorage.setItem('system', teams[0]?.id)
-
     }
 
 
-  }, [teams, user]);
+  }, []);
 
-  React.useEffect(() => {
-    // Fetch user details from API if session exists
+  // React.useEffect(() => {
 
+  //   if (currentUser) {
+  //     //     axios.get(`/api/contacts/save/${activeTeam?.user}`)
 
-    if (currentUser) {
-      console.log('CURRENT')
+  //     axios.get(`/api/contacts/save/${currentUser?._id}`)
+  //       .then((response) => {
+  //         setUser(response.data);
+  //       })
+  //       .catch((error) => {
+  //         console.log("Error fetching user data:", error);
+  //       })
+  //   }
 
-      axios.get(`/api/contacts/save/${currentUser}`)
-        .then((response) => {
-          setUser(response.data);
-          let sys = teams?.find(team => team.id == response.data.parNum);
-          console.log(sys, teams, 'SYSSF', parent)
-        })
-        .catch((error) => {
-          console.log("Error fetching user data:", error);
-        })
-
-    } else {
-
-      console.log('CURRENT ACTIVE   ')
-      axios.get(`/api/contacts/save/${activeTeam?.user}`)
-        .then((response) => {
-          setUser(response.data);
-        })
-        .catch((error) => {
-          console.log("Error fetching user data:", error);
-        })
-    }
-  }, [currentUser]);
+  // }, [currentUser]);
 
 
 
 
-  console.log(system, activeTeam, currentUser, user, 'ACTIVE')
 
   return (
     <>

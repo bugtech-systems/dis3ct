@@ -8,6 +8,29 @@ import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import Ollama from 'ollama';
 
+const handleCall = async ({ phone, system }: { phone?: string; system?: string; }) => {
+
+  let apiUrl = `http://localhost:3000/api/tasks`
+
+
+  let resp = await axios.post(apiUrl, {
+    status: 'Todo',
+    priority: 'Medium',
+    category: 'Call',
+    title: 'Call Contact',
+    taskObject: JSON.stringify({
+      // ...preset,
+      phone,
+      system: system,
+    })
+  }) as any;
+
+  if (resp.success) {
+    console.log('SUCCESS 200')
+  }
+
+
+}
 
 const handleNewMessage = async ({ message, sender, system, isFlash = false }: { message?: string; sender?: string; isFlash?: boolean; system?: string; }) => {
 
@@ -39,7 +62,7 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
 async function processApiResponse(response: any) {
 
   try {
-    let { system, sender } = response;
+    let { system, sender, phone } = response;
     let contact: any;
     if (response.message.content && isParsableObject(cleanJsonObject(response.message.content))) {
       let contentData = JSON.parse(cleanJsonObject(response.message.content))
@@ -60,10 +83,18 @@ async function processApiResponse(response: any) {
         } else {
           await setContactPreset(sender, 'alayon_opting');
         }
-
-
       }
 
+
+
+
+      if (contentData.action?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
+        console.log(contentData, 'CALL DATA', phone, sender)
+        await handleCall({
+          phone: contentData?.phone ? contentData?.phone : sender,
+          system
+        })
+      }
 
       if (contentData.action?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
 
@@ -73,8 +104,6 @@ async function processApiResponse(response: any) {
           system
         })
       }
-
-
 
       if (contentData.action?.includes("API")) {
         let { userData } = contentData;
@@ -107,7 +136,7 @@ async function processApiResponse(response: any) {
     } else {
       await handleNewMessage({
         sender,
-        message: `Sorry, please try again later. ${response.message.content}`,
+        message: `${response.message.content}`,
         system,
         isFlash: true
       })
@@ -124,7 +153,7 @@ export const POST = async (req: NextRequest,
 ) => {
   try {
 
-    const { message, maxTokens, sampleConversations = [], topP, temperature, modelName, sender, system } = await req.json();
+    const { message, maxTokens, sampleConversations = [], topP, temperature, modelName, sender, system, presetValue } = await req.json();
     let contact = null;
     let systemParent = null;
     let presets = [] as any[];
@@ -169,7 +198,7 @@ export const POST = async (req: NextRequest,
     }
 
 
-    const presetResult = await getPresetByValue(contact?.activePreset || null);
+    const presetResult = await getPresetByValue(presetValue || contact?.activePreset || null);
 
 
     if (presetResult.success || presetResult.data) {
@@ -207,6 +236,8 @@ export const POST = async (req: NextRequest,
     const ollamaService = new OllamaService();
     const aiResponse = presets.length ? await ollamaService.determineRelatedPreset(presets, contact?.activePreset, message, sampleConversations || []) as any : [];
 
+
+    console.log(presets, 'PRESETS')
     if (!contact?.subscribed) {
       preset = presets.filter(preset => { return String(preset?.value).toLowerCase().includes('opt') })[0];
 
@@ -216,26 +247,38 @@ export const POST = async (req: NextRequest,
 
 
       const aiPreset = presets.length == 1 ? presets[0] : presets.find(preset => preset.value == aiResponse.Value);
+
       if (aiPreset) {
         preset = aiPreset;
       } else {
-        return NextResponse.json(
-          { error: "No Preset Match." },
-          { status: 400 }
-        );
+        let pres = presets.find(preset => preset.value == contact.activePreset)
+        console.log(pres, 'No preset match')
+        if (pres) {
+          preset = pres;
+        } else {
+
+          return NextResponse.json(
+            { error: "No Preset Match." },
+            { status: 400 }
+          );
+        }
+
       }
     }
 
 
 
 
-
-
     if (!preset) {
-      return NextResponse.json(
-        { error: "No Preset Match." },
-        { status: 400 }
-      );
+      console.log('No preset match selected')
+      if (presets.length) {
+        preset = presets[0];
+      } else {
+        return NextResponse.json(
+          { error: "No Preset Match." },
+          { status: 400 }
+        );
+      }
     }
 
 
@@ -294,6 +337,8 @@ export const POST = async (req: NextRequest,
     if (contact) {
       if (preset?.value == 'alayon_water') {
         setContactPreset(contact?.phone, preset?.value)
+      } else {
+        setContactPreset(contact?.phone, 'alayon_help');
       }
 
 
@@ -389,7 +434,7 @@ export const POST = async (req: NextRequest,
       })
     }
 
-
+    console.log(newResponse, 'RESPONSE')
     await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
 
 

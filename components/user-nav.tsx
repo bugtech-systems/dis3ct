@@ -21,38 +21,39 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm";
 import { LeaderProfileDialogForm } from "./contacts/LeaderProfileForm";
-import { Contact } from "@/data/schema";
 import { useContact } from "./providers/ContactProvider";
 
-export function UserNav() {
-  const { data: session } = useSession() as any; // Get the session data from next-auth
-  // const [user, setUser] = useState<Contact>();
-  const [loading, setLoading] = useState(true);
+export function UserNav({ user }: { user: any }) {
+  const [loading, setLoading] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const [open, setOpen] = useState(false);
-  const {user, setUser } = useContact()
+  const { setUser } = useContact();
+
+
+  /*  useEffect(() => {
  
  
+   }, [user]) */
   useEffect(() => {
-    // Fetch user details from API if session exists
-    if (session?.user?.id) {
-      axios.get(`/api/contacts/${session.user.phone}`)
-        .then((response) => {
-          setUser(response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [session]);
+
+    if (user) return;
+    //     axios.get(`/api/contacts/save/${activeTeam?.user}`)
+
+    axios.get(`/api/contacts/auth`)
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      })
 
 
+  }, [user]);
 
   return (
     <>
-      <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />
-      <CreateLeaderFormDialog  open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
+      {open && <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />}
+      {showNewTeamDialog && <CreateLeaderFormDialog contact={user} open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -87,9 +88,9 @@ export function UserNav() {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {(user?.userLevel !== 'barangay' && user?.userLevel !== 'admin') && 
-            <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New Leader</DropdownMenuItem>
-          }
+            {(user?.userLevel !== 'barangay' && user?.userLevel !== 'admin') &&
+              <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New Leader</DropdownMenuItem>
+            }
           </DropdownMenuGroup>
 
           <DropdownMenuSeparator />

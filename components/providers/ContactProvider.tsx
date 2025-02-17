@@ -1,7 +1,6 @@
 'use client';
 
 import { IContact } from "@/models/Contact";
-import axios from "axios";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 
