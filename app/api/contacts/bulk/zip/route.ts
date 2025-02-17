@@ -282,7 +282,7 @@ export async function POST(req: NextRequest) {
 
 
                 const existingContacts = await Contact.find({
-                    $or: contacts.map(({ idNum, name }) => ({ idNum, name })),
+                    $or: contacts.map(({ idNum, name }) => ({ idNum, name, refNum })),
                 }).select("idNum name");
 
                 const existingSet = new Set(existingContacts.map((c) => `${c.idNum}-${c.name}`));
