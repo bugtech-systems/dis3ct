@@ -65,7 +65,6 @@ export async function POST(req: NextRequest) {
         let zipFile = path.join(uploadDir, files[0])
         const zipFiles = fs.readdirSync(zipFile);
         let totalVotres = 0;
-        let fileContents: { name: string; content: string }[] = [];
 
 
 
@@ -194,6 +193,11 @@ export async function POST(req: NextRequest) {
                                     inc = 'name';
                                 } else if ((inc == 'name' && isNaN(Number(item.text)))) {
                                     if (String(item.text).length < 4) {
+                                        rowData.marker = getLegendDescriptions(item.text);
+                                        inc = 'marker';
+                                    } else {
+                                        rowData.address = rowData.address + ' ' + rowData.name;
+                                        rowData.name = item.text;
                                     }
 
                                 } else if (((inc == 'name' || inc == 'marker') && (Number(activeNo) + 1) == Number(item.text))) {
@@ -327,6 +331,7 @@ export async function POST(req: NextRequest) {
 
 
 
+        fs.rmSync(zipFile, { recursive: true, force: true });
 
 
 
