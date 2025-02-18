@@ -32,7 +32,7 @@ export const POST = async (req: NextRequest) => {
 
     if (!data?.phone) return new NextResponse("Not Found", { status: 404 })
 
-    let { phone, system, referrer } = data;
+    let { phone, system, referrer, userLevel, username, pinCode } = data;
 
     let newPhone = sanitizePhoneNumber(data?.phone);
 
@@ -42,11 +42,11 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system), userLevel: 'system' });
+    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
 
-    if (!parentData) {
-      return NextResponse.json({ error: "System contact not found." }, { status: 400 });
-    }
+    // if (!parentData) {
+    //   return NextResponse.json({ error: "System contact not found." }, { status: 400 });
+    // }
 
 
 

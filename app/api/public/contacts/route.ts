@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest) => {
 
     if (!data?.phone) return new NextResponse("Not Found", { status: 404 })
 
-    let { phone, system, referrer } = data;
+    let { phone, system, referrer, userLevel, username, otpCode, name } = data;
 
     let newPhone = sanitizePhoneNumber(data?.phone);
 
@@ -24,9 +24,9 @@ export const POST = async (req: NextRequest) => {
 
     const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer), userLevel: 'system', deletedAt: null });
 
-    if (!parentData) {
-      return NextResponse.json({ error: "System contact not found." }, { status: 400 });
-    }
+    // if (!parentData) {
+    //   return NextResponse.json({ error: "System contact not found." }, { status: 400 });
+    // }
 
 
     let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer ?? system), parNum: parentData?._id, deletedAt: null });
@@ -46,20 +46,21 @@ export const POST = async (req: NextRequest) => {
       contact = new Contact({
         phone: sanitizePhoneNumber(phone),
         refNum: refData?._id,
-        parNum: parentData?._id
+        parNum: parentData?._id,
+        userLevel, username, otpCode, name
       })
     }
+
+    console.log(contact, 'CONTACT')
 
 
     let refExist = contact?.uplines?.find(contact => contact == refData.id)
 
     if (!refExist && refData) {
       contact?.uplines?.push(refData.id)
-    } else {
-      return NextResponse.json({ error: "Contact already exist." }, { status: 200 });
     }
 
-    const newMobile = new Mobile({ phone: newPhone });
+
 
 
     const savedContact = await contact.save();

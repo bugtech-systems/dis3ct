@@ -69,7 +69,7 @@ export function DataTableRowActions<TData>({
   const handleSubscribed = async () => {
 
     try {
-      const response = await axios.post(`/api/contacts/${contact.phone}/${contact.subscribed ? 'unsubscribe' : 'subscribe'}`);
+      const response = await axios.post(`/api/contacts/${contact.id}/${contact.subscribed ? 'unsubscribe' : 'subscribe'}`);
       if (response.data) {
         toast.success(`${contact.subscribed ? 'Unsubscribed' : 'Subscribed'} Successfully!`)
         router.refresh();

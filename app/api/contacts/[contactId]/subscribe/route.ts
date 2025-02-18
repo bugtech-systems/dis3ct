@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getServerSession } from "next-auth";
 import Contact from "@/models/Contact";
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { checkContactId, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 
@@ -38,7 +38,7 @@ export const POST = async (
 
 
     const updatedContact = await Contact.updateOne(
-      { phone: sanitizePhoneNumber(contactId), deletedAt: null, parNum: contact?.id },
+      { $or: [{ phone: sanitizePhoneNumber(contactId), parNum: contact?.id }, { _id: checkContactId(contactId) }], deletedAt: null },
       { $set: { subscribed: true } }
     );
 

@@ -249,18 +249,26 @@ export function sanitizePhoneNumber(phoneNumber: any) {
   } else if (sanitized.length === 10) {
     return sanitized; // Already a 10-digit number
   } else {
-    return sanitized
+    return null;
   }
 
   // If the number is not in a valid format, return null or throw an error
 }
 
+export function checkContactId(contactId: any) {
+
+  if (!contactId) return null
+  if (contactId.length > 13) return contactId;
+
+  return sanitizePhoneNumber(contactId);
+
+}
 
 
 
 export function internationalizePhoneNumber(phoneNumber: any) {
   // Remove any non-numeric characters from the phone number
-  if (!phoneNumber) return "";
+  if (!phoneNumber) return null;
   const sanitized = phoneNumber.replace(/\D/g, '');
 
   if (sanitized.length > 12) throw Error('Invalid phone number format');
