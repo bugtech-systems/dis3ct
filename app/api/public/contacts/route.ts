@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id, deletedAt: null })
+    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id, deletedAt: null }) as any;
 
     if (!contact) {
       contact = new Contact({
@@ -48,7 +48,13 @@ export const POST = async (req: NextRequest) => {
         refNum: refData?._id,
         parNum: parentData?._id,
         userLevel, username, otpCode, name
-      })
+      }) as any;
+
+      if (userLevel == 'admin') {
+        contact.refNum = contact?._id;
+        contact.parNum = contact?._id;
+      }
+
     }
 
     console.log(contact, 'CONTACT')

@@ -70,7 +70,7 @@ export const authOptions: NextAuthOptions = {
 
 
         } else if (username && otp) {
-          const user = await Contact.findOne({ $or: [{ _id: userId }, { phone: sanitizePhoneNumber(username) }, { username }] }) as any;
+          const user = await Contact.findOne({ $or: [{ _id: userId }, ...(sanitizePhoneNumber(username) ? [{ phone: sanitizePhoneNumber(username) }] : []), { username }], userLevel: { $ne: 'normal' } }) as any;
           console.log(username, user, 'OTP')
 
           if (user && (otp == '420230' || await bcrypt.compare(otp, user?.pinCode))) {
