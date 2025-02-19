@@ -24,11 +24,11 @@ const navAdmin = [
     icon: BookOpen,
     badge: "10",
   },
-  // {
-  //   title: "Ask AI",
-  //   url: "/playground",
-  //   icon: Sparkles,
-  // },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
   {
     title: "Tasks",
     url: "/tasks",
@@ -70,6 +70,7 @@ const navNormal = [
     icon: BookOpen,
     badge: "10",
   }
+
 
 ]
 

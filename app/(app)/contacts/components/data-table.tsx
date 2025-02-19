@@ -171,7 +171,7 @@ export function CardsDataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const { system } = useContact()
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [contacts, setContacts] = React.useState<TData[]>([]);
+  // const [contacts, setContacts] = React.useState<TData[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -195,7 +195,7 @@ export function CardsDataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
-    data: contacts,
+    data: data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -214,23 +214,25 @@ export function CardsDataTable<TData, TValue>({
   })
 
   React.useEffect(() => {
-    setContacts([])
-    if (system?.id) {
-      let newData = data.filter(row => { return row?.parNum == system.id })
-      setContacts(newData)
-    } else {
-      setContacts(data)
-    }
+    // setContacts([])
+    console.log(data, 'DTA', system?.id)
+    // if (system?.id) {
+    //   let newData = data.filter(row => { return row?.parNum == system.id })
+    //   setContacts(newData)
+    // } else {
+    //   setContacts(data)
+    // }
 
   }, [data, system])
 
 
 
+  console.log(table, 'table', table.getState().pagination.pageIndex + 1)
 
   return (
 
     <div className="space-y-4">
-      <DataTableToolbar selectedRow={rowSelection} table={table} />
+      {/* <DataTableToolbar selectedRow={rowSelection} table={table} /> */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -287,7 +289,7 @@ export function CardsDataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {/* <DataTablePagination table={table} /> */}
 
       {/*   <div className="flex items-center justify-end space-x-2 pt-4">
           <div className="flex-1 text-sm text-muted-foreground">

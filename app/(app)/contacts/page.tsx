@@ -21,13 +21,12 @@ export default async function Page() {
   }
 
 
-  const contacts = await getLeadersContacts();
 
 
   return (
     <>
       <ContactsPage
-        contacts={contacts}
+      // contacts={contacts}
       />
     </>
   );
