@@ -289,7 +289,7 @@ export function CardsDataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {/* <DataTablePagination table={table} /> */}
+      {<DataTablePagination table={table} />}
 
       {/*   <div className="flex items-center justify-end space-x-2 pt-4">
           <div className="flex-1 text-sm text-muted-foreground">
