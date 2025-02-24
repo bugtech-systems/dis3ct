@@ -71,7 +71,7 @@ export default async function RootLayout({
 
               <div className="flex flex-grow items-end justify-end items-center mr-2 space-x-7">
                 <ScannerForm contact={null} />
-                <CreateContactForm />
+                {/* <CreateContactForm /> */}
                 <UserNav
                   user={newUser}
                 />
