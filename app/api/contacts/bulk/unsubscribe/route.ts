@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest) => {
     console.log(rows, 'DELETING')
     let objectIds = [];
 
-    objectIds = rows.map((row: any) => row.id);
+    objectIds = rows.map((row: any) => (row.id || row._id));
 
     let options = {
       _id: { $in: objectIds }
