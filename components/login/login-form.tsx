@@ -75,7 +75,7 @@ export function LoginForm({ className, ...props }: any) {
 
         console.log(res, 'RESS')
         if (res?.error) {
-          setPhoneError("Invalid Username. Please try again.");
+          setPhoneError(res?.error);
         } else {
           router.push("/");
           return;
@@ -202,10 +202,11 @@ export function LoginForm({ className, ...props }: any) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
-              {phoneError && (
-                <p className="text-red-500 text-sm mt-1">{phoneError}</p>
-              )}
+       
             </div> */}
+            {phoneError && (
+              <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+            )}
             <br />
             <Button
               type="submit"
