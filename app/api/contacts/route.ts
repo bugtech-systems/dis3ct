@@ -145,8 +145,9 @@ export async function GET(req: NextRequest) {
       query.parNum = contact.parNum;
     } else if (brgys.length) {
       query.$or = brgys;
+    }
 
-    } else if (search) {
+    if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { phone: { $regex: search, $options: "i" } },
@@ -154,10 +155,9 @@ export async function GET(req: NextRequest) {
         { username: { $regex: search, $options: "i" } },
         { precinct: { $regex: search, $options: "i" } },
         { marker: { $regex: search, $options: "i" } },
-        // ...citis,
+        ...brgys,
       ];
       query.parNum = contact.parNum;
-
     }
 
     if (system) {
