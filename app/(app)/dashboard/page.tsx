@@ -15,7 +15,7 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
 
 export default function DashboardPage() {
-  const { user, setUser, system } = useContact();
+  const { user, system } = useContact();
 
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
@@ -31,7 +31,6 @@ export default function DashboardPage() {
 
     try {
       const dashData = await getLeaderDashboard(user?._id);
-      console.log("FETCHING DASH", dashData);
 
       // Only update state if data actually changes
       setDashboardData((prevData) => {
@@ -42,7 +41,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [user, system]);
+  }, [system, user]);
 
 
   // Fetch dashboard data when user changes
@@ -50,8 +49,6 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [system, fetchDashboardData]);
 
-
-  console.log(dashboardData, 'DASHBOARD DATA', system, user)
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">

@@ -22,8 +22,10 @@ import axios from "axios";
 import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm";
 import { LeaderProfileDialogForm } from "./contacts/LeaderProfileForm";
 import { useContact } from "./providers/ContactProvider";
+import { useComponent } from "./providers/ComponentContext";
 
 export function UserNav({ user }: { user: any }) {
+  const { modal, setModal } = useComponent();
   const [loading, setLoading] = useState(false);
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const [open, setOpen] = useState(false);
@@ -50,10 +52,13 @@ export function UserNav({ user }: { user: any }) {
 
   }, [user]);
 
+
+  console.log(modal, 'SET MODAL')
+
   return (
     <>
       {open && <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />}
-      {showNewTeamDialog && <CreateLeaderFormDialog contact={user} open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />}
+      <CreateLeaderFormDialog contact={user} type="new" open={modal == 'newLeader'} setOpen={setModal} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -88,8 +93,8 @@ export function UserNav({ user }: { user: any }) {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {(user?.userLevel !== 'barangay' && user?.userLevel !== 'admin') &&
-              <DropdownMenuItem onClick={() => setShowNewTeamDialog(true)}>New Leader</DropdownMenuItem>
+            {(user?.userLevel == 'system') &&
+              <DropdownMenuItem onClick={() => setModal('newLeader')}>New Leader</DropdownMenuItem>
             }
           </DropdownMenuGroup>
 

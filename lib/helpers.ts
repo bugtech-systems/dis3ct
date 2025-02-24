@@ -289,3 +289,25 @@ export function internationalizePhoneNumber(phoneNumber: any) {
   throw phoneNumber;
 }
 
+
+
+export function sanitizeObject<T>(data: T): T {
+  if (!data) return data;
+
+  return JSON.parse(
+    JSON.stringify(data, (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        // Convert MongoDB ObjectId to a string
+        if (value._bsontype === "ObjectId") {
+          return value.toString();
+        }
+
+        // Convert Date objects to ISO strings
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+      }
+      return value;
+    })
+  );
+}

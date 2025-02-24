@@ -7,24 +7,8 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@/components/ui/sidebar"
 import { SidebarOptInForm } from "./sidebar-opt-in-form"
-
-import {
-  AudioWaveform,
-  // Blocks,
-  // Calendar,
-  Command,
-  BookOpen,
-  PieChart,
-  MessageCircleQuestion,
-  Settings2,
-  Sparkles,
-  GalleryVerticalEnd
-} from "lucide-react"
-
-
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar | any>) {
   return (

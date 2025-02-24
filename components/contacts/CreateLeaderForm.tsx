@@ -37,10 +37,11 @@ import { UserLevelSelect } from "../user-level";
 import { useContact } from "../providers/ContactProvider";
 
 
-export function CreateLeaderFormDialog({ contact, open, setOpen }: {
+export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
   contact?: any;
   open: boolean;
-  setOpen: (value: boolean) => void
+  setOpen: (value: boolean) => void;
+  type?: string;
 }) {
   const { system, user } = useContact();
   const router = useRouter(); // ⬅ Initialize useRouter
@@ -103,7 +104,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
 
 
   React.useEffect(() => {
-    if (contact) {
+    if (contact && type != "new") {
       setPhone(contact.phone)
       setUsername(contact.username)
       setName(contact.name || "")
@@ -114,6 +115,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
       setSelectedBarangay(contact.brgyCode || "")
       setUserLevel(contact.userLevel || "")
       setSubscription(contact.subscription || "")
+
     } else {
       setSelectedRegion(user?.regCode || "08")
       setSelectedProvince(user?.provCode || "0837")
@@ -121,7 +123,26 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
       setSelectedBarangay(user?.brgyCode || "")
     }
 
-  }, [contact, user])
+  }, [contact, user, type])
+
+  React.useEffect(() => {
+    if (!open) {
+
+      setPhone("")
+      setUsername("")
+      setName("")
+      setAddress("")
+      setSelectedRegion(user?.regCode || "08")
+      setSelectedProvince(user?.provCode || "0837")
+      setSelectedMunicipality(user?.citymunCode || "")
+      setSelectedBarangay(user?.brgyCode || "")
+      setUserLevel("normal")
+      setSubscription("basic")
+      setPinCode("")
+    }
+
+
+  }, [open])
 
   // 📌 Handle Form Submission
   const handleSubmit = async () => {
@@ -174,7 +195,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
       // toast({ title: "Error", description: error.response?.data?.error || "Failed to save contact.", status: "error" });
       // alert('Failed to save contact.')
       toast.error(error.response?.data?.error || "Failed to save contact.");
-
 
     }
   };
@@ -333,7 +353,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
                               </SelectContent>
                             </Select>  */}
                   </div>
-                  <div className="space-y-2">
+                  {/*   <div className="space-y-2">
                     <Label htmlFor="subscription">Subscription plan</Label>
                     <Select onValueChange={setSubscription} value={subscription}>
                       <SelectTrigger>
@@ -354,7 +374,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen }: {
                         </SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </TabsContent>

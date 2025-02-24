@@ -43,9 +43,9 @@ export const POST = async (req: NextRequest) => {
       }, { _id: userId }]
     });
 
-    if (existingContact) {
+    if (existingContact && userId) {
       // Update existing contact
-      existingContact.phone = sanitizePhoneNumber(phone);
+      existingContact.phone = sanitizePhoneNumber(phone) ?? existingContact.phone;
       existingContact.username = String(username).toLowerCase().trim();
       existingContact.name = name;
       existingContact.address = address;

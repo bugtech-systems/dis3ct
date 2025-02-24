@@ -1,6 +1,6 @@
 "use client"
-
 import * as React from "react"
+import { useSession } from "next-auth/react";
 import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react"
 
 import {
@@ -22,6 +22,7 @@ import axios from "axios"
 import { CreateSystemForm } from "./contacts/CreateSystemForm"
 import { useContact } from "./providers/ContactProvider"
 import { signOut } from "next-auth/react"
+import getAuth from "@/actions/getAuth";
 
 
 
@@ -36,6 +37,7 @@ export function TeamSwitchers({
   }[];
   currentUser?: any
 }) {
+  const { data: session, status } = useSession();
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState<any>((teams && teams[0]) ?? null);
@@ -50,6 +52,15 @@ export function TeamSwitchers({
     // signOut({ callbackUrl: '/login' })
   }
 
+  const handleAuth = async () => {
+    let authUser = await getAuth();
+    console.log(authUser, 'AUTH')
+    if (authUser && authUser.parNum) {
+      handleSystems(authUser.parNum)
+    }
+
+  }
+
 
   React.useEffect(() => {
     // if(user)
@@ -57,7 +68,6 @@ export function TeamSwitchers({
     let parent = localStorage.getItem('system')
     if (parent) {
       let sys = teams?.find(team => team.id == parent);
-      console.log(sys, teams, 'SYSSF', parent)
       if (sys) {
         setSystem(sys)
         setActiveTeam(sys)
@@ -67,15 +77,19 @@ export function TeamSwitchers({
       }
       return;
     } else if (user && user.parNum) {
-      let sys = teams?.find(team => team.id == user.parNum);
+      let sys = teams?.find(team => (team.id == user.parNum || team.id == user.parNum?._id));
       setSystem(sys)
       setActiveTeam(sys)
       localStorage.setItem('system', sys?.id);
       return;
+    } else {
+      handleAuth()
     }
 
 
   }, []);
+
+
 
   // React.useEffect(() => {
 
@@ -94,7 +108,7 @@ export function TeamSwitchers({
   // }, [currentUser]);
 
 
-
+  // console.log(session, 'SESSION')
 
 
   return (

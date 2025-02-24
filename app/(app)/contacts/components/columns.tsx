@@ -56,7 +56,7 @@ export const columns: ColumnDef<Contact>[] = [
           {/* </span> */}
         </div>
       )
-    },
+    }
   },
   {
     accessorKey: "phone",
@@ -91,10 +91,7 @@ export const columns: ColumnDef<Contact>[] = [
           {/* </span> */}
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    }
   },
   {
     accessorKey: "address",
@@ -148,7 +145,8 @@ export const columns: ColumnDef<Contact>[] = [
           {/* </span> */}
         </div>
       )
-    },
+    }
+
   },
   {
     accessorKey: "region",
@@ -165,10 +163,7 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    }
   },
   {
     accessorKey: "province",
@@ -185,10 +180,7 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    }
   },
   {
     accessorKey: "citymun",
@@ -205,10 +197,7 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    }
   },
   {
     accessorKey: "barangay",
@@ -246,9 +235,6 @@ export const columns: ColumnDef<Contact>[] = [
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
     enableSorting: false,
     enableHiding: false
   },
@@ -267,9 +253,6 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
     },
     enableSorting: false,
     enableHiding: false
@@ -290,9 +273,6 @@ export const columns: ColumnDef<Contact>[] = [
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
     enableSorting: false,
     enableHiding: false
   },
@@ -311,9 +291,6 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
     },
     enableSorting: false,
     enableHiding: false
@@ -349,15 +326,6 @@ export const columns: ColumnDef<Contact>[] = [
     },
     enableSorting: false,
     enableHiding: false
-  },
-  {
-    accessorKey: "keyStr",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Key String" />
-    ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("keyStr")}</div>,
-    enableSorting: false,
-    enableHiding: false,
   },
   {
     id: "actions",

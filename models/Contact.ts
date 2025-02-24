@@ -28,6 +28,7 @@ export interface IContact extends Document {
   pinCode?: string;
   refNum?: Types.ObjectId;
   parNum?: Types.ObjectId;
+  biometric?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
   userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal' | 'system' | 'rider';
@@ -57,8 +58,9 @@ const ContactSchema = new Schema<IContact>(
     activePreset: { type: String, maxlength: 255 },
     otpCode: { type: String },
     pinCode: { type: String },
-    refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
+    biometric: { type: Schema.Types.ObjectId, ref: 'Fingerprint' },
     parNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
+    refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],
     userLevel: {
       type: String,

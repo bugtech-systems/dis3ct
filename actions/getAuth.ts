@@ -4,6 +4,7 @@ import connectToDatabase from '@/lib/mongodb';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import Contact from '@/models/Contact';
+import { sanitizeObject } from '@/lib/helpers';
 
 const getAuth = async (): Promise<any> => {
 
@@ -20,8 +21,8 @@ const getAuth = async (): Promise<any> => {
     await connectToDatabase()
 
 
-    const user = await Contact.findById(userId).lean();
-    return user
+    const user = await Contact.findById(userId).populate('parNum');
+    return sanitizeObject(user);
   } catch (err) {
     console.log(err, 'ERROR')
     return null

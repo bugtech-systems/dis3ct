@@ -1,0 +1,27 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+// Define the Fingerprint document interface
+export interface IFingerprint extends Document {
+    user_id: string;
+    biometricId: string;
+    templates: string[]; // Hex-encoded fingerprint templates
+    enrolledAt?: Date;
+    lastUpdated?: Date;
+}
+
+// Create the Fingerprint schema
+const FingerprintSchema: Schema<IFingerprint> = new Schema(
+    {
+        user_id: { type: String, required: true, unique: true },
+        biometricId: { type: String, required: true, unique: true },
+        templates: { type: [String], required: true, validate: (val: string[]) => val.length === 3 }, // Ensures exactly 3 templates
+        enrolledAt: { type: Date, default: Date.now },
+        lastUpdated: { type: Date, default: Date.now }
+    },
+    { timestamps: true } // Automatically manages createdAt and updatedAt fields
+);
+
+// Create and export the Fingerprint model
+const Fingerprint: Model<IFingerprint> =
+    mongoose.models.Fingerprint || mongoose.model<IFingerprint>('Fingerprint', FingerprintSchema);
+export default Fingerprint;

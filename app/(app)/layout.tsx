@@ -13,6 +13,8 @@ import getSystems from "@/actions/getSystems";
 import { ContactProvider } from "@/components/providers/ContactProvider";
 import { CreateContactForm } from "@/components/contacts/CreateContactForm";
 import getAuth from "@/actions/getAuth";
+import { ScannerForm } from "@/components/scanner";
+import { ComponentProvider } from "@/components/providers/ComponentContext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -48,13 +50,14 @@ export default async function RootLayout({
   return (
     <SidebarProvider>
       <ContactProvider>
+        <ComponentProvider>
 
-        <AppSidebar
-          systems={systemData}
-          currentuser={newUser}
-        />
-        <SidebarInset>
-          {/* <div className="border-b w-100 d-flex flex-row justify-between">
+          <AppSidebar
+            systems={systemData}
+            currentuser={newUser}
+          />
+          <SidebarInset>
+            {/* <div className="border-b w-100 d-flex flex-row justify-between">
       <SidebarTrigger className="-ml-1" />
       <div className="flex justify-center  h-16 items-center px-4">
         <h3 className="text-center">MARETEXT</h3>
@@ -62,18 +65,19 @@ export default async function RootLayout({
       <UserNav />
 
     </div> */}
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+              <SidebarTrigger className="-ml-1" />
+              <Separator orientation="vertical" className="mr-2 h-4" />
 
-            <div className="flex flex-grow items-end justify-end items-center mr-2 space-x-7">
-              <CreateContactForm />
-              <UserNav
-                user={newUser}
-              />
-            </div>
+              <div className="flex flex-grow items-end justify-end items-center mr-2 space-x-7">
+                <ScannerForm contact={null} />
+                <CreateContactForm />
+                <UserNav
+                  user={newUser}
+                />
+              </div>
 
-            {/*         <Breadcrumb>
+              {/*         <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href="#">components</BreadcrumbLink>
@@ -88,11 +92,12 @@ export default async function RootLayout({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb> */}
-          </header>
-          <main className="flex-1  items-center justify-center">
-            {children}
-          </main>
-        </SidebarInset>
+            </header>
+            <main className="flex-1  items-center justify-center">
+              {children}
+            </main>
+          </SidebarInset>
+        </ComponentProvider>
       </ContactProvider>
     </SidebarProvider>
   );

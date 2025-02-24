@@ -44,21 +44,26 @@ export const POST = async (req: NextRequest) => {
     let { rows } = data;
 
 
-    console.log(rows, 'DELETING')
+    console.log(rows, 'Subscribing')
     let objectIds = [];
 
-    objectIds = rows.map((row: any) => row.id);
+    objectIds = rows.map((row: any) => (row.id || row._id));
 
     let options = {
       _id: { $in: objectIds }
     } as any;
 
-    if (contact?.userLevel != 'system') {
-      options.uplines = { $in: [String(contact?._id)] }// Check if referrer.id is in the uplines array
-    }
+    // if (contact?.userLevel != 'system') {
+    //   options.uplines = { $in: [String(contact?._id)] }// Check if referrer.id is in the uplines array
+    // }
 
 
-    const updatedContact = await Contact.updateMany(options, { $set: { subscribed: true } });
+
+    console.log(rows, 'Subscribing', objectIds)
+
+
+
+    await Contact.updateMany(options, { $set: { subscribed: true } });
 
     // return NextResponse.json(updatedContact, { status: 201 });
     return NextResponse.json('Subscribed Successfully', { status: 201 });

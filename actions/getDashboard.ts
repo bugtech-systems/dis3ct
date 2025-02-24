@@ -17,9 +17,11 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
     let options: any = { deletedAt: null };
     if (user.userLevel !== "admin") {
-      options.parNum = user._id?.toString() || user.parNum?.toString();
+      options.parNum = user.parNum;
     }
 
+
+    console.log(user, 'USR')
     // Aggregate Dashboard Data
     const [teamReach, subscriptions, contacts, recentContacts] = await Promise.all([
       Contact.countDocuments({ ...options }),

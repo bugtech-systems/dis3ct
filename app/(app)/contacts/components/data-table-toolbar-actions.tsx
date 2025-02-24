@@ -30,6 +30,7 @@ import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
 import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm"
 import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
+import { ViewContactForm } from "@/components/contacts/ViewContactForm"
 
 
 
@@ -106,10 +107,13 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
 
 
 
+
+  console.log(rows, 'SET ROWS');
   return (
     <>
       <CreateNewMessageForm showContactDialog={showContactDialog} setShowContactDialog={setShowContactDialog} selectedContacts={rows} />
       <AreaLocationForm showContactDialog={showAreaDialog} setShowContactDialog={setShowAreaDialog} selectedContacts={rows} />
+
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -176,17 +180,20 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
 
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setShowAreaDialog(true)}
-          >Set Area Location</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
-          >
-            Delete
-            <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
-          </DropdownMenuItem>
+          {(user.userLevel == 'system' || user.userLevel == 'admin') &&
+            <><DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setShowAreaDialog(true)}
+              >Set Area Location</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                Delete
+                <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </>
+          }
         </DropdownMenuContent>
       </DropdownMenu>
     </>

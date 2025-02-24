@@ -29,9 +29,9 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
+import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
-import { CreateSystemForm } from "@/components/contacts/CreateSystemForm"
-import { CreateLeaderFormDialog } from "@/components/contacts/CreateLeaderForm"
+import { ViewContactForm } from "@/components/contacts/ViewContactForm"
 
 
 interface DataTableRowActionsProps<TData> {
@@ -45,11 +45,13 @@ export function DataTableRowActions<TData>({
   const [open, setOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
+  const { modal, setModal } = useComponent();
+  const { user } = useContact()
 
   const handleDelete = async () => {
 
     try {
-      const response = await axios.delete(`/api/contacts/save/${contact.id}`);
+      const response = await axios.delete(`/api/contacts/save/${contact?.id}`);
       if (response.data) {
         toast.success('Deleted Successfully!')
         router.refresh();
@@ -69,11 +71,10 @@ export function DataTableRowActions<TData>({
   const handleSubscribed = async () => {
 
     try {
-      const response = await axios.post(`/api/contacts/${contact.id}/${contact.subscribed ? 'unsubscribe' : 'subscribe'}`);
+      const response = await axios.post(`/api/contacts/${contact._id}/${contact.subscribed ? 'unsubscribe' : 'subscribe'}`);
       if (response.data) {
         toast.success(`${contact.subscribed ? 'Unsubscribed' : 'Subscribed'} Successfully!`)
         router.refresh();
-
       } else {
         toast.error("Failed to send OTP. Please try again.")
       }
@@ -139,24 +140,9 @@ export function DataTableRowActions<TData>({
 
   return (
     <>
-      {contact.userLevel == 'system' ?
-        <CreateSystemForm
-          open={open}
-          setOpen={setOpen}
-          contact={contact}
-        />
-        : contact.userLevel == 'normal' ?
-          <EditContactForm
-            open={open}
-            setOpen={setOpen}
-            contact={contact}
-          /> :
-          <CreateLeaderFormDialog
-            open={open}
-            setOpen={setOpen}
-            contact={contact}
-          />
-      }
+      <ViewContactForm open={open} setOpen={setOpen} contact={contact} />
+
+
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -196,49 +182,65 @@ export function DataTableRowActions<TData>({
 
           <DropdownMenuItem
             onClick={() => setOpen(true)}
-          >Edit</DropdownMenuItem>
+          >View Details</DropdownMenuItem>
 
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => handleSubscribed()}
           >
-            {contact.subscribed ? 'Unsubscribe' : 'Subscribe'}
-            <DropdownMenuShortcut>{contact.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
+            {contact?.subscribed ? 'Unsubscribe' : 'Subscribe'}
+            <DropdownMenuShortcut>{contact?.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
 
           </DropdownMenuItem>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={() => navigator.clipboard.writeText(contact.phone)}
+            onClick={() => setModal('scanner', contact?._id)}
           >
-            Copy
+            Set Biometrics
             <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
 
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          {(contact?.userLevel == 'system') &&
+          {(user.userLevel == 'system' || user.userLevel == 'admin') &&
             <>
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem
-                onClick={() => handleRestart()}
+                onClick={() => navigator.clipboard.writeText(contact?.phone || "")}
               >
-                Restart GSM
-                <DropdownMenuShortcut><ListRestartIcon size={18} /></DropdownMenuShortcut>
+                Copy
+                <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
 
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+              {(contact?.userLevel == 'system') &&
+                <>
+                  <DropdownMenuItem
+                    onClick={() => handleRestart()}
+                  >
+                    Restart GSM
+                    <DropdownMenuShortcut><ListRestartIcon size={18} /></DropdownMenuShortcut>
+
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              }
+
+
+
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                Delete
+                <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
+              </DropdownMenuItem>
+
             </>
           }
-
-
-
-          <DropdownMenuItem
-            onClick={() => setShowDeleteDialog(true)}
-          >
-            Delete
-            <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
-          </DropdownMenuItem>
         </DropdownMenuContent>
+
       </DropdownMenu >
     </>
   )
