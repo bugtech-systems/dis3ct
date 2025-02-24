@@ -53,12 +53,12 @@ export const POST = async (req: NextRequest) => {
       _id: { $in: objectIds }
     } as any;
 
-    if (contact?.userLevel != 'system') {
-      options.uplines = { $in: [String(contact?._id)] }// Check if referrer.id is in the uplines array
-    }
+    // if (contact?.userLevel != 'system') {
+    //   options.uplines = { $in: [String(contact?._id)] }// Check if referrer.id is in the uplines array
+    // }
 
 
-    const updatedContact = await Contact.updateMany(options, { $set: { subscribed: false } });
+    await Contact.updateMany(options, { $set: { subscribed: false } });
 
     // return NextResponse.json(updatedContact, { status: 201 });
     return NextResponse.json('Unsubscribed Successfully', { status: 201 });
