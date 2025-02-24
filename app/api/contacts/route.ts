@@ -148,16 +148,16 @@ export async function GET(req: NextRequest) {
     }
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
-        { address: { $regex: search, $options: "i" } },
-        { username: { $regex: search, $options: "i" } },
-        { precinct: { $regex: search, $options: "i" } },
-        { marker: { $regex: search, $options: "i" } },
-        ...brgys,
-      ];
-      query.parNum = contact.parNum;
+      query.$and = [{
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+          { address: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
+          { precinct: { $regex: search, $options: "i" } },
+          { marker: { $regex: search, $options: "i" } },
+        ]
+      }, { $or: brgys }, { parNum: contact.parNum }];
     }
 
     if (system) {
