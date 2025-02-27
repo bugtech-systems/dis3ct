@@ -59,7 +59,6 @@ export default function ContactsPage() {
 
 
 
-    // console.log(contacts, user, system, 'CONTACTS')
     return (
         <>
             <div className="flex-1 space-y-4 p-3">
