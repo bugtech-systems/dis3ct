@@ -3,25 +3,30 @@ import User from "@/models/User";
 import connectDB from "@/lib/mongodb";
 import crypto from "crypto";
 
-export const registerUser = async (userData: any) => {
-    await connectDB();
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    // const refNum = crypto.randomBytes(6).toString("hex").toUpperCase(); // Generate a unique ref number
+export const
+    registerUser = async (userData: any) => {
+        await connectDB();
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        // const refNum = crypto.randomBytes(6).toString("hex").toUpperCase(); // Generate a unique ref number
 
-    const newUser = new User({
-        ...userData,
-        password: hashedPassword,
-        // refNum,
-    });
+        const newUser = new User({
+            ...userData,
+            password: hashedPassword,
+            // refNum,
+        });
 
-    await newUser.save();
-    return { message: "User registered successfully" };
-};
+        if (userData.userType == 'system') {
+            newUser.parent = newUser._id;
+        }
+
+        await newUser.save();
+        return { message: "User registered successfully" };
+    };
 
 export const loginUser = async (phone: string, password: string) => {
     await connectDB();
-    const user = await User.findOne({ phone });
-
+    const user = await User.findOne({ $or: [{ phone }, { username: phone }] });
+    console.log(user, 'LOGIN')
     if (!user) throw new Error("User not found");
     if (user.deletedAt) throw new Error("User is deactivated");
 

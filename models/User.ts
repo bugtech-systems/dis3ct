@@ -28,7 +28,7 @@ const UserSchema: Schema = new Schema(
         userType: { type: String, enum: ["admin", "system", "leader"], required: true, default: "leader" },
         deletedAt: { type: Date, default: null },
         parent: { type: Schema.Types.ObjectId, ref: "User", default: null },
-        refNum: { type: String, unique: true },
+        refNum: { type: String },
         accessLevel: {
             type: String,
             enum: ['regCode', 'provCode', 'citymunCode', 'brgyCode'],

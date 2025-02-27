@@ -17,10 +17,12 @@ const getTeams = async (): Promise<any[]> => {
     await connectToDatabase();
 
 
-    let query: any = { _id: { $ne: userId } }; // Exclude the authenticated user
+    let query: any = {}; // Exclude the authenticated user
 
     const user = await User.findById(userId).lean();
 
+
+    console.log(user, 'USS')
     if (!user) return [];
 
     switch (user.userType) {

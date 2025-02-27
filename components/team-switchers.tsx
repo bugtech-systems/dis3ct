@@ -37,7 +37,7 @@ export function TeamSwitchers({
   const { isMobile } = useSidebar()
   const [teams, setTeams] = React.useState<any>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>((teams && teams[0]) ?? null);
-  const { setSystem, system, user, setUser } = useContact();
+  const { setSystem, system, user } = useContact();
 
   const handleSystems = async (e: any) => {
     setActiveTeam(e)
@@ -52,9 +52,9 @@ export function TeamSwitchers({
 
   const handleTeams = async () => {
     let teamData = await getTeams();
+    console.log(teamData, 'TD')
     if (teamData.length >= 1) {
       setTeams(teamData)
-
     }
 
   }
@@ -81,7 +81,7 @@ export function TeamSwitchers({
 
         handleSystems(sys)
       } else {
-        // localStorage.removeItem('system');
+        localStorage.removeItem('system');
       }
       return;
     } else if (user && user.parent) {
@@ -100,7 +100,7 @@ export function TeamSwitchers({
     handleTeams()
 
 
-  }, [])
+  }, [user])
 
 
   // React.useEffect(() => {
@@ -121,7 +121,7 @@ export function TeamSwitchers({
 
 
   // console.log(session, 'SESSION')
-
+  console.log(user, session, 'SESS')
   return (
     <>
       <CreateSystemForm open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
@@ -154,7 +154,7 @@ export function TeamSwitchers({
               <DropdownMenuLabel className="text-xs text-muted-foreground">
                 Teams
               </DropdownMenuLabel>
-              {teams?.map((team, index) => (
+              {teams?.filter(team => team._id != user._id).map((team, index) => (
                 <DropdownMenuItem
                   key={team?.name}
                   onClick={() => handleSystems(team)}
