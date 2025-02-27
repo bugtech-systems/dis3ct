@@ -63,6 +63,8 @@ export function TeamSwitchers({
     let authUser = await getAuth();
     if (authUser && authUser.parent) {
       handleSystems(authUser.parent);
+    } else {
+
     }
   }
 
@@ -81,7 +83,7 @@ export function TeamSwitchers({
 
         handleSystems(sys)
       } else {
-        localStorage.removeItem('system');
+        // localStorage.removeItem('system');
       }
       return;
     } else if (user && user.parent) {
