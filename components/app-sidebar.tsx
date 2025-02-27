@@ -14,14 +14,14 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
   return (
     <Sidebar  {...props}>
       <SidebarHeader>
-        <TeamSwitchers teams={props.systems || []} currentUser={props.currentuser} />
+        <TeamSwitchers />
       </SidebarHeader>
       <SidebarContent>
         <NavMain
         />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarOptInForm />
+        {/* <SidebarOptInForm /> */}
         {/* <NavUser user={data.user} /> */}
       </SidebarFooter>
       {/* <SidebarRail />    */}

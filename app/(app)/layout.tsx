@@ -42,7 +42,7 @@ export default async function RootLayout({
     _id: String(currentUser?._id),
     refNum: String(currentUser?.refNum),
     parNum: String(currentUser?.parNum),
-    uplines: currentUser?.uplines.map(upline => String(upline))
+    // uplines: currentUser?.uplines.map(upline => String(upline))
   }
 
 

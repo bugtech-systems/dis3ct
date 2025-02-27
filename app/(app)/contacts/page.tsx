@@ -2,7 +2,6 @@
 import { redirect } from "next/navigation";
 import getAuth from "@/actions/getAuth";
 import ContactsPage from "./components/contacts";
-import getLeadersContacts from "@/actions/getContacts";
 
 // async function authenticate() {
 //   const session = await getServerSession(authOptions);

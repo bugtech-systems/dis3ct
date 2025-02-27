@@ -202,7 +202,7 @@ export function DataTableRowActions<TData>({
 
           </DropdownMenuItem>
 
-          {(user.userLevel == 'system' || user.userLevel == 'admin') &&
+          {(user?.userType == 'system' || user?.userType == 'admin') &&
             <>
               <DropdownMenuSeparator />
 

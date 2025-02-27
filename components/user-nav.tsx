@@ -53,7 +53,6 @@ export function UserNav({ user }: { user: any }) {
   }, [user]);
 
 
-  console.log(modal, 'SET MODAL')
 
   return (
     <>

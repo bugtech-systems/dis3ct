@@ -76,24 +76,6 @@ export const columns: ColumnDef<Contact>[] = [
     },
   },
   {
-    accessorKey: "userLevel",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Access Level" />
-    ),
-    cell: ({ row }) => {
-      // const label = labels.find((label) => label.value === row.original.label)
-
-      return (
-        <div className="flex space-x-2">
-          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
-          <span className="max-w-[500px] truncate font-medium"> */}
-          {row.getValue("userLevel")}
-          {/* </span> */}
-        </div>
-      )
-    }
-  },
-  {
     accessorKey: "address",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Address" />
@@ -128,6 +110,7 @@ export const columns: ColumnDef<Contact>[] = [
         </div>
       )
     },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "precinct",
@@ -145,8 +128,11 @@ export const columns: ColumnDef<Contact>[] = [
           {/* </span> */}
         </div>
       )
-    }
-
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "region",
@@ -163,7 +149,8 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    }
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "province",
@@ -180,7 +167,8 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    }
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "citymun",
@@ -197,7 +185,11 @@ export const columns: ColumnDef<Contact>[] = [
           </span>
         </div>
       )
-    }
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "barangay",
@@ -218,83 +210,84 @@ export const columns: ColumnDef<Contact>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
+    enableColumnFilter: true,
   },
-  {
-    accessorKey: "regCode",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Reg Code" />
-    ),
-    cell: ({ row }) => {
+  // {
+  //   accessorKey: "regCode",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Reg Code" />
+  //   ),
+  //   cell: ({ row }) => {
 
-      return (
-        <div className="flex space-x-2">
-          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("regCode")}
-          </span>
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: "provCode",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Prov Code" />
-    ),
-    cell: ({ row }) => {
+  //     return (
+  //       <div className="flex space-x-2">
+  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+  //         <span className="max-w-[500px] truncate font-medium">
+  //           {row.getValue("regCode")}
+  //         </span>
+  //       </div>
+  //     )
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: false
+  // },
+  // {
+  //   accessorKey: "provCode",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Prov Code" />
+  //   ),
+  //   cell: ({ row }) => {
 
-      return (
-        <div className="flex space-x-2">
-          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("provCode")}
-          </span>
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: "citymunCode",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="City Code" />
-    ),
-    cell: ({ row }) => {
+  //     return (
+  //       <div className="flex space-x-2">
+  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+  //         <span className="max-w-[500px] truncate font-medium">
+  //           {row.getValue("provCode")}
+  //         </span>
+  //       </div>
+  //     )
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: false
+  // },
+  // {
+  //   accessorKey: "citymunCode",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="City Code" />
+  //   ),
+  //   cell: ({ row }) => {
 
-      return (
-        <div className="flex space-x-2">
-          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("citymunCode")}
-          </span>
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: "brgyCode",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Barangay Code" />
-    ),
-    cell: ({ row }) => {
+  //     return (
+  //       <div className="flex space-x-2">
+  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+  //         <span className="max-w-[500px] truncate font-medium">
+  //           {row.getValue("citymunCode")}
+  //         </span>
+  //       </div>
+  //     )
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: false
+  // },
+  // {
+  //   accessorKey: "brgyCode",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Barangay Code" />
+  //   ),
+  //   cell: ({ row }) => {
 
-      return (
-        <div className="flex space-x-2">
-          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("brgyCode")}
-          </span>
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false
-  },
+  //     return (
+  //       <div className="flex space-x-2">
+  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+  //         <span className="max-w-[500px] truncate font-medium">
+  //           {row.getValue("brgyCode")}
+  //         </span>
+  //       </div>
+  //     )
+  //   },
+  //   enableSorting: false,
+  //   enableHiding: false
+  // },
   {
     accessorKey: "subscribed",
     header: ({ column }) => (
@@ -326,6 +319,15 @@ export const columns: ColumnDef<Contact>[] = [
     },
     enableSorting: false,
     enableHiding: false
+  },
+  {
+    accessorKey: "keyStr",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Key String" />
+    ),
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("keyStr")}</div>,
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "actions",

@@ -4,24 +4,13 @@ import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
 import Mobile from "@/models/Mobile";
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+import User from "@/models/User";
 
 // import { withAuth } from '@/lib/withAuth';
 
-const convertToAndCondition = (option: any) => {
-  if (!option || typeof option !== "object") {
-    throw new Error("Invalid option provided. Must be an object.");
-  }
-
-  let options = [] as any;
-  Object.entries(option).map(([key, value]) => {
-    if (value && value != 'undefined')
-      options.push({ [key]: value })
-  })
-  // Convert each key-value pair to a separate condition in the $and array
-  return {
-    $and: options
-  };
-};
+function objectToString(obj: any, separator = " ") {
+  return Object.values(obj).join(separator);
+}
 
 
 export const POST = async (req: NextRequest) => {
@@ -110,8 +99,11 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const search = searchParams.get("search") || "";
     const system = searchParams.get("system");
-    const userId = searchParams.get("userId");
+    // const userId = searchParams.get("userId");
     const brgyCode = searchParams.get("brgyCode");
+    const code = searchParams.get("code");
+    const level = searchParams.get("level");
+
     // const citymunCode = searchParams.get("citymunCode");
 
 
@@ -124,25 +116,27 @@ export async function GET(req: NextRequest) {
     const skip = (page) * limit;
     console.log(page, limit, 'pagination')
     // Fetch user to determine access level
-    let contact = await Contact.findById(userId);
+    let parent = await User.findById(system);
+    // let contact = await User.findById(userId);
+
     let contacts = [];
 
-    if (!contact) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!parent) {
+      return NextResponse.json({ error: "System not found" }, { status: 404 });
     }
 
 
     let brgys = brgyCode ? brgyCode.split(',').map(brgy => {
-      return { brgyCode: { $regex: brgy, $options: "i" }, parNum: contact.parNum }
-    }) : []
+      return { brgyCode: { $regex: brgy, $options: "i" }, parNum: parent._id }
+    }) : (code && level) ? [{ [level]: code, parNum: parent._id }] : []
 
     // Apply user-level filtering
     let query: any = { deletedAt: null };
 
-    if (contact.userLevel === "admin") {
+    if (parent.userType === "admin") {
       // Admin sees all contacts
-    } else if (contact.userLevel === "system") {
-      query.parNum = contact.parNum;
+    } else if (parent.userType === "system") {
+      query.parNum = parent._id;
     } else if (brgys.length) {
       query.$or = brgys;
     }
@@ -157,48 +151,30 @@ export async function GET(req: NextRequest) {
           { precinct: { $regex: search, $options: "i" } },
           { marker: { $regex: search, $options: "i" } },
         ]
-      }, { $or: brgys }, { parNum: contact.parNum }];
+      }, { $or: brgys }, { parNum: parent?._id }];
     }
 
-    if (system) {
-      query.parNum = system;
-    }
+    /*    if (system) {
+         query.parNum = parent?._id;
+       } */
 
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
-      .skip(skip)
-      .limit(limit)
+      // .skip(skip)
+      // .limit(limit)
       .sort({ createdAt: -1 })
       .lean();
 
+
     // Process and enrich contacts with region, province, city, and barangay names
-    const newContacts = contacts.map((contact) => {
-      let barangay = barangays.find((b: any) => b.brgyCode == contact.brgyCode)?.brgyDesc;
-      let citymun = municipalities.find((c: any) => c.citymunCode == contact.citymunCode)?.citymunDesc;
-      let province = provinces.find((p: any) => p.provCode == contact.provCode)?.provDesc;
-      let region = regions.find((r: any) => r.regCode == contact.regCode)?.regDesc;
-
-
-      return {
-        _id: contact._id,
-        name: contact.name,
-        phone: contact.phone,
-        userLevel: contact.userLevel,
-        address: contact.address,
-        marker: contact.marker,
-        precinct: contact.precinct,
-        region,
-        province,
-        citymun,
-        barangay,
-        regCode: contact.regCode,
-        provCode: contact.provCode,
-        citymunCode: contact.citymunCode,
-        brgyCode: contact.brgyCode,
-        subscribed: contact.subscribed,
-        activePreset: contact.activePreset
-      };
-    });
+    const newContacts = contacts.map((contact: any) => {
+      let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
+      let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
+      let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
+      let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
+      let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
+      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, keyStr }
+    })
 
     // Get total contact count for pagination
     const totalContacts = await Contact.countDocuments(query);

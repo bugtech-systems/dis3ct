@@ -1,11 +1,12 @@
 import connectToDatabase from '@/lib/mongodb';
 import { getServerSession } from "next-auth";
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 import { Contact } from '@/app/(app)/contacts/data/schema';
 import IContact from '@/models/Contact';
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+import User from '@/models/User';
 
 
 
@@ -27,21 +28,21 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
 
     await connectToDatabase()
 
-    let contact = await IContact.findById(userId);
+    let contact = await User.findById(userId);
     let contacts = [];
 
 
-    if (contact?.userLevel == 'admin') {
+    if (contact?.userType == 'admin') {
       contacts = await IContact.find({
         // phone: { $ne: sanitizePhoneNumber(phone) },
 
         // refNum: userId,
         deletedAt: null
       }).lean();
-    } else if (contact?.userLevel == 'system') {
+    } else if (contact?.userType == 'system') {
       contacts = await IContact.find({
         // phone: { $ne: sanitizePhoneNumber(phone) },
-        parNum: contact?.parNum,
+        parNum: contact?.parent,
         deletedAt: null
       }).lean() as any;
 
@@ -50,7 +51,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
       contacts = await IContact.find({
         // phone: { $ne: sanitizePhoneNumber(phone) },
         $or: [{ uplines: { $in: [String(contact?._id)] } }, { refNum: contact?._id }],
-        parNum: contact?.parNum,
+        parNum: contact?.parent,
         deletedAt: null
       }).lean() as any;
     }
@@ -65,8 +66,8 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
       let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
-      let keyStr = objectToString({ ...contact, barangay, citymun, province, region })
-      return { ...contact, barangay, citymun, province, region, keyStr }
+      let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
+      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, keyStr }
     })
 
 
@@ -74,7 +75,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
 
 
 
-    return newContacts
+    return sanitizeObject(newContacts)
   } catch (err) {
     return []
   }

@@ -65,113 +65,78 @@ export function UploadContactForm() {
   const [jsonData, setJsonData] = React.useState<any>([]);
   const [abnormalFiles, setAbnormalFiles] = React.useState<any>([])
   const [activeTab, setActiveTab] = React.useState('basic');
+  const [accessCode, setAccessCode] = React.useState(null);
 
   // State for dynamic location selections
-  const [regions, setRegions] = React.useState([]);
-  const [provinces, setProvinces] = React.useState([]);
-  const [municipalities, setMunicipalities] = React.useState([]);
   const [barangays, setBarangays] = React.useState([]);
+  const [selectedBarangay, setSelectedBarangay] = React.useState(null)
 
-  const [selectedRegion, setSelectedRegion] = React.useState();
-  const [selectedProvince, setSelectedProvince] = React.useState();
-  const [selectedMunicipality, setSelectedMunicipality] = React.useState();
-  const [selectedBarangay, setSelectedBarangay] = React.useState("");
+  const [selectedRegion, setSelectedRegion] = React.useState("");
+  const [selectedProvince, setSelectedProvince] = React.useState("");
+  const [selectedMunicipality, setSelectedMunicipality] = React.useState("");
+
+
 
   // Fetch Regions on Component Mount
   React.useEffect(() => {
-    axios.get("/api/location/regions").then((res) => {
-      setRegions(res.data.data);
-    });
-  }, []);
-
-  // Fetch Provinces when Region changes
-  React.useEffect(() => {
-    if (selectedRegion) {
-      axios.get(`/api/location/provinces/${selectedRegion}`).then((res) => {
-        setProvinces(res.data.data);
-        setMunicipalities([]);
-        setBarangays([]);
+    if (system) {
+      axios.get(`/api/location/access?code=${system?.accessCode}&level=${system?.accessLevel}`).then((res) => {
+        if (res.data) {
+          let { regCode, provCode, citymunCode, brgyCode } = res.data;
+          setAccessCode(citymunCode);
+          setSelectedRegion(regCode)
+          setSelectedProvince(provCode)
+          setSelectedMunicipality(citymunCode)
+        }
       });
     }
-  }, [selectedRegion]);
 
-  // Fetch Municipalities when Province changes
-  React.useEffect(() => {
-    if (selectedProvince) {
-      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-      });
-    }
-  }, [selectedProvince, selectedRegion]);
+  }, [system, open]);
+
 
   // Fetch Barangays when Municipality changes
   React.useEffect(() => {
-    if (selectedMunicipality) {
-      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
+    if (accessCode) {
+      axios.get(`/api/location/barangays/${accessCode}`).then((res) => {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedMunicipality, selectedProvince, selectedRegion]);
-
-
-  React.useEffect(() => {
-    if (!selectedRegion) {
-      setSelectedRegion(user?.regCode);
-    }
-    if (!selectedProvince) {
-      setSelectedRegion(user?.provCode);
-    }
-    if (!selectedMunicipality) {
-      setSelectedRegion(user?.citymunCode);
-    }
-  }, [file])
+  }, [accessCode]);
 
 
 
-  function saveData() {
+
+
+  async function saveData() {
     console.log('CLICKEED 1')
 
-    if (file) {
+    if (jsonData) {
       // setLoading(true);
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const data = e.target?.result;
-        if (data) {
-          const workbook = XLSX.read(data, { type: "binary" });
-          // SheetName
-          const sheetName = workbook.SheetNames[0];
-          // Worksheet
-          const workSheet = workbook.Sheets[sheetName];
-          // Json
-          const json: any[] = XLSX.utils.sheet_to_json(workSheet);
-          //Save to the DB
-          try {
-            // console.log(json);
-            let newJson = [] as any;
 
-            json.forEach(row => {
-              newJson.push({ ...row, name: row.Name, address: row.Address, precinct: row.Precinct, idNum: row.No, marker: row.Type, })
-            })
+      //Save to the DB
+      try {
+        // console.log(json);
+        let newJson = [] as any;
 
+        /*        jsonData.forEach(row => {
+                 newJson.push({ ...row, name: row.Name, address: row.Address, precinct: row.Precinct, idNum: row.No, marker: row.Type, })
+               }) */
 
-            // await createBulkContact(newJson);
-            await axios.post(`/api/contacts/bulk/upload`, { rows: newJson, refNum: user?._id, parNum: system?.id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
-              // setBarangays(res.data.data);
-              return toast.success('Upload Success')
-            });
-            setLoading(false);
-            setOpen(false)
-            router.refresh()
-          } catch (error) {
-            console.log(error);
-            setLoading(false);
+        let sysId = system?._id ? system?._id : user?._id
 
-          }
-
-        }
-      };
-      reader.readAsBinaryString(file);
+        console.log(newJson, 'JSON DATA', jsonData)
+        // await createBulkContact(newJson);
+        await axios.post(`/api/contacts/bulk/upload`, { rows: jsonData, refNum: sysId, parNum: system?._id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
+          // setBarangays(res.data.data);
+          return toast.success('Upload Success')
+        });
+        setLoading(false);
+        setOpen(false)
+        router.refresh()
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
     }
   }
 
@@ -214,6 +179,57 @@ export function UploadContactForm() {
     }
   };
 
+  const handlePdfChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target, 'FILES')
+    if (!event.target.files[0]) {
+      alert("Please select a file");
+      return;
+    }
+
+    setLoading(true);
+
+
+    try {
+
+      const formData = new FormData();
+      formData.append("file", event.target.files[0]);
+
+
+
+      const response = await fetch("/api/contacts/bulk/pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+
+      setJsonData(data);
+
+
+
+      // await createBulkContact(newJson);
+      // await axios.post(`/api/contacts/bulk/upload`, { rows: newJson, refNum: user?._id, parNum: system?.id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
+      //   // setBarangays(res.data.data);
+      //   return toast.success('Upload Success')
+      // });
+
+      // setOpen(false)
+      // router.refresh()
+
+      // return toast.success(data.message)
+      console.log(data, 'PDF DAT')
+    } catch (error) {
+      console.error("Upload PDF failed", error);
+      setLoading(false);
+      return toast.success("Upload PDF failed")
+
+
+
+    }
+  };
+
   const handleUploadZip = async () => {
     console.log('CLICKEED 1', zipFile)
     if (!zipFile) {
@@ -228,8 +244,8 @@ export function UploadContactForm() {
 
       const formData = new FormData();
       formData.append("file", zipFile);
-      formData.append("parNum", system?.id);
-      formData.append("refNum", user?._id);
+      formData.append("parNum", system?._id);
+      formData.append("refNum", system?._id);
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
       formData.append("provCode", selectedProvince ? selectedProvince : user.provCode);
       formData.append("citymunCode", selectedMunicipality ? selectedMunicipality : user.citymunCode);
@@ -317,24 +333,37 @@ export function UploadContactForm() {
         <DialogContent className="w-[1200px] max-w-[90vw]">
 
           <DialogHeader>
-            <DialogTitle>Import Contacts</DialogTitle>
+            <DialogTitle>Import Master List</DialogTitle>
             <DialogDescription>Import contact details.</DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
             <TabsList className="flex justify-center" >
-              <TabsTrigger value="basic" onClick={() => setActiveTab('basic')} >File</TabsTrigger>
-              <TabsTrigger value="area" onClick={() => setActiveTab('area')}>Area Location</TabsTrigger>
-              {(user?.subscription == 'pro' || user?.userLevel == 'admin') &&
-                <TabsTrigger value="zip" onClick={() => setActiveTab('zip')}>Zip</TabsTrigger>
-              }
+              <TabsTrigger value="basic" onClick={() => setActiveTab('basic')} >Barangay</TabsTrigger>
+              {/* <TabsTrigger value="area" onClick={() => setActiveTab('area')}>Area Location</TabsTrigger> */}
+              <TabsTrigger value="zip" onClick={() => setActiveTab('zip')}>Municipality</TabsTrigger>
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                <div className="space-y-2">
+                  <Label>Barangay</Label>
+                  <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!accessCode}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Barangay" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {barangays.map((brgy: any) => (
+                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
+                          {brgy.brgyDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2 pb-4">
-                  <Label htmlFor="contact">File</Label>
+                  <Label htmlFor="contact">PDF File</Label>
                   <Input id="contact" type="file"
-                    accept=".xls,.xlsx"
-                    onChange={(e) => previewData(e.target.files ? e.target.files[0] : null)}
+                    accept=".pdf"
+                    onChange={handlePdfChange}
                   />
                 </div>
                 <DropdownMenuSeparator />
@@ -355,7 +384,6 @@ export function UploadContactForm() {
 
                     <TableBody >
                       {jsonData.map((invoice: any, index: any) => {
-                        console.log(invoice, 'INV')
                         return (
                           <TableRow key={index} className="w-full">
                             <TableCell className="border-2">{invoice.No ?? invoice.idNum}</TableCell>
@@ -375,77 +403,7 @@ export function UploadContactForm() {
                 </Table>
               </div>
             </TabsContent>
-            <TabsContent value="area" className="space-y-4">
-              <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                {/* Region Selection */}
-                <div className="space-y-2">
-                  <Label>Region</Label>
-                  <Select onValueChange={setSelectedRegion} value={selectedRegion}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Region" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {regions.map((region: any) => (
-                        <SelectItem key={region.regCode} value={region.regCode}>
-                          {region.regDesc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                {/* Province Selection */}
-                <div className="space-y-2">
-                  <Label>Province</Label>
-                  <Select onValueChange={setSelectedProvince} value={selectedProvince} disabled={!selectedRegion}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Province" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {provinces.map((province: any) => (
-                        <SelectItem key={province.provCode} value={province.provCode}>
-                          {province.provDesc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Municipality Selection */}
-                <div className="space-y-2">
-                  <Label>City/Municipality</Label>
-                  <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!selectedProvince}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Municipality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {municipalities.map((mun: any) => (
-                        <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
-                          {mun.citymunDesc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Barangay Selection */}
-                <div className="space-y-2">
-                  <Label>Barangay</Label>
-                  <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Barangay" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {barangays.map((brgy: any) => (
-                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
-                          {brgy.brgyDesc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </TabsContent>
             <TabsContent value="zip" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
                 <div className="space-y-2 pb-4">

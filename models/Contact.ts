@@ -8,9 +8,7 @@ import mongoose, { Schema, Document, Types, Model } from 'mongoose';
 
 // Define Contact Interface
 export interface IContact extends Document {
-  mobile: Types.ObjectId; // Reference to the associated Mobile document
   phone?: string;
-  username?: string;
   precinct?: string;
   marker?: string;
   idNum?: string;
@@ -23,32 +21,28 @@ export interface IContact extends Document {
   regCode?: string;
   provCode?: string;
   citymunCode?: string;
+  school?: string;
   activePreset?: string;
-  otpCode?: string;
-  pinCode?: string;
   refNum?: Types.ObjectId;
   parNum?: Types.ObjectId;
   biometric?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
-  userLevel: 'regional' | 'provincial' | 'municipal' | 'barangay' | 'admin' | 'normal' | 'system' | 'rider';
+  recordType: 'contact' | 'master_list' | 'hotline';
   coordinates: any;
-
-  subscription: 'basic' | 'pro' | 'cancelled';
   isDeleted: boolean;
 }
 
 const ContactSchema = new Schema<IContact>(
   {
     // mobile: { type: Schema.Types.ObjectId, ref: 'Mobile', required: true }, // Reference to Mobile document
-    phone: { type: String, maxlength: 20 },
-    username: { type: String, required: false },
+    phone: { type: String, maxlength: 20, required: false },
     precinct: { type: String, required: false },
     marker: { type: String, required: false },
     idNum: { type: Number, required: false },
     name: { type: String },
     address: { type: String, required: false },
-    subscribed: { type: Boolean, default: false },
+    school: { type: String, required: false },
     createdAt: { type: Date, default: Date.now },
     deletedAt: { type: Date },
     brgyCode: { type: String, maxlength: 255 },
@@ -56,27 +50,19 @@ const ContactSchema = new Schema<IContact>(
     provCode: { type: String, maxlength: 255 },
     citymunCode: { type: String, maxlength: 255 },
     activePreset: { type: String, maxlength: 255 },
-    otpCode: { type: String },
-    pinCode: { type: String },
     biometric: { type: Schema.Types.ObjectId, ref: 'Fingerprint' },
-    parNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
-    refNum: { type: Schema.Types.ObjectId, ref: 'Contact' },
+    parNum: { type: Schema.Types.ObjectId, ref: 'User' },
+    refNum: { type: Schema.Types.ObjectId, ref: 'User' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],
-    userLevel: {
+    recordType: {
       type: String,
-      enum: ['regional', 'provincial', 'municipal', 'barangay', 'admin', 'system', 'normal', 'rider'],
-      default: 'normal',
+      enum: ['contact', 'master_list', 'hotline'],
+      default: 'contact',
     },
     coordinates: {
       latitude: String,
       longitude: String
     },
-    subscription: {
-      type: String,
-      enum: ['basic', 'pro', 'cancelled'],
-      default: 'basic',
-    },
-    otpExpiresAt: { type: Date, required: false },
   }, { timestamps: true });
 
 const Contact = (mongoose.models && mongoose.models.Contact)

@@ -119,7 +119,6 @@ export const GET = async (req: NextRequest) => {
 
 
 
-    // console.log(contacts, 'CONTACTSssss')
     return NextResponse.json(contacts, { status: 200 });
   } catch (error) {
     console.error('Error fetching contacts:', error);

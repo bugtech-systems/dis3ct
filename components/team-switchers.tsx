@@ -23,23 +23,19 @@ import { CreateSystemForm } from "./contacts/CreateSystemForm"
 import { useContact } from "./providers/ContactProvider"
 import { signOut } from "next-auth/react"
 import getAuth from "@/actions/getAuth";
+import getTeams from "@/actions/getTeams";
 
 
 
 export function TeamSwitchers({
-  teams,
   currentUser
 }: {
-  teams?: {
-    id: any
-    name: string
-    plan: string
-  }[];
   currentUser?: any
 }) {
   const { data: session, status } = useSession();
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
+  const [teams, setTeams] = React.useState<any>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>((teams && teams[0]) ?? null);
   const { setSystem, system, user, setUser } = useContact();
 
@@ -47,48 +43,64 @@ export function TeamSwitchers({
     setActiveTeam(e)
     setSystem(e)
     if (e) {
-      localStorage.setItem('system', e.id)
+      localStorage.setItem('system', e._id)
+    } else {
+      localStorage.removeItem('system')
     }
     // signOut({ callbackUrl: '/login' })
   }
 
-  const handleAuth = async () => {
-    let authUser = await getAuth();
-    console.log(authUser, 'AUTH')
-    if (authUser && authUser.parNum) {
-      handleSystems(authUser.parNum)
+  const handleTeams = async () => {
+    let teamData = await getTeams();
+    if (teamData.length >= 1) {
+      setTeams(teamData)
+
     }
 
+  }
+
+  const handleAuth = async () => {
+    let authUser = await getAuth();
+    if (authUser && authUser.parent) {
+      handleSystems(authUser.parent);
+    }
   }
 
 
   React.useEffect(() => {
     // if(user)
+
     // Fetch user details from API if session exists
+
+    // handleAuth()
+
     let parent = localStorage.getItem('system')
     if (parent) {
-      let sys = teams?.find(team => team.id == parent);
+      let sys = teams?.find(team => team._id == parent);
       if (sys) {
-        setSystem(sys)
-        setActiveTeam(sys)
-        localStorage.setItem('system', sys?.id);
+
+        handleSystems(sys)
       } else {
-        localStorage.removeItem('system');
+        // localStorage.removeItem('system');
       }
       return;
-    } else if (user && user.parNum) {
-      let sys = teams?.find(team => (team.id == user.parNum || team.id == user.parNum?._id));
+    } else if (user && user.parent) {
+      let sys = teams?.find(team => (team._id == user.parent || team._id == user.parent?._id));
       setSystem(sys)
       setActiveTeam(sys)
-      localStorage.setItem('system', sys?.id);
+      localStorage.setItem('system', sys?._id);
       return;
     } else {
       handleAuth()
     }
+  }, [teams]);
+
+  React.useEffect(() => {
+
+    handleTeams()
 
 
-  }, []);
-
+  }, [])
 
 
   // React.useEffect(() => {
@@ -110,7 +122,6 @@ export function TeamSwitchers({
 
   // console.log(session, 'SESSION')
 
-
   return (
     <>
       <CreateSystemForm open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
@@ -129,7 +140,7 @@ export function TeamSwitchers({
                   <span className="truncate font-semibold">
                     {system?.name}
                   </span>
-                  <span className="truncate text-xs">{system?.plan}</span>
+                  <span className="truncate text-xs">{system?.userType}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
@@ -156,7 +167,7 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
-              {(system && user?.userLevel == 'admin') &&
+              {(system && user?.userType == 'admin') &&
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -171,7 +182,7 @@ export function TeamSwitchers({
                 </>
               }
               <DropdownMenuSeparator />
-              {user?.userLevel == 'admin' &&
+              {user?.userType == 'admin' &&
                 <DropdownMenuItem className="gap-2 p-2">
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                     <Plus className="size-4" />
