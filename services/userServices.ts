@@ -72,3 +72,22 @@ export const resetPassword = async (phone: string, newPassword: string) => {
 
     return { message: "Password reset successfully" };
 };
+
+
+export const updateUser = async (userId: string, data: any) => {
+    await connectDB();
+    const user = await User.findByIdAndUpdate(userId, data, {
+        new: true,
+        runValidators: true,
+    });
+
+    console.log(user, 'LOGIN')
+    if (!user) throw new Error("User not found");
+    if (user.deletedAt) throw new Error("User is deactivated");
+
+
+
+    console.log('USER UPDATED')
+
+    return user;
+};

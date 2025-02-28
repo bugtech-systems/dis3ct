@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
         const regCode = formData.get('regCode');
         const provCode = formData.get('provCode');
         const citymunCode = formData.get('citymunCode');
+        const replaceStr = formData.get('replaceStr') || "";
+        const removeStr = formData.get('removeStr') || null;
+
 
         if (!file) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -65,10 +68,11 @@ export async function POST(req: NextRequest) {
 
         // Extract files
         zip.extractAllTo(uploadDir, true);
-
+        console.log(file, 'FILE')
         // Read extracted files
+        const extractName = String(file.name).replace('.zip', '')
         const files = fs.readdirSync(uploadDir);
-        let zipFile = path.join(uploadDir, files[0])
+        let zipFile = path.join(uploadDir, extractName)
         const zipFiles = fs.readdirSync(zipFile);
 
         let fileContents: { name: string; content: string }[] = [];
@@ -82,7 +86,7 @@ export async function POST(req: NextRequest) {
         // let filenamesToMatch = barangays.map((brgy) => brgy.brgyDesc);
         // Helper function to normalize filenames
         const normalizeString = (str) => {
-            return str.toLowerCase()
+            return str.toLowerCase().replace(String(removeStr).toLowerCase(), String(replaceStr).toLowerCase())
                 .replace(/[^a-z0-9]/g, "");  // Remove all non-alphanumeric characters
         };
         // Normalize filenames in `filenamesToMatch`
@@ -98,7 +102,7 @@ export async function POST(req: NextRequest) {
                 const normalizedField = normalizeString(obj.brgyDesc); // Adjust field name accordingly
                 // console.log(normalizedFilename, normalizedField)
 
-                return normalizedFilename === normalizedField;
+                return (String(normalizedFilename).toLowerCase().includes(String(normalizedField).toLowerCase()) || String(normalizedField).toLowerCase().includes(String(normalizedFilename).toLowerCase()));
             });
         };
 
@@ -111,17 +115,20 @@ export async function POST(req: NextRequest) {
 
         console.log(barangays.length, 'FILES', zipFiles.length)
         let abnormalFiles = [];
+        let validFiles = []
         zipFiles.forEach((filename) => {
-            let pdfFile = String(filename).replace("_PCVL_MAY_12_2025_NLE.pdf", "")
-            const filePath = path.join(uploadDir, files[0], filename);
+            let pdfFile = filename
+            const filePath = path.join(uploadDir, extractName, filename);
             const stats = fs.statSync(filePath);
             const matchingObject = findMatchingObject(pdfFile, barangays);
 
-            if (!matchingObject) {
-                let bar = barangays.find((brgy) => normalizeString(brgy.brgyDesc).includes(normalizeString(pdfFile)))
-                if (!bar) {
-                    abnormalFiles.push(filename)
-                }
+            let bar = barangays.find((brgy) => (normalizeString(pdfFile).includes(normalizeString(brgy.brgyDesc)) || normalizeString(brgy.brgyDesc).includes(normalizeString(pdfFile))))
+            if (!bar && !matchingObject) {
+                abnormalFiles.push(filename)
+            } else {
+                let { brgyDesc } = matchingObject ? matchingObject : bar;
+                validFiles.push({ filename, brgyDesc })
+                console.log(bar, matchingObject, 'MATCH')
             }
         });
 
@@ -132,7 +139,7 @@ export async function POST(req: NextRequest) {
 
 
 
-        return NextResponse.json({ abnormalFiles, zipFile }, { status: 200 });
+        return NextResponse.json({ abnormalFiles, validFiles, zipFile }, { status: 200 });
 
 
 

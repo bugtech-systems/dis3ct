@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword } from "@/services/userServices";
+import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword, updateUser } from "@/services/userServices";
 
 export async function POST(req: NextRequest) {
-    const { action, ...data } = await req.json();
+    const { action, userId, ...data } = await req.json();
 
     try {
         switch (action) {
@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json(await verifyOTP(data.phone, data.otp));
             case "reset-password":
                 return NextResponse.json(await resetPassword(data.phone, data.newPassword));
+            case "update":
+                return NextResponse.json(await updateUser(userId, data));
             default:
                 return NextResponse.json({ error: "Invalid action" }, { status: 400 });
         }

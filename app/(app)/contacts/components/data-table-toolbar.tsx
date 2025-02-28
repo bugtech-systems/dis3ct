@@ -19,6 +19,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import { DataTableToolbarActions } from "./data-table-toolbar-actions"
 import { UploadContactForm } from "@/components/contacts/UploadContactForm"
+import RefreshButton from "@/components/RefreshButton"
 
 
 interface DataTableToolbarProps<TData> {
@@ -31,12 +32,7 @@ export function DataTableToolbar<TData>({
   selectedRow = {}
 }: DataTableToolbarProps<TData>) {
   const { user, system } = useContact();
-  const [uploadOpen, setUploadOpen] = useState(false);
-  const [regions, setRegions] = useState([]);
-  const [provinces, setProvinces] = useState([]);
-  const [citymuns, setCitymuns] = useState([]);
   const [barangays, setBarangays] = useState([]);
-  const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedMunicipality, setSelectedMunicipality] = useState("");
 
@@ -95,7 +91,6 @@ export function DataTableToolbar<TData>({
     return { value: row, label: row, id: row }
   });
 
-  console.log(barangayOptions, 'OPTT')
 
 
 
@@ -166,18 +161,22 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      {isSelected
-        ?
-        <div className="mr-3">
-          <DataTableToolbarActions rows={selectedRows} />
-        </div>
+      <div className="flex">
+        <RefreshButton />
 
-        :
-        <>
-          <UploadContactForm />
-          <DataTableViewOptions table={table} />
-        </>
-      }
+        {isSelected
+          ?
+          <div className="mr-3">
+            <DataTableToolbarActions rows={selectedRows} />
+          </div>
+
+          :
+          <>
+            <UploadContactForm />
+            <DataTableViewOptions table={table} />
+          </>
+        }
+      </div>
     </div>
   )
 }

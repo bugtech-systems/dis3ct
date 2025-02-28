@@ -59,16 +59,19 @@ export function UploadContactForm() {
   const { user, system } = useContact();
   // State for form fields
   const [open, setOpen] = React.useState(false);
-  const [file, setFile] = React.useState<File | null>(null);
   const [zipFile, setZipFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [jsonData, setJsonData] = React.useState<any>([]);
   const [abnormalFiles, setAbnormalFiles] = React.useState<any>([])
+  const [validFiles, setValidFiles] = React.useState<any>([])
   const [activeTab, setActiveTab] = React.useState('basic');
   const [accessCode, setAccessCode] = React.useState(null);
+  const [replaceStr, setReplaceStr] = React.useState("")
+  const [removeStr, setRemoveStr] = React.useState(".pdf")
 
   // State for dynamic location selections
   const [barangays, setBarangays] = React.useState([]);
+  const [municipalities, setMunicipalities] = React.useState([]);
   const [selectedBarangay, setSelectedBarangay] = React.useState(null)
 
   const [selectedRegion, setSelectedRegion] = React.useState("");
@@ -93,15 +96,40 @@ export function UploadContactForm() {
 
   }, [system, open]);
 
+  React.useEffect(() => {
+    // if (selectedProvince) {
+    if (open) {
+      console.log('SELECT PROV')
+      if (selectedProvince) {
+        axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
+          setMunicipalities(res.data.data);
+          setBarangays([]);
+        });
+      } else {
+        axios.get(`/api/location/municipalities`).then((res) => {
+          setMunicipalities(res.data.data);
+          setBarangays([]);
+        });
+      }
+    }
+
+
+    // }
+
+
+
+
+  }, [open, selectedProvince]);
+
 
   // Fetch Barangays when Municipality changes
   React.useEffect(() => {
-    if (accessCode) {
-      axios.get(`/api/location/barangays/${accessCode}`).then((res) => {
+    if (selectedMunicipality) {
+      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
         setBarangays(res.data.data);
       });
     }
-  }, [accessCode]);
+  }, [open, selectedMunicipality]);
 
 
 
@@ -143,7 +171,6 @@ export function UploadContactForm() {
   function previewData(file: any) {
     if (file) {
       setJsonData([])
-      setFile(file)
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = e.target?.result;
@@ -249,7 +276,8 @@ export function UploadContactForm() {
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
       formData.append("provCode", selectedProvince ? selectedProvince : user.provCode);
       formData.append("citymunCode", selectedMunicipality ? selectedMunicipality : user.citymunCode);
-
+      formData.append("replaceStr", replaceStr);
+      formData.append("removeStr", removeStr);
 
 
       const response = await fetch("/api/contacts/bulk/zip", {
@@ -291,6 +319,8 @@ export function UploadContactForm() {
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
       formData.append("provCode", selectedProvince ? selectedProvince : user.provCode);
       formData.append("citymunCode", selectedMunicipality ? selectedMunicipality : user.citymunCode);
+      formData.append("replaceStr", replaceStr);
+      formData.append("removeStr", removeStr);
 
 
 
@@ -305,6 +335,7 @@ export function UploadContactForm() {
 
       console.log(data, 'DATA')
       setAbnormalFiles(data.abnormalFiles)
+      setValidFiles(data.validFiles)
       // return toast.success(data.message)
       setLoading(false);
 
@@ -315,11 +346,19 @@ export function UploadContactForm() {
 
     }
   };
+  React.useEffect(() => {
+
+    return () => {
+      setAbnormalFiles([]);
+    }
+
+  }, [open])
+
 
 
 
   return (
-    <div className="w-[1000px]">
+    <>
       <Button
         variant="outline"
         size="sm"
@@ -329,123 +368,173 @@ export function UploadContactForm() {
         <ImportIcon />
         Import
       </Button>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="w-[1200px] max-w-[90vw]">
+      <div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="w-[1200px] max-w-[90vw]">
 
-          <DialogHeader>
-            <DialogTitle>Import Master List</DialogTitle>
-            <DialogDescription>Import contact details.</DialogDescription>
-          </DialogHeader>
-          <Tabs defaultValue="basic" className="space-y-4">
-            <TabsList className="flex justify-center" >
-              <TabsTrigger value="basic" onClick={() => setActiveTab('basic')} >Barangay</TabsTrigger>
-              {/* <TabsTrigger value="area" onClick={() => setActiveTab('area')}>Area Location</TabsTrigger> */}
-              <TabsTrigger value="zip" onClick={() => setActiveTab('zip')}>Municipality</TabsTrigger>
-            </TabsList>
-            <TabsContent value="basic" className="space-y-4">
-              <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                <div className="space-y-2">
-                  <Label>Barangay</Label>
-                  <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!accessCode}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Barangay" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {barangays.map((brgy: any) => (
-                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
-                          {brgy.brgyDesc}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2 pb-4">
-                  <Label htmlFor="contact">PDF File</Label>
-                  <Input id="contact" type="file"
-                    accept=".pdf"
-                    onChange={handlePdfChange}
-                  />
-                </div>
-                <DropdownMenuSeparator />
-                <Table >
-                  <div className="w-full max-h-[300px] overflow-y-scroll">
-                    <TableCaption>A sample of your excel content.</TableCaption>
-                    <TableHeader>
-                      <TableRow className="text-center ">
-                        <TableHead className="text-center border-2 w-[50px]">No</TableHead>
-                        <TableHead className="text-center border-2 min-w-[150px]">Name</TableHead>
-                        <TableHead className="text-center border-2 w-full">Address</TableHead>
-                        <TableHead className="text-center border-2 min-w-[100px]">Marker</TableHead>
-                        <TableHead className="text-center border-2 min-w-[100px]">Precinct</TableHead>
-                        <TableHead className="text-center border-2 min-w-[100px]">Barangay</TableHead>
-
-                      </TableRow>
-                    </TableHeader>
-
-                    <TableBody >
-                      {jsonData.map((invoice: any, index: any) => {
-                        return (
-                          <TableRow key={index} className="w-full">
-                            <TableCell className="border-2">{invoice.No ?? invoice.idNum}</TableCell>
-                            <TableCell className="font-medium border-2">{invoice.name ?? invoice.Name}</TableCell>
-                            <TableCell className="border-2">{invoice.address ?? invoice.Address}</TableCell>
-                            <TableCell className="border-2">{invoice.marker ?? invoice.Type}</TableCell>
-                            <TableCell className="border-2">{invoice.precinct ?? invoice.Precinct}</TableCell>
-                            <TableCell className="border-2">{invoice.barangay ?? invoice.Barangay}</TableCell>
-
-                          </TableRow>
-                        )
-                      }
-                      )}
-                    </TableBody>
-                  </div>
-
-                </Table>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="zip" className="space-y-4">
-              <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                <div className="space-y-2 pb-4">
-                  <Label htmlFor="contact">File</Label>
-                  <Input id="contact" type="file"
-                    accept=".zip"
-                    onChange={handleFileChange}
-                  />
-                  <br />
-                  {/* <Button variant="outline" onClick={() => handleUploadZip()}>Upload</Button>&nbsp;&nbsp;&nbsp; */}
-                  <Button variant="outline" disabled={!zipFile} onClick={() => handleNormalizeZip()}>Validate</Button>
-                  <DropdownMenuSeparator />
-
-                  <br />
-
-                  {abnormalFiles.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-center"> Abnormal Files</Label>
-                      <DropdownMenuSeparator />
-
-                      <div className="space-y-2">
-                        {abnormalFiles.map((file: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center">
-                            <span>{file}</span>
-                          </div>
+            <DialogHeader>
+              <DialogTitle>Import Master List</DialogTitle>
+              <DialogDescription>Import contact details.</DialogDescription>
+            </DialogHeader>
+            <Tabs defaultValue="basic" className="space-y-4" >
+              <TabsList className="flex justify-center" >
+                <TabsTrigger value="basic" onClick={() => setActiveTab('basic')} >Barangay</TabsTrigger>
+                {/* <TabsTrigger value="area" onClick={() => setActiveTab('area')}>Area Location</TabsTrigger> */}
+                <TabsTrigger value="zip" onClick={() => setActiveTab('zip')}>Municipality</TabsTrigger>
+              </TabsList>
+              <TabsContent value="basic" className="space-y-4" onClick={() => setActiveTab('basic')}>
+                <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                  <div className="space-y-2">
+                    <Label>Barangay</Label>
+                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!accessCode}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Barangay" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {barangays.map((brgy: any) => (
+                          <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
+                            {brgy.brgyDesc}
+                          </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 pb-4">
+                    <Label htmlFor="contact">PDF File</Label>
+                    <Input id="contact" type="file"
+                      accept=".pdf"
+                      onChange={handlePdfChange}
+                    />
+                  </div>
+                  <DropdownMenuSeparator />
+                  <Table >
+                    <div className="w-full max-h-[300px] overflow-y-scroll">
+                      <TableCaption>A sample of your excel content.</TableCaption>
+                      <TableHeader>
+                        <TableRow className="text-center ">
+                          <TableHead className="text-center border-2 w-[50px]">No</TableHead>
+                          <TableHead className="text-center border-2 min-w-[150px]">Name</TableHead>
+                          <TableHead className="text-center border-2 w-full">Address</TableHead>
+                          <TableHead className="text-center border-2 min-w-[100px]">Marker</TableHead>
+                          <TableHead className="text-center border-2 min-w-[100px]">Precinct</TableHead>
+                          <TableHead className="text-center border-2 min-w-[100px]">Barangay</TableHead>
+
+                        </TableRow>
+                      </TableHeader>
+
+                      <TableBody >
+                        {jsonData.map((invoice: any, index: any) => {
+                          return (
+                            <TableRow key={index} className="w-full">
+                              <TableCell className="border-2">{invoice.No ?? invoice.idNum}</TableCell>
+                              <TableCell className="font-medium border-2">{invoice.name ?? invoice.Name}</TableCell>
+                              <TableCell className="border-2">{invoice.address ?? invoice.Address}</TableCell>
+                              <TableCell className="border-2">{invoice.marker ?? invoice.Type}</TableCell>
+                              <TableCell className="border-2">{invoice.precinct ?? invoice.Precinct}</TableCell>
+                              <TableCell className="border-2">{invoice.barangay ?? invoice.Barangay}</TableCell>
+
+                            </TableRow>
+                          )
+                        }
+                        )}
+                      </TableBody>
+                    </div>
+
+                  </Table>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="zip" className="space-y-4" onClick={() => setActiveTab('zip')}>
+                <div className="min-h-[300px] space-y-4 py-2 pb-4">
+                  <div className="space-y-2">
+                    <Label>City/Municipality</Label>
+                    <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={selectedMunicipality}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Municipality" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {municipalities.map((mun: any) => (
+                          <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
+                            {mun.citymunDesc} - {mun.provDesc}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 pb-4">
+                    <Label htmlFor="contact">File</Label>
+                    <Input id="contact" type="file"
+                      accept=".zip"
+                      onChange={handleFileChange}
+                    />
+                    <br />
+                    <div className="flex space-x-5">
+                      <div>
+                        <Label htmlFor="contact">Remove String</Label>
+                        <Input id="contact"
+                          onChange={(e) => setRemoveStr(e.target.value)}
+                          value={removeStr}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="contact">Replace String</Label>
+                        <Input id="contact"
+                          onChange={(e) => setReplaceStr(e.target.value)}
+                          value={replaceStr}
+                        />
                       </div>
                     </div>
-                  )}
+
+                    {/* <Button variant="outline" onClick={() => handleUploadZip()}>Upload</Button>&nbsp;&nbsp;&nbsp; */}
+                    <Button variant="outline" disabled={!zipFile} onClick={() => handleNormalizeZip()}>Validate</Button>
+                    <DropdownMenuSeparator />
+
+                    <br />
+                    <div className="flex space-x-5 justify-evenly">
+
+                      {abnormalFiles.length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-center"> Abnormal Files {abnormalFiles.length}</Label>
+                          <DropdownMenuSeparator />
+
+                          <div className="space-y-2 max-h-[200px] overflow-auto">
+                            {abnormalFiles.map((file: any, index: number) => (
+                              <div key={index} className="flex justify-between items-center">
+                                <span>{file}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <br />
+                      {validFiles.length > 0 && (
+                        <div className="space-y-2">
+                          <Label className="text-center"> Valid Files {validFiles.length}</Label>
+                          <DropdownMenuSeparator />
+
+                          <div className="space-y-2 max-h-[200px] overflow-auto">
+                            {validFiles.map((file: any, index: number) => (
+                              <div key={index} className="flex justify-start items-center space-x-5">
+                                <span className="mr-5">{file.filename}</span> - <span className="text-left">{file.brgyDesc}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+              </TabsContent>
+            </Tabs>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              {activeTab == 'zip' && <Button disabled={loading} onClick={() => handleUploadZip()}>Save</Button>}
+              {activeTab == 'basic' && <Button disabled={loading} onClick={() => saveData()}>Save</Button>}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button disabled={loading} onClick={() => activeTab == 'zip' ? handleUploadZip() : saveData()}>Save</Button>
-          </DialogFooter>
-
-        </DialogContent>
-      </Dialog >
-
-    </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog >
+      </div>
+    </ >
   );
 }

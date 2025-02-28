@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const limit = parseInt(searchParams.get("limit") || "100", 10);
     const search = searchParams.get("search") || "";
     const system = searchParams.get("system");
     // const userId = searchParams.get("userId");
@@ -161,7 +161,7 @@ export async function GET(req: NextRequest) {
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
       // .skip(skip)
-      // .limit(limit)
+      .limit(limit)
       .sort({ createdAt: -1 })
       .lean();
 

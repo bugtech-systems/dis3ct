@@ -20,14 +20,14 @@ import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { CreateLeaderFormDialog } from "./contacts/CreateLeaderForm";
-import { LeaderProfileDialogForm } from "./contacts/LeaderProfileForm";
+import { LeaderProfileForm } from "./contacts/LeaderProfileForm";
 import { useContact } from "./providers/ContactProvider";
 import { useComponent } from "./providers/ComponentContext";
+import { CreateSystemForm } from "./contacts/CreateSystemForm";
 
 export function UserNav({ user }: { user: any }) {
   const { modal, setModal } = useComponent();
   const [loading, setLoading] = useState(false);
-  const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const { setUser } = useContact();
 
@@ -56,7 +56,7 @@ export function UserNav({ user }: { user: any }) {
 
   return (
     <>
-      {open && <LeaderProfileDialogForm contact={user} open={open} setOpen={setOpen} />}
+      {open && <LeaderProfileForm contact={user} open={open} setOpen={setOpen} />}
       <CreateLeaderFormDialog contact={user} type="new" open={modal == 'newLeader'} setOpen={setModal} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

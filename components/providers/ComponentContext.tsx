@@ -9,6 +9,12 @@ interface ComponentContextType {
     setModal: (type: any, id?: any) => void;
     modalId: string | null;
     setModalId: (temp: any) => void;
+    refreshId: any;
+    setRefreshId: (temp: any) => void;
+    isRefreshing: boolean;
+    setIsRefreshing: (temp: any) => void;
+
+
 }
 
 const ComponentContext = createContext<ComponentContextType | undefined>(undefined);
@@ -16,6 +22,9 @@ const ComponentContext = createContext<ComponentContextType | undefined>(undefin
 export const ComponentProvider = ({ children }: { children: ReactNode }) => {
     const [modal, setModal] = useState<any>(null);
     const [modalId, setModalId] = useState<any>(null);
+    const [refreshId, setRefreshId] = useState<any>(null);
+    const [isRefreshing, setIsRefreshing] = useState<any>(false);
+
 
     const handleModal = (type: any, id: any) => {
         if (type) {
@@ -29,9 +38,13 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
 
     }
 
+    const handleRefreshId = (e: any) => {
+        setRefreshId(e ? Math.random() : null)
+    }
+
 
     return (
-        <ComponentContext.Provider value={{ modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
+        <ComponentContext.Provider value={{ isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
             {children}
         </ComponentContext.Provider>
     );

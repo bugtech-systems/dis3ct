@@ -43,7 +43,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   setOpen: (value: boolean) => void
 }) {
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { user } = useContact();
+  const { user, system } = useContact();
   // State for form fields
   const [phone, setPhone] = React.useState("");
   const [name, setName] = React.useState("");
@@ -64,6 +64,32 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   const [selectedProvince, setSelectedProvince] = React.useState("");
   const [selectedMunicipality, setSelectedMunicipality] = React.useState("");
   const [selectedBarangay, setSelectedBarangay] = React.useState(null);
+
+
+
+  const handleLocation = async (data) => {
+    if (data) {
+      let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
+      if (response?.data) {
+        let { regCode, provCode, citymunCode, brgyCode } = response.data;
+        setAccessCode(data.accessCode)
+        setAccessLevel(data.accessLevel)
+        setSelectedProvince(provCode)
+        setSelectedRegion(regCode)
+        setSelectedMunicipality(citymunCode)
+      }
+    }
+  }
+
+
+
+  // Fetch Regions on Component Mount
+  React.useEffect(() => {
+    if (user && open) {
+      handleLocation(system ? system : user)
+    }
+
+  }, [user, open]);
 
   // Fetch Regions on Component Mount
   // React.useEffect(() => {
@@ -100,52 +126,42 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   // // Fetch Barangays when Municipality changes
   React.useEffect(() => {
     // if (selectedProvince) {
-    axios.get(`/api/location/municipalities`).then((res) => {
-      setMunicipalities(res.data.data);
-      setBarangays([]);
-      setSelectedMunicipality(null)
-      setSelectedBarangay(null)
-    });
+    if (selectedProvince) {
+      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+        setSelectedMunicipality(null)
+        setSelectedBarangay(null)
+      });
+    }
+
     // }
 
 
 
 
-  }, [accessLevel]);
+  }, [accessLevel, selectedProvince]);
 
 
 
-  // React.useEffect(() => {
-  //   if (contact) {
-  //     setPhone(contact.phone)
-  //     setUsername(contact.username || "")
-  //     setName(contact.name || "")
-  //     setAddress(contact.address || "")
-  //     setSelectedRegion(contact.regCode || "")
-  //     setSelectedProvince(contact.provCode || "")
-  //     setSelectedMunicipality(contact.citymunCode || "")
-  //     setSelectedBarangay(contact.brgyCode || "")
+  React.useEffect(() => {
 
-  //     // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
-  //     //   setParentSystem(res.data);
-  //     //   setSystem(res.data);
-  //     //   setPort(res.data.port)
-  //     // });
-  //   }
 
-  //   return () => {
-  //     setPhone("")
-  //     setName("")
-  //     setAddress("")
-  //     setSelectedRegion("")
-  //     setSelectedProvince("")
-  //     setSelectedMunicipality("")
-  //     setSelectedBarangay("")
-  //     // setSystem(null);
-  //     setPort("");
-  //   }
+    return () => {
+      setPhone("")
+      setName("")
+      setAddress("")
+      setSelectedRegion("")
+      setSelectedProvince(null)
+      setSelectedMunicipality("")
+      setSelectedBarangay(null)
+      // setSystem(null);
+      setMunicipalities([])
+      setBarangays([])
+      setPort("");
+    }
 
-  // }, [])
+  }, [open])
 
 
 
@@ -204,7 +220,6 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
     }
   };
-
 
 
 
@@ -283,7 +298,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                     <SelectContent>
                       {municipalities.map((mun: any) => (
                         <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
-                          {mun.citymunDesc}
+                          {mun.citymunDesc}{mun.provDesc ? ` - ${mun.provDesc}` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>

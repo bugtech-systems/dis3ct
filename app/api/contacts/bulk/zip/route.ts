@@ -37,6 +37,9 @@ export async function POST(req: NextRequest) {
         const regCode = formData.get('regCode');
         const provCode = formData.get('provCode');
         const citymunCode = formData.get('citymunCode');
+        const replaceStr = formData.get('replaceStr') || "";
+        const removeStr = formData.get('removeStr') || null;
+
 
         if (!file) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -61,8 +64,10 @@ export async function POST(req: NextRequest) {
         zip.extractAllTo(uploadDir, true);
 
         // Read extracted files
+        const extractName = String(file.name).replace('.zip', '')
         const files = fs.readdirSync(uploadDir);
-        let zipFile = path.join(uploadDir, files[0])
+
+        let zipFile = path.join(uploadDir, extractName)
         const zipFiles = fs.readdirSync(zipFile);
         let totalVotres = 0;
 
@@ -75,7 +80,7 @@ export async function POST(req: NextRequest) {
         // let filenamesToMatch = barangays.map((brgy) => brgy.brgyDesc);
         // Helper function to normalize filenames
         const normalizeString = (str) => {
-            return str.toLowerCase()
+            return str.toLowerCase().replace(String(removeStr).toLowerCase(), String(replaceStr).toLowerCase())
                 .replace(/[^a-z0-9]/g, "");  // Remove all non-alphanumeric characters
         };
         // Normalize filenames in `filenamesToMatch`
@@ -88,8 +93,9 @@ export async function POST(req: NextRequest) {
 
             return dataArray.find((obj) => {
                 const normalizedField = normalizeString(obj.brgyDesc); // Adjust field name accordingly
+                // console.log(normalizedFilename, normalizedField)
 
-                return normalizedFilename === normalizedField;
+                return (String(normalizedFilename).toLowerCase().includes(String(normalizedField).toLowerCase()) || String(normalizedField).toLowerCase().includes(String(normalizedFilename).toLowerCase()));
             });
         };
 
@@ -107,10 +113,11 @@ export async function POST(req: NextRequest) {
         }
 
         for (const filename of pdfFiles) {
-            let cleanName = String(filename).replace("_PCVL_MAY_12_2025_NLE.pdf", "")
-            const filePath = path.join(uploadDir, files[0], filename);
+            let cleanName = filename
+
+            const filePath = path.join(uploadDir, extractName, filename);
             const matchingObject = findMatchingObject(cleanName, barangays);
-            let bar = barangays.find((brgy) => normalizeString(brgy.brgyDesc).includes(normalizeString(cleanName)))
+            let bar = barangays.find((brgy) => (normalizeString(cleanName).includes(normalizeString(brgy.brgyDesc)) || normalizeString(brgy.brgyDesc).includes(normalizeString(cleanName))))
 
             if ((matchingObject || bar)) {
                 let brgyCode = matchingObject ? matchingObject.brgyCode : bar.brgyCode

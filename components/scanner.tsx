@@ -128,10 +128,10 @@ export function ScannerForm() {
   };
 
   const handleInit = () => {
-    if (modal == 'scanner') {
-      socket.emit('init')
-      setIsBiometric(true)
-    }
+    // if (modal == 'scanner') {
+    socket.emit('init')
+    setIsBiometric(true)
+    // }
 
   }
 

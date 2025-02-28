@@ -54,7 +54,8 @@ export function TeamSwitchers({
     let teamData = await getTeams();
     console.log(teamData, 'TD')
     if (teamData.length >= 1) {
-      setTeams(teamData)
+      let newTeam = teamData.filter(team => (team?._id != user?._id))
+      setTeams(newTeam)
     }
 
   }
@@ -63,8 +64,8 @@ export function TeamSwitchers({
     let authUser = await getAuth();
     if (authUser && authUser.parent) {
       handleSystems(authUser.parent);
-    } else {
-
+    } else if (authUser.userType == 'system' || authUser.userType == 'system') {
+      handleSystems(authUser);
     }
   }
 
@@ -84,6 +85,7 @@ export function TeamSwitchers({
         handleSystems(sys)
       } else {
         // localStorage.removeItem('system');
+        handleAuth()
       }
       return;
     } else if (user && user.parent) {
@@ -123,14 +125,31 @@ export function TeamSwitchers({
 
 
   // console.log(session, 'SESSION')
-  console.log(user, session, 'SESS')
   return (
     <>
       <CreateSystemForm open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            {teams.length ?
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <GalleryVerticalEnd className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {system?.name}
+                    </span>
+                    <span className="truncate text-xs">{system?.userType}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              :
               <SidebarMenuButton
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
@@ -146,7 +165,8 @@ export function TeamSwitchers({
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
-            </DropdownMenuTrigger>
+            }
+
             <DropdownMenuContent
               className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
               align="start"
@@ -156,7 +176,7 @@ export function TeamSwitchers({
               <DropdownMenuLabel className="text-xs text-muted-foreground">
                 Teams
               </DropdownMenuLabel>
-              {teams?.filter(team => team._id != user._id).map((team, index) => (
+              {teams?.filter(team => (team?._id != user?._id)).map((team, index) => (
                 <DropdownMenuItem
                   key={team?.name}
                   onClick={() => handleSystems(team)}
@@ -173,7 +193,7 @@ export function TeamSwitchers({
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => handleSystems(null)}
+                    onClick={() => handleSystems(user)}
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-sm border">
