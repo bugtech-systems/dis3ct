@@ -80,56 +80,6 @@ export function UploadContactForm() {
 
 
 
-  // Fetch Regions on Component Mount
-  React.useEffect(() => {
-    if (system) {
-      axios.get(`/api/location/access?code=${system?.accessCode}&level=${system?.accessLevel}`).then((res) => {
-        if (res.data) {
-          let { regCode, provCode, citymunCode, brgyCode } = res.data;
-          setAccessCode(citymunCode);
-          setSelectedRegion(regCode)
-          setSelectedProvince(provCode)
-          setSelectedMunicipality(citymunCode)
-        }
-      });
-    }
-
-  }, [system, open]);
-
-  React.useEffect(() => {
-    // if (selectedProvince) {
-    if (open) {
-      console.log('SELECT PROV')
-      if (selectedProvince) {
-        axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-          setMunicipalities(res.data.data);
-          setBarangays([]);
-        });
-      } else {
-        axios.get(`/api/location/municipalities`).then((res) => {
-          setMunicipalities(res.data.data);
-          setBarangays([]);
-        });
-      }
-    }
-
-
-    // }
-
-
-
-
-  }, [open, selectedProvince]);
-
-
-  // Fetch Barangays when Municipality changes
-  React.useEffect(() => {
-    if (selectedMunicipality) {
-      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
-        setBarangays(res.data.data);
-      });
-    }
-  }, [open, selectedMunicipality]);
 
 
 
@@ -168,41 +118,41 @@ export function UploadContactForm() {
     }
   }
 
-  function previewData(file: any) {
-    if (file) {
-      setJsonData([])
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = e.target?.result;
-        if (data) {
-          const workbook = XLSX.read(data, { type: "binary" });
-          // SheetName
-          const sheetName = workbook.SheetNames[0];
-          // Worksheet
-          const workSheet = workbook.Sheets[sheetName];
-          // Json
-          const json: any[] = XLSX.utils.sheet_to_json(workSheet);
+  // function previewData(file: any) {
+  //   if (file) {
+  //     setJsonData([])
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       const data = e.target?.result;
+  //       if (data) {
+  //         const workbook = XLSX.read(data, { type: "binary" });
+  //         // SheetName
+  //         const sheetName = workbook.SheetNames[0];
+  //         // Worksheet
+  //         const workSheet = workbook.Sheets[sheetName];
+  //         // Json
+  //         const json: any[] = XLSX.utils.sheet_to_json(workSheet);
 
-          let checkCol = hasKeyWithKeywords(json[0]);
-          if (!checkCol) {
-            return toast.error('Column Header Should be Name, Address, Pricinct')
-          }
-
-
+  //         let checkCol = hasKeyWithKeywords(json[0]);
+  //         if (!checkCol) {
+  //           return toast.error('Column Header Should be Name, Address, Pricinct')
+  //         }
 
 
-          console.log(json, 'JSON DATA')
-          setJsonData(json);
-        }
-      };
-      reader.readAsBinaryString(file);
-    }
-  }
+
+
+  //         console.log(json, 'JSON DATA')
+  //         setJsonData(json);
+  //       }
+  //     };
+  //     reader.readAsBinaryString(file);
+  //   }
+  // }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setZipFile(event.target.files[0]);
-
+      handleNormalizeZip(event.target.files[0])
     }
   };
 
@@ -301,19 +251,20 @@ export function UploadContactForm() {
     }
   };
 
-  const handleNormalizeZip = async () => {
-    if (!zipFile) {
+  const handleNormalizeZip = async (zpFile) => {
+    if (!zpFile && !zipFile) {
       alert("Please select a file");
       return;
     }
 
     setLoading(true);
-
+    setAbnormalFiles([])
+    setValidFiles([])
 
     try {
-
+      let zFile = zpFile ? zpFile : zipFile;
       const formData = new FormData();
-      formData.append("file", zipFile);
+      formData.append("file", zFile);
       formData.append("parNum", system?.id);
       formData.append("refNum", user?._id);
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
@@ -331,9 +282,6 @@ export function UploadContactForm() {
       });
 
       const data = await response.json();
-
-
-      console.log(data, 'DATA')
       setAbnormalFiles(data.abnormalFiles)
       setValidFiles(data.validFiles)
       // return toast.success(data.message)
@@ -346,10 +294,61 @@ export function UploadContactForm() {
 
     }
   };
+
+  // Fetch Regions on Component Mount
+  React.useEffect(() => {
+    if (system && open) {
+      axios.get(`/api/location/access?code=${system?.accessCode}&level=${system?.accessLevel}`).then((res) => {
+        if (res.data) {
+          let { regCode, provCode, citymunCode, brgyCode } = res.data;
+          setAccessCode(citymunCode);
+          setSelectedRegion(regCode)
+          setSelectedProvince(provCode)
+          setSelectedMunicipality(citymunCode)
+        }
+      });
+    }
+
+  }, [system, open]);
+
+  React.useEffect(() => {
+    // if (selectedProvince) {
+    console.log('SELECT PROV')
+    if (selectedProvince) {
+      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+      });
+    } else {
+      axios.get(`/api/location/municipalities`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+      });
+    }
+
+
+    // }
+
+
+
+
+  }, [selectedProvince]);
+
+
+  // Fetch Barangays when Municipality changes
+  React.useEffect(() => {
+    if (selectedMunicipality) {
+      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
+        setBarangays(res.data.data);
+      });
+    }
+  }, [selectedMunicipality]);
+
   React.useEffect(() => {
 
     return () => {
       setAbnormalFiles([]);
+      setValidFiles([])
     }
 
   }, [open])

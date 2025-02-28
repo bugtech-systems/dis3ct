@@ -45,8 +45,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
         }
 
+        const extractName = String(file.name).replace('.zip', '')
 
 
+        fs.rmSync(extractName, { recursive: true, force: true });
 
         // Read ZIP file buffer
         const buffer = Buffer.from(await file.arrayBuffer());
@@ -64,7 +66,6 @@ export async function POST(req: NextRequest) {
         zip.extractAllTo(uploadDir, true);
 
         // Read extracted files
-        const extractName = String(file.name).replace('.zip', '')
         const files = fs.readdirSync(uploadDir);
 
         let zipFile = path.join(uploadDir, extractName)
@@ -80,11 +81,18 @@ export async function POST(req: NextRequest) {
         // let filenamesToMatch = barangays.map((brgy) => brgy.brgyDesc);
         // Helper function to normalize filenames
         const normalizeString = (str) => {
-            return str.toLowerCase().replace(String(removeStr).toLowerCase(), String(replaceStr).toLowerCase())
+            return str.toLowerCase()
                 .replace(/[^a-z0-9]/g, "");  // Remove all non-alphanumeric characters
         };
-        // Normalize filenames in `filenamesToMatch`
 
+        const replaceString = (str) => {
+            let newStr = str;
+            let remStr = String(removeStr).split(',');
+            remStr.forEach(rm => {
+                newStr = String(newStr).toLowerCase().replace(String(rm).toLowerCase(), replaceStr)
+            })
+            return newStr;  // Remove all non-alphanumeric characters
+        };
 
 
         // Function to find matching object based on normalized filename
@@ -92,10 +100,9 @@ export async function POST(req: NextRequest) {
             const normalizedFilename = normalizeString(filename);
 
             return dataArray.find((obj) => {
-                const normalizedField = normalizeString(obj.brgyDesc); // Adjust field name accordingly
-                // console.log(normalizedFilename, normalizedField)
-
-                return (String(normalizedFilename).toLowerCase().includes(String(normalizedField).toLowerCase()) || String(normalizedField).toLowerCase().includes(String(normalizedFilename).toLowerCase()));
+                const normalizedField = normalizeString(replaceString(obj.brgyDesc)); // Adjust field name accordingly
+                let spltFile = String(filename).split('_').map(splt => { return normalizeString(splt) })
+                return (normalizedFilename === normalizedField || spltFile.includes(normalizedField));
             });
         };
 
@@ -113,11 +120,14 @@ export async function POST(req: NextRequest) {
         }
 
         for (const filename of pdfFiles) {
-            let cleanName = filename
+            let cleanName = replaceString(filename)
 
             const filePath = path.join(uploadDir, extractName, filename);
             const matchingObject = findMatchingObject(cleanName, barangays);
-            let bar = barangays.find((brgy) => (normalizeString(cleanName).includes(normalizeString(brgy.brgyDesc)) || normalizeString(brgy.brgyDesc).includes(normalizeString(cleanName))))
+            let bar = barangays.find((brgy) => normalizeString(brgy.brgyDesc).includes(normalizeString(cleanName)))
+
+
+
 
             if ((matchingObject || bar)) {
                 let brgyCode = matchingObject ? matchingObject.brgyCode : bar.brgyCode
