@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "concurrently \"next start\" \"python app.py\"",
+    "start": "next start",
     "lint": "next lint",
     "biometric": "concurrently \"next dev\" \"python app.py\"",
     "scanner": "python app.py"
