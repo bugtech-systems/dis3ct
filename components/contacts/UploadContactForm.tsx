@@ -89,7 +89,7 @@ export function UploadContactForm() {
     console.log('CLICKEED 1')
 
     if (jsonData) {
-      // setLoading(true);
+      setLoading(true);
 
       //Save to the DB
       try {

@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
 
 
 
-        fs.rmSync(zipFile, { recursive: true, force: true });
+        fs.rmSync(uploadDir, { recursive: true, force: true });
 
 
 
