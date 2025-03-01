@@ -36,7 +36,8 @@ import { sanitizePhoneNumber } from "@/lib/helpers";
 import { useContact } from "../providers/ContactProvider";
 
 
-export function LeaderProfileForm({ open, setOpen }: {
+export function LeaderProfileForm({ open, setOpen, profile }: {
+  profile?: any;
   open?: boolean;
   setOpen: (value: boolean) => void
 }) {
@@ -71,6 +72,7 @@ export function LeaderProfileForm({ open, setOpen }: {
         setSelectedRegion(regCode)
         setSelectedProvince(provCode)
         setSelectedMunicipality(citymunCode)
+        setSelectedBarangay(brgyCode)
       }
     }
   }
@@ -80,45 +82,27 @@ export function LeaderProfileForm({ open, setOpen }: {
 
 
 
-  const handleAccessLevel = (e) => {
-    console.log(e, 'ACCESS LEVEL');
-    setAccessCode(e[accessLevel])
+  const handleAccessLevel = (e) => prop => {
+
+
+
+
+    if (e == 'city') {
+      setSelectedMunicipality(prop)
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(prop)
+      }
+
+    } else if (e == 'brgy') {
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(selectedMunicipality)
+      } else if (accessLevel == 'brgyCode') {
+        setAccessCode(prop)
+      }
+      setSelectedBarangay(prop)
+    }
   }
 
-
-  React.useEffect(() => {
-    if (selectedMunicipality) {
-      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
-        setBarangays(res.data.data);
-      });
-    }
-  }, [selectedMunicipality]);
-
-  // // Fetch Barangays when Municipality changes
-  React.useEffect(() => {
-    // if (selectedProvince) {
-    if (selectedProvince) {
-      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-        setSelectedMunicipality(null)
-        setSelectedBarangay(null)
-      });
-    } else {
-      axios.get(`/api/location/municipalities`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-        setSelectedMunicipality(null)
-        setSelectedBarangay(null)
-      });
-    }
-
-    // }
-
-
-
-
-  }, [accessLevel, selectedProvince]);
 
 
 
@@ -147,7 +131,7 @@ export function LeaderProfileForm({ open, setOpen }: {
 
       await axios.post("/api/users", {
         action: "update",
-        userId: user?._id,
+        userId: profile?._id,
         phone: sanitizePhoneNumber(phone),
         name,
         username,
@@ -172,15 +156,49 @@ export function LeaderProfileForm({ open, setOpen }: {
   };
 
 
+
+
+  // // Fetch Barangays when Municipality changes
   React.useEffect(() => {
-    if (user && open) {
-      handleLocation(user)
-      setPhone(user.phone)
-      setUsername(user.username || "")
-      setName(user.name || "")
-      setAccessCode(user.accessCode || "");
-      setAccessLevel(user.accessLevel || "brgyCode")
-      setUserType(user.userType || "")
+    // if (selectedProvince) {
+    if (selectedProvince) {
+      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+      });
+    } else {
+      axios.get(`/api/location/municipalities`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+      });
+    }
+
+    // }
+
+
+
+
+  }, [selectedProvince]);
+
+
+  React.useEffect(() => {
+    if (selectedMunicipality) {
+      axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
+        setBarangays(res.data.data);
+      });
+    }
+  }, [selectedMunicipality]);
+
+
+  React.useEffect(() => {
+    if (profile) {
+      setPhone(profile.phone)
+      setUsername(profile.username || "")
+      setName(profile.name || "")
+      setAccessCode(profile.accessCode || "");
+      setAccessLevel(profile.accessLevel || "brgyCode")
+      setUserType(profile.userType || "")
+      handleLocation(profile)
 
       // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
       //   setParentSystem(res.data);
@@ -200,18 +218,18 @@ export function LeaderProfileForm({ open, setOpen }: {
       setPort("");
     }
 
-  }, [open, user])
+  }, [profile])
 
 
 
-  console.log(selectedProvince, municipalities, 'PROV', system, user)
+  // console.log(selectedProvince, municipalities, 'PROV', system, user)
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{user?._id ? 'Edit' : 'Create'} System</DialogTitle>
+            <DialogTitle>{profile?._id ? 'Edit' : 'Create'} System</DialogTitle>
             <DialogDescription>
               Add a new system.
             </DialogDescription>
@@ -223,7 +241,9 @@ export function LeaderProfileForm({ open, setOpen }: {
               <TabsTrigger value="access" >
                 Access
               </TabsTrigger>
-              <TabsTrigger value="features">Features</TabsTrigger>
+              {profile?.userType == 'admin' &&
+                <TabsTrigger value="features">Features</TabsTrigger>
+              }
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
@@ -272,7 +292,7 @@ export function LeaderProfileForm({ open, setOpen }: {
                 </div>
                 <div className="space-y-2">
                   <Label>City/Municipality</Label>
-                  <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!accessLevel}>
+                  <Select onValueChange={handleAccessLevel('city')} value={selectedMunicipality} disabled={!accessLevel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Municipality" />
                     </SelectTrigger>
@@ -289,13 +309,13 @@ export function LeaderProfileForm({ open, setOpen }: {
                 {/* Barangay Selection */}
                 <div className="space-y-2">
                   <Label>Barangay</Label>
-                  <Select onValueChange={handleAccessLevel} value={selectedBarangay?.brgyDesc} disabled={!accessLevel}>
+                  <Select onValueChange={handleAccessLevel('brgy')} value={selectedBarangay} disabled={!accessLevel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Barangay" />
                     </SelectTrigger>
                     <SelectContent>
                       {barangays.map((brgy: any) => (
-                        <SelectItem key={brgy.brgyCode} value={brgy}>
+                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
                           {brgy.brgyDesc}
                         </SelectItem>
                       ))}

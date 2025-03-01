@@ -2,6 +2,7 @@
 
 import connectToDatabase from "@/lib/mongodb";
 import Contact from "@/models/Contact";
+import User from "@/models/User";
 
 export const getLeaderDashboard = async (id): Promise<any> => {
   try {
@@ -10,18 +11,17 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     await connectToDatabase();
 
     // Get user details
-    const user = await Contact.findById(id).lean(); // ✅ Convert to plain object
+    const user = await User.findById(id).lean(); // ✅ Convert to plain object
     if (!user) {
       throw new Error("User not found");
     }
 
     let options: any = { deletedAt: null };
-    if (user.userLevel !== "admin") {
-      options.parNum = user.parNum;
+    if (user.userType !== "admin") {
+      options.parNum = user.parent;
     }
 
 
-    console.log(user, 'USR')
     // Aggregate Dashboard Data
     const [teamReach, subscriptions, contacts, recentContacts] = await Promise.all([
       Contact.countDocuments({ ...options }),
@@ -30,7 +30,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       Contact.find({ ...options })
         .sort({ updatedAt: -1 })
         .limit(5)
-        .select("name phone createdAt")
+        .select("name phone createdAt updatedAt")
         .lean(), // ✅ Convert to plain objects
     ]);
 

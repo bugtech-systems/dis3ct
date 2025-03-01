@@ -1,7 +1,7 @@
 // lib/dbConnect.ts
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://alayon:Jkkulf5AvWjN4JGm@cluster0.ljfau.mongodb.net/alayon-dev';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fingerprintDB';
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable in .env.local');
@@ -30,6 +30,11 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const options = {
       bufferCommands: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 120000, // Wait 30s before giving up on server selection
+      socketTimeoutMS: 120000, // Close sockets after 45s of inactivity
+      connectTimeoutMS: 120000, // Timeout after 30s if unable to connect
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, options).then((mongoose) => {

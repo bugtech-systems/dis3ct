@@ -57,7 +57,6 @@ export const POST = async (req: NextRequest) => {
 
     }
 
-    console.log(contact, 'CONTACT')
 
 
     let refExist = contact?.uplines?.find(contact => contact == refData.id)

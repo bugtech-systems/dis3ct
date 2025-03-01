@@ -172,7 +172,9 @@ export function DataTableToolbar<TData>({
 
           :
           <>
-            <UploadContactForm />
+            {user?.userType == 'admin' &&
+              <UploadContactForm />
+            }
             <DataTableViewOptions table={table} />
           </>
         }

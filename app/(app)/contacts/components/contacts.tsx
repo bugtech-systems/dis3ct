@@ -4,16 +4,14 @@ import { useEffect, useState } from "react";
 import { columns } from "./columns"
 import CardsDataTable from "./data-table"
 import { useContact } from "@/components/providers/ContactProvider";
-import { useDebounce } from "@/hooks/useDebounce";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useComponent } from "@/components/providers/ComponentContext";
+import { mergeUniqueObjects } from "@/lib/helpers";
 
 export default function ContactsPage() {
     const { system } = useContact()
     const { refreshId, setIsRefreshing, setRefreshId, isRefreshing } = useComponent();
     const [contacts, setContacts] = useState([]);
-    const [limit, setLimit] = useState(1000);
+    const [limit, setLimit] = useState(10000);
     const [currentSystem, setCurrentSystem] = useState<any>([]);
 
     const fetchContacts = async (e?: any) => {
@@ -31,13 +29,19 @@ export default function ContactsPage() {
                 let { data, pagination } = resData;
                 setContacts(data)
                 setLimit(pagination.total)
-                console.log(limit, pagination, 'LIM')
-                // setPageSize(pagination.limit)
-                // setPageIndex(pagination.page)
-                // setTotalPages(pagination.totalPages)
+                // return
+                // setIsRefreshing(false)
+                // setRefreshId(null)
             }
+            // console.log(limit, pagination, 'LIM')
+            // setPageSize(pagination.limit)
+            // setPageIndex(pagination.page)
+            // setTotalPages(pagination.totalPages)
+            // }
+
             setIsRefreshing(false)
             setRefreshId(null)
+
 
             return resData
         } catch (err: any) {
@@ -63,7 +67,7 @@ export default function ContactsPage() {
 
     useEffect(() => {
         const handleInit = async () => {
-            await fetchContacts({ ...system, limit: 1000 });
+            await fetchContacts({ ...system, limit: 10000 });
             setIsRefreshing(true)
             setRefreshId(Math.random())
 
@@ -71,7 +75,7 @@ export default function ContactsPage() {
         }
 
         if (system?._id != currentSystem?._id) {
-            setLimit(1000)
+            setLimit(10000)
             setRefreshId(null)
             setCurrentSystem(system)
             setContacts([])
@@ -87,7 +91,6 @@ export default function ContactsPage() {
     }, [refreshId, currentSystem])
 
 
-    console.log(limit, 'LIMT')
 
     return (
         <>

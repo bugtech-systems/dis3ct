@@ -1,17 +1,13 @@
 import sys
 import logging
-import os
-import json
 import threading
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from pyzkfp import ZKFP2
-from threading import Thread, Lock
 from time import sleep
-from pymongo import MongoClient, ReturnDocument
+from pymongo import MongoClient
 from bson import ObjectId
-from datetime import datetime
 
 sys.dont_write_bytecode = True
 
@@ -35,38 +31,30 @@ logger = logging.getLogger('FingerprintAPI')
 
 # Fingerprint SDK Variables
 zkfp2 = ZKFP2()
-scanner_lock = Lock()
+scanner_lock = threading.Lock()
 scanner_initialized = False
 keep_alive = False
-register_mode = False
-capture = None
+monitor_thread_running = False  # Prevents multiple monitor threads
 
-# 🔹 New function to check if a biometric device is connected
 def is_device_connected():
-    """Check if a fingerprint scanner is connected before initialization."""
+    """Check if a biometric device is connected."""
     try:
-        if zkfp2.GetDeviceCount() > 0:
-            logger.info("🟢 Biometric device detected.")
-            return True
-        else:
-            logger.error("❌ No biometric device detected. Plug in a device before initializing.")
-            return False
+        return zkfp2.GetDeviceCount() > 0
     except Exception as e:
         logger.error(f"❌ Error checking biometric device: {e}")
         return False
 
 def initialize_scanner():
-    """Initialize the fingerprint scanner SDK safely."""
-    global keep_alive, scanner_initialized
+    """Initialize the fingerprint scanner when a device is available."""
+    global scanner_initialized, keep_alive
     if scanner_initialized:
         logger.warning("⚠️ Scanner already initialized.")
         return True
 
     with scanner_lock:
-        logger.info("🟡 Checking for biometric device...")
-
         if not is_device_connected():
-            return False  # Stops initialization if no device is found
+            logger.warning("❌ No device detected. Waiting for connection...")
+            return False  # Don't terminate SDK, wait for monitoring
 
         logger.info("🟡 Initializing fingerprint scanner SDK...")
         try:
@@ -88,7 +76,7 @@ def initialize_scanner():
 
 def shutdown_scanner():
     """Safely shuts down the fingerprint scanner."""
-    global keep_alive, scanner_initialized
+    global scanner_initialized, keep_alive
     with scanner_lock:
         if not scanner_initialized:
             logger.warning("⚠️ Scanner already shut down.")
@@ -109,6 +97,33 @@ def shutdown_scanner():
             logger.error(f"❌ Error shutting down scanner: {e}")
             return jsonify({"error": "Failed to shut down scanner."}), 500
 
+def monitor_device_connection():
+    """Continuously monitors the device connection status."""
+    global monitor_thread_running
+    if monitor_thread_running:
+        return  # Prevent duplicate monitoring threads
+
+    monitor_thread_running = True
+    logger.info("🔄 Starting device connection monitor...")
+
+    device_was_connected = is_device_connected()
+    
+    while True:
+        sleep(2)  # Check every 2 seconds
+        device_connected = is_device_connected()
+
+        if device_connected and not device_was_connected:
+            logger.info("🔌 Device plugged in. Initializing scanner...")
+            initialize_scanner()
+            socketio.emit("device_connected", {"message": "Device plugged in and initialized."})
+
+        elif not device_connected and device_was_connected:
+            logger.warning("⚠️ Device unplugged. Shutting down scanner...")
+            shutdown_scanner()
+            socketio.emit("device_disconnected", {"message": "Device unplugged."})
+
+        device_was_connected = device_connected
+
 @app.route('/init', methods=['POST'])
 def api_initialize_scanner():
     """API endpoint to initialize the scanner."""
@@ -124,4 +139,5 @@ def api_shutdown_scanner():
     return shutdown_scanner()
 
 if __name__ == "__main__":
+    threading.Thread(target=monitor_device_connection, daemon=True).start()  # Start monitoring in background
     socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

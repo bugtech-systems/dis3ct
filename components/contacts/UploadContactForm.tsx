@@ -47,6 +47,7 @@ import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { createBulkContact } from "@/actions/Contacts";
 import { json } from "stream/consumers";
 import { useContact } from "../providers/ContactProvider";
+import { useComponent } from "../providers/ComponentContext";
 
 function hasKeyWithKeywords(obj: any, keywords = ["name", "phone", "address"]) {
   return Object.keys(obj).some(key =>
@@ -57,6 +58,7 @@ function hasKeyWithKeywords(obj: any, keywords = ["name", "phone", "address"]) {
 export function UploadContactForm() {
   const router = useRouter(); // ⬅ Initialize useRouter
   const { user, system } = useContact();
+  const { setRefreshId } = useComponent()
   // State for form fields
   const [open, setOpen] = React.useState(false);
   const [zipFile, setZipFile] = React.useState<File | null>(null);
@@ -86,7 +88,6 @@ export function UploadContactForm() {
 
 
   async function saveData() {
-    console.log('CLICKEED 1')
 
     if (jsonData) {
       setLoading(true);
@@ -102,10 +103,10 @@ export function UploadContactForm() {
 
         let sysId = system?._id ? system?._id : user?._id
 
-        console.log(newJson, 'JSON DATA', jsonData)
         // await createBulkContact(newJson);
         await axios.post(`/api/contacts/bulk/upload`, { rows: jsonData, refNum: sysId, parNum: system?._id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
           // setBarangays(res.data.data);
+          setRefreshId(Math.random())
           return toast.success('Upload Success')
         });
         setLoading(false);
@@ -157,7 +158,6 @@ export function UploadContactForm() {
   };
 
   const handlePdfChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target, 'FILES')
     if (!event.target.files[0]) {
       alert("Please select a file");
       return;
@@ -196,7 +196,6 @@ export function UploadContactForm() {
       // router.refresh()
 
       // return toast.success(data.message)
-      console.log(data, 'PDF DAT')
     } catch (error) {
       console.error("Upload PDF failed", error);
       setLoading(false);
@@ -208,7 +207,6 @@ export function UploadContactForm() {
   };
 
   const handleUploadZip = async () => {
-    console.log('CLICKEED 1', zipFile)
     if (!zipFile) {
       alert("Please select a file");
       return;
@@ -239,12 +237,13 @@ export function UploadContactForm() {
       setLoading(false);
 
       setOpen(false)
+      setRefreshId(Math.random())
       router.refresh()
 
       return toast.success(data.message)
 
     } catch (error) {
-      console.error("Upload failed", error);
+      console.log("Upload failed", error);
       setLoading(false);
       return toast.success("Upload failed")
 
@@ -297,7 +296,7 @@ export function UploadContactForm() {
 
   // Fetch Regions on Component Mount
   React.useEffect(() => {
-    if (system && open) {
+    if (system) {
       axios.get(`/api/location/access?code=${system?.accessCode}&level=${system?.accessLevel}`).then((res) => {
         if (res.data) {
           let { regCode, provCode, citymunCode, brgyCode } = res.data;
@@ -309,11 +308,10 @@ export function UploadContactForm() {
       });
     }
 
-  }, [system, open]);
+  }, [system]);
 
   React.useEffect(() => {
     // if (selectedProvince) {
-    console.log('SELECT PROV')
     if (selectedProvince) {
       axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
         setMunicipalities(res.data.data);

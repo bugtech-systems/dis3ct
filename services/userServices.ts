@@ -26,7 +26,6 @@ export const
 export const loginUser = async (phone: string, password: string) => {
     await connectDB();
     const user = await User.findOne({ $or: [{ phone }, { username: phone }] });
-    console.log(user, 'LOGIN')
     if (!user) throw new Error("User not found");
     if (user.deletedAt) throw new Error("User is deactivated");
 
@@ -76,18 +75,22 @@ export const resetPassword = async (phone: string, newPassword: string) => {
 
 export const updateUser = async (userId: string, data: any) => {
     await connectDB();
-    const user = await User.findByIdAndUpdate(userId, data, {
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await User.findByIdAndUpdate(userId, {
+        ...data,
+        ...(data.password ? { password: hashedPassword } : {})
+    }, {
         new: true,
         runValidators: true,
     });
 
-    console.log(user, 'LOGIN')
     if (!user) throw new Error("User not found");
     if (user.deletedAt) throw new Error("User is deactivated");
 
 
 
-    console.log('USER UPDATED')
 
     return user;
 };

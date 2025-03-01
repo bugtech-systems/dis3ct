@@ -35,12 +35,11 @@ export function TeamSwitchers({
   const { data: session, status } = useSession();
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
-  const [teams, setTeams] = React.useState<any>([]);
-  const [activeTeam, setActiveTeam] = React.useState<any>((teams && teams[0]) ?? null);
-  const { setSystem, system, user } = useContact();
+  const { setSystem, system, user, teams } = useContact();
+  // const [activeTeam, setActiveTeam] = React.useState<any>(null);
 
   const handleSystems = async (e: any) => {
-    setActiveTeam(e)
+    // setActiveTeam(e)
     setSystem(e)
     if (e) {
       localStorage.setItem('system', e._id)
@@ -50,15 +49,6 @@ export function TeamSwitchers({
     // signOut({ callbackUrl: '/login' })
   }
 
-  const handleTeams = async () => {
-    let teamData = await getTeams();
-    console.log(teamData, 'TD')
-    if (teamData.length >= 1) {
-      let newTeam = teamData.filter(team => (team?._id != user?._id))
-      setTeams(newTeam)
-    }
-
-  }
 
   const handleAuth = async () => {
     let authUser = await getAuth();
@@ -91,20 +81,14 @@ export function TeamSwitchers({
     } else if (user && user.parent) {
       let sys = teams?.find(team => (team._id == user.parent || team._id == user.parent?._id));
       setSystem(sys)
-      setActiveTeam(sys)
+      // setActiveTeam(sys)
       localStorage.setItem('system', sys?._id);
       return;
     } else {
       handleAuth()
     }
-  }, [teams]);
+  }, [user, teams]);
 
-  React.useEffect(() => {
-
-    handleTeams()
-
-
-  }, [user])
 
 
   // React.useEffect(() => {
@@ -131,7 +115,7 @@ export function TeamSwitchers({
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
-            {teams.length ?
+            {teams.length > 1 ?
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"

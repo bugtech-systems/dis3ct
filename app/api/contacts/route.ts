@@ -65,7 +65,6 @@ export const POST = async (req: NextRequest) => {
 
     let refExist = contact?.uplines?.find(contact => String(contact) == String(refData?._id))
 
-    console.log(refExist, refData._id, 'REFEX')
 
     if (!refExist && refData._id) {
       contact?.uplines?.push(refData._id)
@@ -113,8 +112,7 @@ export async function GET(req: NextRequest) {
     // }) : []
 
 
-    const skip = (page) * limit;
-    console.log(page, limit, 'pagination')
+    const skip = limit - 10000;
     // Fetch user to determine access level
     let parent = await User.findById(system);
     // let contact = await User.findById(userId);
@@ -160,7 +158,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
-      // .skip(skip)
+      // .skip(skip > 0 ? skip : 0)
       .limit(limit)
       .sort({ createdAt: -1 })
       .lean();
@@ -173,7 +171,7 @@ export async function GET(req: NextRequest) {
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, keyStr }
+      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, keyStr }
     })
 
     // Get total contact count for pagination

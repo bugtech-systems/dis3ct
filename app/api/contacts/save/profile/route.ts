@@ -19,7 +19,6 @@ export const POST = async (req: NextRequest) => {
 
 
 
-  console.log('SEARCH', searchParams.type)
 
     const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel } = await req.json();
 

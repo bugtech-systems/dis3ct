@@ -24,12 +24,63 @@ import { LeaderProfileForm } from "./contacts/LeaderProfileForm";
 import { useContact } from "./providers/ContactProvider";
 import { useComponent } from "./providers/ComponentContext";
 import { CreateSystemForm } from "./contacts/CreateSystemForm";
+import getAuth from "@/actions/getAuth";
+import getTeams from "@/actions/getTeams";
 
 export function UserNav({ user }: { user: any }) {
   const { modal, setModal } = useComponent();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const { setUser } = useContact();
+  const { setUser, setSystem, system, setTeams } = useContact();
+
+  const handleSystems = async (e: any) => {
+    // setActiveTeam(e)
+    setSystem(e)
+    if (e) {
+      localStorage.setItem('system', e._id)
+    } else {
+      localStorage.removeItem('system')
+    }
+    // signOut({ callbackUrl: '/login' })
+  }
+
+
+
+  const handleAuth = async () => {
+
+    let authUser = await getAuth();
+    let teamData = await getTeams();
+
+    if (authUser) {
+      setUser(authUser);
+      if (teamData.length) {
+        setTeams(teamData)
+      }
+      let parent = localStorage.getItem('system')
+      if (parent) {
+        let sys = teamData?.find(team => team._id == parent);
+        if (sys) {
+
+          handleSystems(sys)
+        } else if (authUser && authUser.parent) {
+          handleSystems(authUser.parent);
+
+        } else if (authUser.userType == 'system' || authUser.userType == 'admin') {
+          handleSystems(authUser);
+        }
+        return;
+
+
+      } else if (authUser && authUser.parent) {
+        handleSystems(authUser.parent);
+
+      } else if (authUser.userType == 'system' || authUser.userType == 'admin') {
+        handleSystems(authUser);
+      }
+
+    }
+
+  }
 
 
   /*  useEffect(() => {
@@ -37,33 +88,33 @@ export function UserNav({ user }: { user: any }) {
  
    }, [user]) */
   useEffect(() => {
+    handleAuth()
 
-    if (user) return;
+
     //     axios.get(`/api/contacts/save/${activeTeam?.user}`)
 
-    axios.get(`/api/contacts/auth`)
-      .then((response) => {
-        setUser(response.data);
-      })
-      .catch((error) => {
-        console.log("Error fetching user data:", error);
-      })
-
+    // axios.get(`/api/contacts/auth`)
+    //   .then((response) => {
+    //     setUser(response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.log("Error fetching user data:", error);
+    //   })
 
   }, [user]);
 
-
+  let currentUser = user?.userType == 'admin' ? system : user;
 
   return (
     <>
-      {open && <LeaderProfileForm contact={user} open={open} setOpen={setOpen} />}
-      <CreateLeaderFormDialog contact={user} type="new" open={modal == 'newLeader'} setOpen={setModal} />
+      <LeaderProfileForm profile={currentUser} open={open} setOpen={setOpen} />
+      <CreateLeaderFormDialog contact={currentUser} type="new" open={modal == 'newLeader'} setOpen={setModal} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage src="/avatars/01.png" alt="User Avatar" />
-              <AvatarFallback>{user?.name ? user.name.charAt(0) : "U"}</AvatarFallback>
+              <AvatarFallback>{currentUser?.name ? currentUser.name.charAt(0) : "U"}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -75,12 +126,12 @@ export function UserNav({ user }: { user: any }) {
                 <p className="text-sm font-medium leading-none">Loading...</p>
               ) : (
                 <>
-                  <p className="text-sm font-medium leading-none">{user?.name || "Unknown User"}</p>
+                  <p className="text-sm font-medium leading-none">{currentUser?.name || "Unknown User"}</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user?.phone || "No Phone"}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user?.userLevel || "No Level"}
+                    {user?.userType || "No Level"}
                   </p>
                 </>
               )}
@@ -92,7 +143,7 @@ export function UserNav({ user }: { user: any }) {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {(user?.userLevel == 'system') &&
+            {(currentUser?.userType == 'system') &&
               <DropdownMenuItem onClick={() => setModal('newLeader')}>New Leader</DropdownMenuItem>
             }
           </DropdownMenuGroup>

@@ -365,19 +365,7 @@ export const POST = async (req: NextRequest,
       options.top_p = finalTopP;
     }
 
-    console.log(preset, contact, recentConversations, 'API CALL', {
-      model: finalModelName ?? "llama3.2",
-      messages: [
 
-        ...(systemBehavior ? [{ role: 'system', content: systemBehavior }] : []),
-        // ...sampleConversations,
-        ...recentConversations,
-        // ...(preset?.value == 'alayon_water' ? sampleConversations : []),
-        // (contact?.subscribed ? { role: 'assistant', content: `${preset?.value != 'alayon_opting' ? 'User not subscribe' : 'User should subscribe'}` } : {}),
-        { role: 'user', content: (!contact?.subscribed && preset?.value == 'alayon_opting') ? `Instruction: Check **User Prompt** if the user is trying to subscribe or not. Response should be plain and valid JSON format without other description.  Find in System Instruction, User not subscribe template if not. If Subscribing, return User Request to Subscribe or Opt In template.\nUser Prompt: "${message}"` : message },
-      ],
-      options: options
-    })
     const response = await Ollama.chat({
       model: finalModelName ?? "llama3.2",
       messages: [
@@ -434,7 +422,6 @@ export const POST = async (req: NextRequest,
       })
     }
 
-    console.log(newResponse, 'RESPONSE')
     await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
 
 

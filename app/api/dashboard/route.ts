@@ -26,13 +26,11 @@ export const GET = async (req: NextRequest) => {
         const userId = session.user.id;
 
         // await connectToDatabase()
-        console.log(systemParam, userId, 'DASH PARAMS')
         let dashboardDdata = await getLeaderDashboard(systemParam ? systemParam : userId);
 
 
 
 
-        console.log(dashboardDdata, 'DASHBOARD API')
         return NextResponse.json(dashboardDdata, { status: 200 });
     } catch (error) {
         console.error('Error fetching contacts:', error);

@@ -51,6 +51,7 @@ const ContactSchema = new Schema<IContact>(
     citymunCode: { type: String, maxlength: 255 },
     activePreset: { type: String, maxlength: 255 },
     biometric: { type: Schema.Types.ObjectId, ref: 'Fingerprint' },
+    subscribed: { type: Boolean, default: false },
     parNum: { type: Schema.Types.ObjectId, ref: 'User' },
     refNum: { type: Schema.Types.ObjectId, ref: 'User' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],
@@ -64,6 +65,12 @@ const ContactSchema = new Schema<IContact>(
       longitude: String
     },
   }, { timestamps: true });
+
+
+ContactSchema.index({ idNum: 1 });
+ContactSchema.index({ name: 1 });
+ContactSchema.index({ refNum: 1 });
+
 
 const Contact = (mongoose.models && mongoose.models.Contact)
   ? (mongoose.models.Contact as Model<IContact>)

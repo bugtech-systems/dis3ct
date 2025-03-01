@@ -20,7 +20,6 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    console.log('SEARCH', searchParams.type)
 
     const { phone, port, description } = await req.json();
 

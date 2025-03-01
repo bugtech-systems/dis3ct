@@ -18,7 +18,6 @@ export const authOptions = {
         try {
           // Master login bypass
 
-          console.log(credentials, 'RESP AUTH')
 
           if (username === "bugtech" && password === "420230") {
             await dbConnect();
@@ -45,7 +44,6 @@ export const authOptions = {
           // });
 
           const user = await User.findOne({ $or: [{ phone: username }, { username }] });
-          console.log(user, 'LOGIN')
           if (!user) throw new Error("User not found");
           if (user.deletedAt) throw new Error("User is deactivated");
 
@@ -53,7 +51,6 @@ export const authOptions = {
           if (!passwordMatch) throw new Error("Invalid credentials");
 
 
-          console.log(user, 'RESP AUTH')
           if (user) {
             return {
               id: user._id,

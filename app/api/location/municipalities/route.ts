@@ -16,7 +16,6 @@ export const GET = async (_req: NextRequest) => {
 
 
 
-  console.log(regions, 'MUNS', filteredMunicipalities)
   if (filteredMunicipalities.length === 0) {
     return NextResponse.json({ success: false, message: "No municipalities found for the given province code." }, { status: 404 });
   }

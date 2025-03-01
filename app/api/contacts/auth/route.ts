@@ -17,7 +17,6 @@ export const GET = async (req: NextRequest) => {
         const phone = session.user.phone;
         const userId = session.user.id;
 
-        console.log(userId, phone, 'AUTH CONTACT')
         const contact = await User.findById(userId).populate({
             path: 'parNum',
             options: { strictPopulate: false } // Allows missing `parNum` without errors

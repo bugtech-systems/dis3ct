@@ -108,7 +108,6 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
 
 
 
-  console.log(rows, 'SET ROWS');
   return (
     <>
       <CreateNewMessageForm showContactDialog={showContactDialog} setShowContactDialog={setShowContactDialog} selectedContacts={rows} />

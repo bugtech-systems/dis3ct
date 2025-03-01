@@ -59,14 +59,12 @@ export default function PlaygroundPage() {
             // .finally(() => setLoading(false));
 
             const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}${system?.phone ? `&system=${system.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?.value}` : ''}&status=pending`); // Update the endpoint URL if necessary
-            console.log('response CONVO', response)
 
             if (!response.ok) {
                 throw new Error("Failed to fetch conversations");
             }
 
             const data = await response.json();
-            console.log('RESP CONVO', data)
             if (data && Array.isArray(data)) {
                 setMessages(data); // Assuming `data.data` contains the conversations array
             }

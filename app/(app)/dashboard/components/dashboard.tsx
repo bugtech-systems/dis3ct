@@ -31,7 +31,6 @@ export default function DashboardPage() {
 
         try {
             const dashData = await getLeaderDashboard(user._id);
-            console.log("FETCHING DASH", dashData);
 
             // Only update state if data actually changes
             /*     setDashboardData((prevData) => {

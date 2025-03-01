@@ -41,12 +41,10 @@ export async function createOrUpdateContact(data: any) {
             return console.log({ error: "Referrer contact not found." }, { status: 400 });
         }
 
-        console.log(referrer)
         // Check if a contact with the same name exists (case insensitive)
         const existingContact = await Contact.findOne({ $and: [{ name: new RegExp(`^${formattedData.name}$`, "i") }, { parNum: referrer.parNum }, { deletedAt: null }] });
 
         if (existingContact) {
-            console.log('EXISTING', existingContact)
 
             // Update the existing contact
             let refExist = existingContact?.uplines?.find(contact => String(contact) == String(data?.refNum))

@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
         const extractName = String(file.name).replace('.zip', '')
 
 
-        fs.rmSync(extractName, { recursive: true, force: true });
 
         // Read ZIP file buffer
         const buffer = Buffer.from(await file.arrayBuffer());
@@ -300,7 +299,7 @@ export async function POST(req: NextRequest) {
 
                 const existingContacts = await Contact.find({
                     $or: contacts.map(({ idNum, name }) => ({ idNum, name, refNum })),
-                }).select("idNum name");
+                }).select("idNum name").lean();
 
                 const existingSet = new Set(existingContacts.map((c) => `${c.idNum}-${c.name}`));
 
@@ -315,7 +314,10 @@ export async function POST(req: NextRequest) {
                 });
 
                 if (allContacts.length > 0) {
+                    console.log('INSERTING MANY')
                     await Contact.insertMany(allContacts);
+                    console.log(`DONE INSERTING ${allContacts.length} records`)
+
                 }
 
 
@@ -348,7 +350,7 @@ export async function POST(req: NextRequest) {
 
 
 
-        fs.rmSync(zipFile, { recursive: true, force: true });
+        // fs.rmSync(uploadDir, { recursive: true, force: true });
 
 
 

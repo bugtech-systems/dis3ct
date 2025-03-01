@@ -44,9 +44,9 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
   const [pageSize, setPageSize] = React.useState(10); // Default 10 rows per page
   const [search, setSearch] = React.useState("");
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  /*  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+     [],
+   ); */
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
     phone: false,
     province: false,
@@ -58,17 +58,17 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
     keyStr: false,
   });
 
-  const debouncedSearch = useDebounce(search, 500);
+  // const debouncedSearch = useDebounce(search, 500);
 
   // Filter data based on search input
-  const filteredData = React.useMemo(() => {
-    if (!debouncedSearch) return data;
-    return data.filter((item: any) =>
-      Object.values(item).some((value) =>
-        String(value).toLowerCase().includes(debouncedSearch.toLowerCase())
-      )
-    );
-  }, [debouncedSearch, data]);
+  // const filteredData = React.useMemo(() => {
+  //   if (!debouncedSearch) return data;
+  //   return data.filter((item: any) =>
+  //     Object.values(item).some((value) =>
+  //       String(value).toLowerCase().includes(debouncedSearch.toLowerCase())
+  //     )
+  //   );
+  // }, [debouncedSearch, data]);
 
   const table = useReactTable({
     data,
@@ -105,7 +105,7 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
         rowSelection,
         pagination: { pageIndex, pageSize },
       }, */
-  });
+  }, [data]);
 
 
 

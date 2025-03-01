@@ -23,7 +23,6 @@ export const POST = async (
     let { id } = params;
 
 
-    console.log('SEARCH', searchParams.type)
 
     const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
 

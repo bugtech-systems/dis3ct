@@ -9,6 +9,8 @@ interface ContactContextProvider {
   setUser: (temp: any) => void;
   system: any;
   setSystem: (temp: any) => void;
+  teams: any;
+  setTeams: (temp: any) => void;
   parentSystem: any;
   setParentSystem: (temp: any) => void;
   selectedContacts: any[];
@@ -34,6 +36,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({
   const [system, setSystem] = useState<any>(defaultSystem);
   const [parentSystem, setParentSystem] = useState<any>();
   const [selectedContacts, setSelectedContacts] = useState<IContact[]>([]);
+  const [teams, setTeams] = useState<IContact[]>([]);
 
   // React.useEffect(() => {
   //   // Fetch user details from API if session exists
@@ -56,7 +59,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({
 
 
   return (
-    <ContactContext.Provider value={{ user, setUser, selectedContacts, setSelectedContacts, system, setSystem, parentSystem, setParentSystem }}>
+    <ContactContext.Provider value={{ teams, setTeams, user, setUser, selectedContacts, setSelectedContacts, system, setSystem, parentSystem, setParentSystem }}>
       {children}
     </ContactContext.Provider>
   );

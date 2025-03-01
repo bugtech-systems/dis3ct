@@ -23,7 +23,6 @@ export function DataTableToolbar<TData>({
   const router = useRouter();
   const isFiltered = table.getState().columnFilters.length > 0
 
-  console.log(table.getSelectedRowModel(), 'SELECTED')
 
 
   const handleDelete = async (id: any) => {
@@ -38,13 +37,13 @@ export function DataTableToolbar<TData>({
         toast.error("Failed to delete, Please try again.")
       }
     } catch (error: any) {
-    console.log(error.response, 'ERR')
-    toast.error( "An error occurred while deleting.")
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred while deleting.")
 
       // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
-  
+
 
 
 
@@ -73,8 +72,8 @@ export function DataTableToolbar<TData>({
             options={priorities}
           />
         )}
-        
-   
+
+
         {isFiltered && (
           <Button
             variant="ghost"
@@ -87,12 +86,12 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <Button
-            // variant="ghost"
-            onClick={() => router.refresh()}
-            className="h-8 mx-3 px-2 lg:px-3"
-          >
-            <RefreshCcw />
-          </Button>
+        // variant="ghost"
+        onClick={() => router.refresh()}
+        className="h-8 mx-3 px-2 lg:px-3"
+      >
+        <RefreshCcw />
+      </Button>
       <DataTableViewOptions table={table} />
     </div>
   )

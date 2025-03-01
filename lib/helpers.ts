@@ -84,14 +84,11 @@ export function cleanToJson(input: any | null) {
 
 
 export function convertRichTextToPlain(content: string): string {
-  console.log(content, 'CONTET')
   // Parse the HTML content
   const document = parseDocument(content);
-  console.log(content, 'DOCUE')
 
   // Extract text content, ignoring tags
   const plainText = DomUtils.getText(document);
-  console.log(content, 'PLAIN')
   // Normalize newlines and trim extra spaces
   return plainText
     .replace(/\n\s*\n/g, "\n") // Remove multiple consecutive newlines
@@ -310,4 +307,17 @@ export function sanitizeObject<T>(data: T): T {
       return value;
     })
   );
+}
+
+export function mergeUniqueObjects(existingArray: any, newArray: any) {
+  const existingIds = new Set(existingArray.map(obj => obj._id));
+
+  newArray.forEach(obj => {
+    if (!existingIds.has(obj._id)) {
+      existingArray.push(obj);
+      existingIds.add(obj._id); // Add to set to avoid duplicate checks
+    }
+  });
+
+  return existingArray;
 }

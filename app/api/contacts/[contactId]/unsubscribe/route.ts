@@ -5,6 +5,7 @@ import Contact from "@/models/Contact";
 import { checkContactId, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
+import User from "@/models/User";
 
 const isAuthorized = async (userId: string, contactId: string) => {
   await dbConnect();
@@ -29,16 +30,17 @@ export const POST = async (
     const userId = session.user.id;
     const { contactId } = params;
 
-    let contact = await Contact.findById(userId);
+    let contact = await User.findById(userId);
 
 
 
 
 
     const updatedContact = await Contact.updateOne(
-      { $or: [{ phone: sanitizePhoneNumber(contactId), parNum: contact?.id }, { _id: checkContactId(contactId) }], deletedAt: null },
+      { $or: [{ phone: sanitizePhoneNumber(contactId), parNum: contact?.parent }, { _id: checkContactId(contactId) }], deletedAt: null },
       { $set: { subscribed: false } }
     );
+
 
     if (!updatedContact.modifiedCount) {
       return new NextResponse("Contact not found or unchanged", { status: 404 });

@@ -22,7 +22,6 @@ const getTeams = async (): Promise<any[]> => {
     const user = await User.findById(userId).lean();
 
 
-    console.log(user, 'USS')
     if (!user) return [];
 
     switch (user.userType) {

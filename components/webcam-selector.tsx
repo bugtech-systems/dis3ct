@@ -58,8 +58,6 @@ const CamScreen = () => {
 
 
 
-    console.log(capturedImage, 'CAPTURED IMAGE')
-
     return (
         <div>
             {capturedImage ? (

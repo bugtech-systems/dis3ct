@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const result = await createSystem(body);
-  console.log(result, 'RESULTT')
   if (!result.success) {
     return NextResponse.json(result, { status: 500 });
   }

@@ -75,7 +75,6 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const result = await createConversation(body);
-  console.log(result, 'RESULTT')
   if (!result.success) {
     return NextResponse.json(result, { status: 500 });
   }
