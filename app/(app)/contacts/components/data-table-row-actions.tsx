@@ -11,6 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
@@ -23,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { contactSchema } from "../data/schema"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { EditContactForm } from "@/components/contacts/EditContactForm"
 import axios from "axios"
 import toast from "react-hot-toast"
@@ -31,7 +36,8 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
-import { ViewContactForm } from "@/components/contacts/ViewContactForm"
+
+let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
 
 
 interface DataTableRowActionsProps<TData> {
@@ -42,11 +48,11 @@ export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
   const contact = contactSchema.parse(row.original);
-  const [open, setOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { modal, setModal } = useComponent();
-  const { user } = useContact()
+  const { setModal, setRecord, setRefreshId } = useComponent();
+  const { user, system } = useContact();
+
 
   const handleDelete = async () => {
 
@@ -67,7 +73,6 @@ export function DataTableRowActions<TData>({
     }
   };
 
-
   const handleSubscribed = async () => {
 
     try {
@@ -85,28 +90,6 @@ export function DataTableRowActions<TData>({
       // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
-
-  const handleSetLeader = async () => {
-
-    try {
-      const response = await axios.patch(`/api/contacts/save/${contact.id}`, {
-        userLevel: contact.userLevel == 'system' ? 'normal' : 'system'
-      });
-      if (response.data) {
-        toast.success(`Updated User Level Successfully!`)
-        router.refresh();
-
-      } else {
-        toast.error("Failed to Update User Level. Please try again.")
-      }
-    } catch (error: any) {
-      console.log(error.response, 'ERR')
-      toast.error("An error occurred while Update User Level.")
-
-      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
-    }
-  };
-
 
   const handleRestart = async () => {
     let apiUrl = '/api/tasks'
@@ -130,17 +113,43 @@ export function DataTableRowActions<TData>({
       })
     }
 
-    console.log(system, 'PORT')
+  }
 
+  const handleTag = async (type: any) => {
+    try {
+      const response = await axios.post(`/api/contacts/${contact._id}/tag`, { type, system: system._id });
+
+
+      if (response.data) {
+        // router.refresh();
+        setRefreshId(Math.random())
+        toast.success(`Label Updated Successfully!`)
+      } else {
+        toast.error("Failed to send OTP. Please try again.")
+      }
+    } catch (error: any) {
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred while sending OTP.")
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    }
 
   }
+
+
+
+  /*  useEffect(() => {
+     let tag = contact?.tag;
+     if (tag) {
+       setActiveTag(tag);
+     }
+   }, [contact?.tag]) */
+
 
 
 
 
   return (
     <>
-      <ViewContactForm open={open} setOpen={setOpen} contact={contact} />
 
 
 
@@ -181,8 +190,29 @@ export function DataTableRowActions<TData>({
         <DropdownMenuContent align="end" className="w-[180px]">
 
           <DropdownMenuItem
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setRecord(contact)
+              setModal('viewContact', contact?._id)
+            }}
           >View Details</DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+
+
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup value={contact?.tag} onValueChange={handleTag}>
+                {tagsLabel.map((label) => (
+                  <DropdownMenuRadioItem key={label.value} value={label.value}>
+                    {label.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -193,7 +223,6 @@ export function DataTableRowActions<TData>({
 
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-
           <DropdownMenuItem
             onClick={() => setModal('scanner', contact?._id)}
           >
@@ -201,18 +230,10 @@ export function DataTableRowActions<TData>({
             <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
 
           </DropdownMenuItem>
-
+          <DropdownMenuSeparator />
           {(user?.userType == 'system' || user?.userType == 'admin') &&
             <>
-              <DropdownMenuSeparator />
 
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(contact?.phone || "")}
-              >
-                Copy
-                <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
-
-              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
               {(contact?.userLevel == 'system') &&

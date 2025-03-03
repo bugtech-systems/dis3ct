@@ -1,4 +1,5 @@
-import { spawn, ChildProcessWithoutNullStreams } from "child_process";
+import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
+import path from "path";
 
 let biometricProcess: ChildProcessWithoutNullStreams | null = null;
 
@@ -8,9 +9,15 @@ export const startBiometricService = () => {
     }
 
     console.log("🚀 Starting biometric service...");
-    biometricProcess = spawn("python", ["path/to/your/python_script.py"], {
+    let filePath = path.join(process.cwd(), "app.py");
+
+    console.log("Running Python from:", filePath);
+
+    biometricProcess = spawn("python", [filePath], {
         cwd: process.cwd(),
         env: process.env,
+        // detached: true, // Ensures the process runs independently
+        // stdio: "pipe",  // Allows logging output
     });
 
     biometricProcess.stdout.on("data", (data: Buffer) =>
@@ -35,12 +42,29 @@ export const stopBiometricService = () => {
     }
 
     console.log("🛑 Stopping biometric service...");
-    biometricProcess.kill("SIGTERM");
 
-    biometricProcess.on("close", () => {
-        biometricProcess = null;
-        console.log("✅ Biometric service stopped.");
-    });
+    try {
+        if (biometricProcess.pid) {
+            // Kill process using its PID
+            process.kill(biometricProcess.pid, "SIGTERM");
+        } else {
+            console.warn("⚠️ Biometric service PID is undefined. Killing by reference.");
+            biometricProcess.kill("SIGTERM");
+        }
 
-    return { message: "✅ Biometric service stopped." };
+        biometricProcess.on("close", () => {
+            biometricProcess = null;
+            console.log("✅ Biometric service stopped.");
+        });
+
+        return { message: "✅ Biometric service stopped." };
+    } catch (error) {
+        console.error("❌ Error stopping biometric service:", error);
+        return { error: "Failed to stop biometric service." };
+    }
+};
+
+// ✅ Check if the process is running
+export const isBiometricServiceRunning = () => {
+    return biometricProcess !== null;
 };

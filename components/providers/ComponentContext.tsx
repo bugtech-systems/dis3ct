@@ -9,11 +9,14 @@ interface ComponentContextType {
     setModal: (type: any, id?: any) => void;
     modalId: string | null;
     setModalId: (temp: any) => void;
+    record: any;
+    setRecord: (temp: any) => void;
     refreshId: any;
     setRefreshId: (temp: any) => void;
     isRefreshing: boolean;
     setIsRefreshing: (temp: any) => void;
-
+    biometricRunning: boolean;
+    setBiometricRunning: (temp: any) => void;
 
 }
 
@@ -22,8 +25,10 @@ const ComponentContext = createContext<ComponentContextType | undefined>(undefin
 export const ComponentProvider = ({ children }: { children: ReactNode }) => {
     const [modal, setModal] = useState<any>(null);
     const [modalId, setModalId] = useState<any>(null);
+    const [record, setRecord] = useState<any>(null);
     const [refreshId, setRefreshId] = useState<any>(null);
     const [isRefreshing, setIsRefreshing] = useState<any>(false);
+    const [biometricRunning, setBiometricRunning] = useState<any>(false);
 
 
     const handleModal = (type: any, id: any) => {
@@ -34,6 +39,7 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
         } else {
             setModal(null)
             setModalId(null)
+            setRecord(null)
         }
 
     }
@@ -44,7 +50,7 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <ComponentContext.Provider value={{ isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
+        <ComponentContext.Provider value={{ record, setRecord, biometricRunning, setBiometricRunning, isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
             {children}
         </ComponentContext.Provider>
     );

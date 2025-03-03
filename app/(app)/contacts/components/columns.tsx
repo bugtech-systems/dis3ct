@@ -304,6 +304,21 @@ export const columns: ColumnDef<Contact>[] = [
     },
   },
   {
+    accessorKey: "tag",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Label" />
+    ),
+    cell: ({ row }) => {
+      // const label = labels.find((label) => label.value === row.original.label)
+      const tag = row.getValue("tag");
+      return (
+        <div className="flex space-x-2">
+          <Badge variant="outline" className={`${tag == 'confirm' ? 'bg-green-400' : tag == 'declined' ? 'bg-red-300' : 'bg-inherit'} font-medium`}>{String(tag ? tag : 'Unknown').toUpperCase()}</Badge>
+        </div>
+      )
+    },
+  },
+  {
     accessorKey: "activePreset",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Preset" />

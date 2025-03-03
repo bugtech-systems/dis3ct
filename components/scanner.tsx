@@ -1,15 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookPlusIcon } from "lucide-react";
-import axios from "axios";
-
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,222 +10,238 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import io from "socket.io-client";
-import { useContact } from "./providers/ContactProvider";
 import { useComponent } from "./providers/ComponentContext";
+import getFingerId from "@/actions/getFingerId";
+import getContactId from "@/actions/getContactId";
+import { ViewContactForm } from "./contacts/ViewContactForm";
 
 const socket = io("http://localhost:5000");
 
-
 export function ScannerForm() {
-  const { user, system } = useContact();
-  const { modal, setModal, modalId } = useComponent()
-
-  // const [showContactDialog, setShowContactDialog] = React.useState(false);
-  const router = useRouter(); // ⬅ Initialize useRouter
-
-  // State for form fields
-  const [phone, setPhone] = React.useState("");
-  const [name, setName] = React.useState("");
-  const [address, setAddress] = React.useState("");
-
-  const [selectedRegion, setSelectedRegion] = React.useState<any>(null);
-  const [selectedProvince, setSelectedProvince] = React.useState<any>(null);
-  const [selectedMunicipality, setSelectedMunicipality] = React.useState<any>(null);
-  const [isBiometric, setIsBiometric] = React.useState(false);
-  const [message, setMessage] = React.useState("Connecting to WebSocket...");
+  const { modal, setModal, modalId } = useComponent();
+  const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
+  const [scanProgress, setScanProgress] = React.useState(0);
+  const [record, setRecord] = React.useState(null);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [isEnrolling, setIsEnrolling] = React.useState(false);
+  const [fingerPrintId, setFingerPrintId] = React.useState(null)
 
 
-
-
-
-
-
-  // 📌 Handle Form Submission
-  const handleSubmit = async () => {
-    // e.preventDefault();
-
-    // Validation
-    if (!phone) {
-      // toast({ title: "Error", description: "All fields are required!", status: "error" });
-      // alert('Phone field is required!')
-      // console.log('Phone field is required!')
-      toast.error("Phone field is required!");
-
-      return;
+  const handleFingerPrint = async () => {
+    let finger = await getFingerId(modalId);
+    console.log(finger, 'FINGER ID')
+    if (finger) {
+      setFingerPrintId(finger.id)
     }
-
-    try {
-
-
-
-
-
-      const response = await axios.post("/api/contacts", {
-        phone,
-        name,
-        address,
-        regCode: selectedRegion?.regCode,
-        regDesc: selectedRegion?.regDesc,
-        provDesc: selectedProvince?.provDesc,
-        citymunDesc: selectedMunicipality?.citymunDesc,
-        brgyDesc: selectedBarangay?.brgyDesc,
-        provCode: selectedProvince?.provCode,
-        citymunCode: selectedMunicipality?.citymunCode,
-        brgyCode: selectedBarangay?.brgyCode,
-        system: system?.phone,
-        referrer: user?.phone
-      });
-
-      // toast({ title: "Success", description: response.data.message, status: "success" });
-      setPhone('')
-      setName('')
-      setAddress('')
-      setShowContactDialog(false); // Close modal after success
-      toast.success(response.data.message);
-      router.refresh();
-
-    } catch (error: any) {
-      console.log(error, 'ERROR')
-      toast.error(error.response?.data?.error || "Failed to save contact.");
-    }
-  };
-
-
-  const handleEnroll = async () => {
-    // e.preventDefault();
-
-    try {
-      const response = await axios.post("http://localhost:5000/enroll", {
-        user_id: modalId
-      });
-
-      console.log(response, 'RESSPP')
-    } catch (error: any) {
-      console.log(error, 'ERROR')
-      toast.error(error.response?.data?.error || "Failed to save contact.");
-    }
-  };
-
-  const handleInit = () => {
-    // if (modal == 'scanner') {
-    socket.emit('init')
-    setIsBiometric(true)
-    // }
-
   }
 
-  const handleShutdown = (e: any) => {
-    console.log(e, 'EEE')
-    if (!e) {
+  const handleRecord = async (id) => {
+    console.log(id, 'HANDLE')
+    setModal(null)
+    let finger = await getContactId(id);
+    if (finger) {
+      setRecord(finger)
+      setModal('viewContact', finger._id)
+      console.log(finger, 'FINGER RECORD')
+      // setFingerPrintId(finger.id)
 
-      socket.emit('shutdown')
-      setIsBiometric(false)
-      // setModal(false)
     }
-
   }
-
-
 
   React.useEffect(() => {
+    if (modal === "scanner") {
+      console.log("🔄 Scanner modal opened. Initializing scanner...");
+      handleFingerPrint()
+      handleInit();
+      // handleShutdown(() => handleInit());
 
+    }
+
+    return () => {
+      if (modal === "scanner") {
+        socket.emit("stop_enroll");
+        setIsEnrolling(false);
+        setScanProgress(0)
+        // handleShutdown()
+      }
+
+    }
+  }, [modal]);
+
+  React.useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected to WebSocket server.");
-      setIsBiometric(true);
-
+      console.log("✅ Socket connected!");
+      setScannerStatus("Connected");
+      setIsConnected(true);
     });
 
     socket.on("server_response", (data) => {
-      console.log("Server response received:", data);
-      setMessage(data.message);
+      console.log("📡 Server Response:", data.message);
+      setScannerStatus(data.message);
+    });
+
+    socket.on("status_response", (data) => {
+      console.log("📡 Status Response:", data);
     });
 
     socket.on("scanner_ready", () => {
-      console.log('SCANNER READY')
-      setIsBiometric(true);
-      setMessage("Fingerprint scanner is ready.");
+      console.log("🟢 Scanner is ready.");
+      setScannerStatus("Ready");
+      setIsConnected(true);
+    });
+
+    socket.on("scanner_disconnected", () => {
+      console.warn("🔴 Scanner disconnected.");
+      setScannerStatus("Disconnected");
+      setIsConnected(false);
+    });
+
+    socket.on("fingerprint_enrolled", (data) => {
+      console.log("🔍 Fingerprint Verified for User:", data);
+      handleRecord(data.user_id)
+      // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
     });
 
     socket.on("fingerprint_scan", (data) => {
-      console.log('FINGER SCANNED', data)
-      if (data.status === "scanning") {
-        setMessage("Scanning fingerprint...");
-      } else if (data.status === "scanned") {
-        setMessage("Fingerprint detected!");
+      console.log("📝 Fingerprint Scan Step:", data.step);
+      setScanProgress(data.step);
+      if (data.step >= 3) {
+        toast.success("✅ Fingerprint enrolled successfully!");
+        setScanProgress(0);
+        setIsEnrolling(false);
+        setModal(null)
       }
     });
 
-    socket.on("fingerprint_not_verified", (data) => {
-      console.log('FINGER NOT FOUND!', data)
-      setMessage('FINGER NOT FOUND!')
-    });
-
     socket.on("fingerprint_verified", (data) => {
-      console.log('FINGER FOUND!', data)
-      setMessage('FINGER FOUND!')
+      console.log("🔍 Fingerprint Verified for User:", data.user_id);
+      handleRecord(data.user_id)
+      // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
     });
 
+    socket.on("fingerprint_not_verified", () => {
+      console.warn("⚠️ Fingerprint not recognized.");
+      setIsEnrolling(false);
+      setScanProgress(0);
+      toast.error("Fingerprint not recognized.");
+      setModal(null)
+      setRecord(null)
+    });
+
+    socket.on("enrollment_started", (data) => {
+      console.log(`🆕 Enrollment started for User ID: ${data.user_id}`);
+      toast.success(`Enrollment started for User ID: ${data.user_id}.`);
+    });
+
+    socket.on("enrollment_error", (data) => {
+      console.error("❌ Enrollment Error:", data.error);
+      toast.error(data.error);
+      setIsEnrolling(false);
+    });
 
     return () => {
+      console.log("🚪 Cleaning up socket listeners...");
       socket.off("connect");
       socket.off("server_response");
       socket.off("scanner_ready");
-      socket.off("fingerprint_verified");
-      socket.off("fingerprint_not_verified");
+      socket.off("scanner_disconnected");
       socket.off("fingerprint_scan");
-
+      socket.off("fingerprint_verified");
+      socket.off("fingerprint_enrolled");
+      socket.off("fingerprint_not_verified");
+      socket.off("enrollment_started");
+      socket.off("enrollment_error");
     };
-  }, [modal]);
+  }, []);
+
+  const handleInit = () => {
+    // handleShutdown()
+    console.log("🔄 Initializing scanner...");
+    setScannerStatus("Initializing...");
+    setIsEnrolling(false);
+    setScanProgress(0)
+    socket.emit("stop_enroll");
+    socket.emit("init");
+  };
+
+  const handleShutdown = (callback?: any) => {
+    console.log("🛑 Shutting down scanner...");
+    socket.emit("shutdown", () => {
+      console.log("⏳ Waiting before reinitializing...");
+      if (callback) {
+        setTimeout(callback, 5000);
+      }
+    });
+  };
+
+  const handleEnroll = () => {
 
 
 
-
-
-  // React.useEffect(() => {
-  //   if (!modal && isBiometric) {
-  //     setIsBiometric(false)
-  //     socket.emit('shutdown')
-  //   }
-
-  // }, [modal])
-
+    if (!isConnected) {
+      console.warn("⚠️ Scanner is not connected.");
+      toast.error("Scanner is not connected");
+      return;
+    }
+    if (isEnrolling) {
+      console.warn("⚠️ Enrollment already in progress.");
+      toast.error("Enrollment is already in progress");
+      return;
+    }
+    setIsEnrolling(true);
+    console.log(`📌 Starting fingerprint enrollment for User ID: ${modalId}`);
+    socket.emit("enroll", { user_id: modalId, fingerPrintId });
+    toast.success("Enrollment started. Scan your fingerprint.");
+  };
 
   return (
     <>
-      {/* <Button onClick={() => setShowContactDialog(true)}>
-        <BookPlusIcon />
-      </Button> */}
-      <Dialog open={modal == 'scanner'} onOpenChange={(e) => setModal(e)}>
+      <ViewContactForm open={modal == 'viewContact'} setOpen={setModal} contact={record} />
+      <Dialog open={modal === "scanner"} onOpenChange={(e) => setModal(e)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Record Details</DialogTitle>
-            <DialogDescription>Manage record information.</DialogDescription>
+            <DialogTitle>Fingerprint Scanner</DialogTitle>
+            <DialogDescription>Status: {scannerStatus}</DialogDescription>
           </DialogHeader>
-          {message}
-          <Button onClick={() => handleEnroll()}>Enroll</Button>
-          <br />
-          <Button onClick={() => handleInit()}>Init</Button>
-          <br />
-          <Button onClick={() => handleShutdown(null)}>Shutdown</Button>
+          {isConnected ? (
+            <>
+              {isEnrolling && <p>Scan Progress: {scanProgress}/3</p>}
+              <Button onClick={handleEnroll} disabled={isEnrolling}>
+                {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
+              </Button>
+            </>
+          ) : (
+            <Button onClick={handleInit}>Reconnect</Button>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)}>Shutdown</Button>
-            <Button onClick={() => handleSubmit()}>Save</Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                console.log("🚪 Closing scanner modal...");
+                handleInit();
+                // handleShutdown(() => handleInit());
+              }}
+            >
+              Reset
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                console.log("🚪 Closing scanner modal...");
+                setModal(null);
+                handleShutdown(() => { });
+              }}
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
+
   );
 }
+``

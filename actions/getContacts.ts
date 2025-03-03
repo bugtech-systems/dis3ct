@@ -67,7 +67,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, keyStr }
+      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, biometric: contact.biometric, keyStr }
     })
 
 
@@ -75,7 +75,7 @@ const getLeadersContacts = async (): Promise<Contact[]> => {
 
 
 
-    return sanitizeObject(newContacts)
+    return newContacts
   } catch (err) {
     return []
   }

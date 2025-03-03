@@ -340,7 +340,7 @@ export function UploadContactForm() {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedMunicipality]);
+  }, [selectedMunicipality, open]);
 
   React.useEffect(() => {
 

@@ -25,15 +25,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import { TContact } from "@/utils/types";
-import { Contact } from "@/app/(app)/contacts/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { findFeature, sanitizePhoneNumber } from "@/lib/helpers";
 import { useContact } from "../providers/ContactProvider";
+import { Switch } from "@/components/ui/switch"
 
 
 export function LeaderProfileForm({ open, setOpen, profile }: {
@@ -42,7 +49,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   setOpen: (value: boolean) => void
 }) {
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { user, system } = useContact();
   // State for form fields
   const [phone, setPhone] = React.useState("");
   const [name, setName] = React.useState("");
@@ -52,6 +58,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   const [port, setPort] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [features, setFeatures] = React.useState([]);
 
   // State for dynamic location selections
   const [municipalities, setMunicipalities] = React.useState([]);
@@ -60,7 +67,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   const [selectedRegion, setSelectedRegion] = React.useState("");
   const [selectedProvince, setSelectedProvince] = React.useState("");
   const [selectedMunicipality, setSelectedMunicipality] = React.useState("");
-  const [selectedBarangay, setSelectedBarangay] = React.useState(null);
+  const [selectedBarangay, setSelectedBarangay] = React.useState("");
 
 
 
@@ -80,7 +87,29 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
   // Fetch Regions on Component Mount
 
+  const handleFeatues = (type) => {
+    let config = findFeature(features, type);
+    let newConfs = features;
 
+
+    console.log(config, 'CONF', findFeature(features, type))
+    if (config.title == type) {
+      newConfs = features.filter(conf => conf.title != type);
+
+      newConfs.push({
+        title: type,
+        value: !config.value
+      })
+    } else {
+      newConfs.push({
+        title: type,
+        value: true
+      });
+    }
+
+    console.log(newConfs, 'NEW CONF')
+    setFeatures(newConfs)
+  }
 
   const handleAccessLevel = (e) => prop => {
 
@@ -138,6 +167,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         accessCode,
         accessLevel,
         userType,
+        configs: features,
         ...(password ? { password } : {}),
       })
 
@@ -187,7 +217,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedMunicipality]);
+  }, [selectedProvince, selectedMunicipality]);
 
 
   React.useEffect(() => {
@@ -198,6 +228,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
       setAccessCode(profile.accessCode || "");
       setAccessLevel(profile.accessLevel || "brgyCode")
       setUserType(profile.userType || "")
+      setFeatures(profile.configs || [])
       handleLocation(profile)
 
       // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
@@ -210,18 +241,19 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
     return () => {
       setPhone("")
       setName("")
+      setFeatures([])
       setUserType("system")
       setSelectedRegion("")
       setSelectedProvince("")
       setSelectedMunicipality("")
-      setSelectedBarangay(null)
+      setSelectedBarangay("")
       setPort("");
     }
 
-  }, [profile])
+  }, [profile, open])
 
 
-
+  console.log(profile, 'PROF')
   // console.log(selectedProvince, municipalities, 'PROV', system, user)
 
   return (
@@ -432,6 +464,71 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Port</Label>
                     <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="features" className="space-y-4">
+              <div className="min-h-[300px]">
+
+                <div className="space-y-5">
+                  <h3 className="mb-4 text-lg font-medium  justify-between items-start">Allow Features</h3>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Create Leaders</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow creating new leader account
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+
+                      checked={findFeature(features, 'leaders')?.value}
+                      onCheckedChange={e => handleFeatues('leaders')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Biometric Device</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using biometric scanners
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'biometric')?.value}
+                      onCheckedChange={e => handleFeatues('biometric')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">GSM Module</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow system to interact with sms
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'sms')?.value}
+                      onCheckedChange={e => handleFeatues('sms')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Ask AI</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using AI Features
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'ai')?.value}
+                      onCheckedChange={e => handleFeatues('ai')}
+                    />
                   </div>
                 </div>
               </div>

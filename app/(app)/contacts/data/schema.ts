@@ -35,9 +35,11 @@ export const contactSchema = z.object({
   subscribed: z.boolean().optional().nullable(),
   parNum: z.string().optional().nullable(),
   subscription: z.string().optional().nullable(),
+  tag: z.string().optional().nullable(),
   precinct: z.string().optional().nullable(),
   marker: z.string().optional().nullable(),
   idNum: z.number().optional().nullable(),
+  biometric: z.string().optional().nullable(),
   keyStr: z.string().optional().nullable()
 
 })

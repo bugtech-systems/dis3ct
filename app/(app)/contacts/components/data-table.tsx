@@ -10,7 +10,6 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
   useReactTable,
-  ColumnFiltersState,
   getFilteredRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues
@@ -25,11 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
-import { ScannerForm } from "@/components/scanner";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useContact } from "@/components/providers/ContactProvider";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
@@ -112,7 +107,6 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
   return (
     <div className="space-y-4">
       <DataTableToolbar selectedRow={rowSelection} table={table} />
-      <ScannerForm />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

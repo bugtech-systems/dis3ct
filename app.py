@@ -27,7 +27,6 @@ client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 fingerprint_collection = db[COLLECTION_NAME]
 contact_collection = db[COLLECTION_CONTACT]
-counter_collection = db[COLLECTION_COUNTERS]
 
 # Flask Setup
 app = Flask(__name__)
@@ -44,74 +43,39 @@ scanner_lock = Lock()
 scanner_initialized = False
 keep_alive = False
 register_mode = False
-current_fid = 1
+current_fid = None
+current_user = None
 capture = None
+loaded_templates = False
 
 # Temporary storage for scanned fingerprints
 user_templates = {}
 
-def get_next_sequence_value(sequence_name):
-    """Fetch the next user_id from MongoDB counter collection."""
-    try:
-        counter = counter_collection.find_one_and_update(
-            {"_id": sequence_name},
-            {"$inc": {"sequence_value": 1}},
-            return_document=ReturnDocument.AFTER,
-            upsert=True
-        )
-        return counter["sequence_value"]
-    except Exception as e:
-        logger.error(f"Error getting next sequence value: {e}")
-        return None
 
 
 def load_templates():
-    """Load fingerprint templates from MongoDB into memory."""
-    global current_fid
-
+    """Load fingerprint templates from MongoDB only on first initialization."""
+    global loaded_templates
+    if loaded_templates:
+        return
     zkfp2.DBInit()
     fingerprints = fingerprint_collection.find({})
-
     for record in fingerprints:
-        fid = record["user_id"]
+        fid = record["biometricId"]
         templates = record["templates"]
-
-        if len(templates) < 3:
-            logger.warning(f"⚠️ Skipping user {fid}, insufficient templates.")
-            continue
-
         try:
             reg_temp, _ = zkfp2.DBMerge(*[bytes.fromhex(t) for t in templates])
-            
-            
-            logger.info(f"📥 Loaded fingerprint for user {fid} {reg_temp}")
-
             zkfp2.DBAdd(fid, reg_temp)
-            logger.info(f"📥 Loaded fingerprint for user {fid}")
+            zkfp2.DBDel(fid, reg_temp)
 
         except Exception as e:
-            logger.error(f"❌ Error loading fingerprint {fid}: {e}")
-
-    # Update the current_fid based on the highest stored user ID
-    # last_user = fingerprint_collection.find_one(sort=[("enrolledAt", -1)])
-    # if last_user:
-    #     current_fid = last_user["user_id"]._id
-
-
-def save_templates(user_id, fingerprint_list):
-    """Save fingerprint templates to MongoDB."""
-    fingerprint_collection.update_one(
-        {"user_id": user_id},
-        {"$set": {"templates": fingerprint_list}},
-        upsert=True
-    )
-    logger.info(f"💾 Fingerprint templates for User {user_id} saved to MongoDB.")
-
+            logger.error(f"Error loading fingerprint {fid}: {e}")
+    loaded_templates = True
 
 
 def capture_handler():
     """Handles fingerprint capture and identification."""
-    global capture, register_mode, current_fid
+    global capture, register_mode, current_fid, current_user
 
     if not capture:
         return
@@ -153,7 +117,7 @@ def capture_handler():
                     reg_temp, _ = zkfp2.DBMerge(*[bytes.fromhex(t) for t in templates])
 
                     # Convert user_id to an integer for DBAdd (hash user_id if necessary)
-                    user_id_int = int(user_id_str[:8], 16)  # Convert first 8 hex chars to int
+                    user_id_int = int(current_fid)  # Convert first 8 hex chars to int
 
                     logger.info(f"✅ User {user_id_str} enrolled {reg_temp} successfully. {user_id_int} {templates}")
                     # Add to local fingerprint database
@@ -161,25 +125,33 @@ def capture_handler():
                     logger.info(f"✅ User {user_id_str} enrolled successfully. {user_id_int}")
 
                     # Save to MongoDB
-                    fingerprint_collection.insert_one({
-                        "_id": ObjectId(user_id_str),  # Store as ObjectId
-                        "user_id": user_id_int,
+                    fingerprint = fingerprint_collection.insert_one({
+                        "user_id": current_user,
+                        "biometricId": user_id_int,
                         "templates": templates,
                         "enrolled_at": datetime.now()
                     })
+                    
+                    # logger.info(f"❌ new Finger {fingerprint}")
+                    fingerprint_id = fingerprint.inserted_id  # ✅ Correct way to get _id
+
                                 
                     contact_collection.update_one(
-                        {"_id": ObjectId(user_id_str)},
-                        {"$set": {"biometric":  ObjectId(user_id_str)}},
+                        {"_id": ObjectId(current_user)},
+                        {"$set": {"biometric":  fingerprint_id}},
                         upsert=True
                     )
-
-                    socketio.emit("fingerprint_enrolled", {"user_id": user_id_str}, namespace='/')
+                    zkfp2.Light('green', 3)
+                    socketio.emit("fingerprint_enrolled", {"user_id": current_user, "biometricId": user_id_int}, namespace='/')
 
                     # Cleanup
                     del user_templates[user_id_str]
                     register_mode = False
-
+                
+                if len(templates) > 3:
+                    del user_templates[user_id_str]
+                    register_mode = False
+                
             else:
                 zkfp2.Light('red', 1)
                 logger.warning("❌ Different finger detected!")
@@ -225,6 +197,8 @@ def initialize_scanner():
 
             zkfp2.OpenDevice(0)
             zkfp2.Light("green")
+            zkfp2.Light('white')
+
             logger.info("🟢 Fingerprint scanner initialized successfully.")
 
             scanner_initialized = True
@@ -287,6 +261,10 @@ def api_initialize_scanner():
     if initialize_scanner():
         zkfp2.Light('red', 3)
         zkfp2.Light('green', 3)
+        
+        if not socketio.server:  
+            Thread(target=socketio.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 5000, "allow_unsafe_werkzeug": True, "use_reloader": False}, daemon=True).start()
+        
         return jsonify({"message": "Scanner initialized successfully."}), 200
     return jsonify({"error": "Failed to initialize scanner."}), 500
 
@@ -311,55 +289,77 @@ def listen_to_fingerprints():
         shutdown_scanner()
 
 
-@app.route('/enroll', methods=['POST'])
-def enroll():
+# @app.route('/enroll', methods=['POST'])
+@socketio.on("enroll")
+def socket_enroll_fingerprint(data):
     """API endpoint to enroll a new fingerprint with a specific user ID."""
-    global register_mode, current_fid
+    global register_mode, current_fid, current_user
     if not scanner_initialized:
-        return jsonify({"error": "Device not initialized."}), 400
+        # return jsonify({"error": "Device not initialized."}), 400
+        emit("enrollment_error", {"message": "Device not initialized."})
+
+    initialize_scanner() 
      
     if register_mode:
         zkfp2.Light('red')
-        return jsonify({"error": "Enrollment already in progress."}), 400
+        # return jsonify({"error": "Enrollment already in progress."}), 400
+        emit("enrollment_error", {"message": "Enrollment already in progress."})
 
-    data = request.get_json()
+    # data = request.get_json()
     user_id = data.get("user_id")  # Get user_id from request body
+    finger_id = data.get("fingerPrintId")  # Get user_id from request body
     
     
     logger.info(f"🖥️ Frontend connected to WebSocket.{user_id}")
 
 
     if user_id is None:
-        
-        return jsonify({"error": "User ID is required!. Choose a different ID."}), 400
+        emit("enrollment_error", {"error": "User ID is required"})
 
-    current_fid = user_id  # Default to the next available ID
+        # return jsonify({"error": "User ID is required!. Choose a different ID."}), 400
+
+    current_fid = finger_id  # Default to the next available ID
+    current_user = user_id
     # Check if user already exists in MongoDB
-    existing_user = fingerprint_collection.find_one({"_id": current_fid})
+    existing_user = fingerprint_collection.find_one({"user_id": current_user})
     if existing_user:
         zkfp2.Light('red', 3)
-        return jsonify({"error": "User ID already exists. Choose a different ID."}), 400
-
-    register_mode = True
+        emit("enrollment_error", {"error": "User ID already exists. Choose a different ID."})
     
-    zkfp2.Light('green', 3)
-    return jsonify({
-        "message": "Place the same finger three times to enroll.",
-        "user_id": user_id
-    }), 200
+    existing_user = fingerprint_collection.find_one({"biometricId": current_fid})
+    if existing_user:
+        zkfp2.Light('red', 3)
+        emit("enrollment_error", {"error": "User ID already exists. Choose a different ID."})
+        # return jsonify({"error": "User ID already exists. Choose a different ID."}), 400
+    else:
+        register_mode = True
+        
+        zkfp2.Light('green', 3)
+        # return jsonify({
+        #     "message": "Place the same finger three times to enroll.",
+        #     "user_id": user_id
+        # }), 200
+        emit("enrollment_started", {"user_id": user_id, "message": "Place the same finger three times to enroll."})
+
 
 @socketio.on("connect")
 def handle_connect():
     """Handle WebSocket connection."""
     logger.info("🖥️ Frontend connected to WebSocket.")
+    emit("socket_started", {"message": "Device Started!"})
     emit("server_response", {"message": "Connected to WebSocket!"})
 
 @socketio.on("init")
 def socket_initialize_scanner():
     """INIT WebSocket connection."""
-    initialize_scanner()
-    logger.info("🖥️ Frontend connected to WebSocket.")
-    emit("server_response", {"message": "Connected to WebSocket!"})
+    if initialize_scanner():
+        logger.info("🖥️ Frontend connected to WebSocket.")
+        zkfp2.Light('red', 3)
+        zkfp2.Light('green', 3)
+        
+        if not socketio.server:  
+                Thread(target=socketio.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 5000, "allow_unsafe_werkzeug": True, "use_reloader": False}, daemon=True).start()
+        emit("server_response", {"message": "Connected to WebSocket!"})
 
 
 @socketio.on("shutdown")
@@ -368,6 +368,28 @@ def socket_shutdown_scanner():
     shutdown_scanner()
     logger.info("🖥️ Frontend connected to WebSocket.")
     emit("server_response", {"message": "Shutdown WebSocket!"})
+    socketio.stop()  # Gracefully stops the WebSocket server
+
+@socketio.on("stop_enroll")
+def socket_stop_enroll():
+    """Enrollment Stop."""
+    global register_mode
+
+    register_mode = False
+    logger.info("🖥️ Enrollment Stopped.")
+    emit("server_response", {"message": "Enrollment Stop!"})
+
+
+
+@socketio.on("check_status")
+def socket_status():
+    """INIT WebSocket connection."""
+    logger.info("🖥️ Socket Status.")
+    if scanner_initialized:
+        emit("status_response", {"message": "Connected to WebSocket!", "connected": True})
+    else:
+        emit("status_response", {"message": "Connected to WebSocket!", "connected": False})
+
 
 
 if __name__ == "__main__":

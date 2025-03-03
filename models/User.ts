@@ -35,7 +35,7 @@ const UserSchema: Schema = new Schema(
             default: 'brgyCode',
         },
         accessCode: { type: String, default: null },
-        configs: [{ value: String, title: String }],
+        configs: [{ value: Boolean, title: String }],
     },
     { timestamps: true }
 );

@@ -29,11 +29,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import { TContact } from "@/utils/types";
 import { Contact } from "@/app/(app)/contacts/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { findFeature, sanitizePhoneNumber } from "@/lib/helpers";
 import { useContact } from "../providers/ContactProvider";
+import { Switch } from "@/components/ui/switch"
 
 
 export function CreateSystemForm({ contact, open, setOpen }: {
@@ -54,7 +54,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   const [port, setPort] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [options, setOptions] = React.useState([]);
+  const [features, setFeatures] = React.useState([]);
 
   // State for dynamic location selections
   const [municipalities, setMunicipalities] = React.useState([]);
@@ -82,11 +82,36 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   }
 
 
+  const handleFeatues = (type) => {
+    let config = findFeature(features, type);
+    let newConfs = features;
+
+
+    console.log(config, 'CONF', findFeature(features, type))
+    if (config.title == type) {
+      newConfs = features.filter(conf => conf.title != type);
+
+      newConfs.push({
+        title: type,
+        value: !config.value
+      })
+    } else {
+      newConfs.push({
+        title: type,
+        value: true
+      });
+    }
+
+    console.log(newConfs, 'NEW CONF')
+    setFeatures(newConfs)
+  }
+
 
   // Fetch Regions on Component Mount
   React.useEffect(() => {
     if (user && open) {
       handleLocation(system ? system : user)
+
     }
 
   }, [user, open]);
@@ -109,9 +134,25 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   //   }
   // }, [selectedRegion]);
 
-  const handleAccessLevel = (e) => {
-    console.log(e, 'ACCESS LEVEL');
-    setAccessCode(e[accessLevel])
+  const handleAccessLevel = (e) => prop => {
+
+
+
+
+    if (e == 'city') {
+      setSelectedMunicipality(prop)
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(prop)
+      }
+
+    } else if (e == 'brgy') {
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(selectedMunicipality)
+      } else if (accessLevel == 'brgyCode') {
+        setAccessCode(prop)
+      }
+      setSelectedBarangay(prop)
+    }
   }
 
 
@@ -193,7 +234,8 @@ export function CreateSystemForm({ contact, open, setOpen }: {
         userType,
         password,
         refNum: user._id,
-        parent: user.userType != 'admin' ? user.parent : null
+        parent: user.userType != 'admin' ? user.parent : null,
+        configs: features
       }).then((resp) => {
         console.log(resp, "RESPP SYS")
         if (userType == 'system') {
@@ -224,7 +266,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
 
 
-
+  console.log(features, ' FF')
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -291,7 +333,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                 </div>
                 <div className="space-y-2">
                   <Label>City/Municipality</Label>
-                  <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!accessLevel}>
+                  <Select onValueChange={handleAccessLevel('city')} value={selectedMunicipality} disabled={!accessLevel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Municipality" />
                     </SelectTrigger>
@@ -308,7 +350,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                 {/* Barangay Selection */}
                 <div className="space-y-2">
                   <Label>Barangay</Label>
-                  <Select onValueChange={handleAccessLevel} value={selectedBarangay?.brgyDesc} disabled={!accessLevel}>
+                  <Select onValueChange={handleAccessLevel('brgy')} value={selectedBarangay} disabled={!accessLevel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Barangay" />
                     </SelectTrigger>
@@ -431,6 +473,71 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Port</Label>
                     <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="features" className="space-y-4">
+              <div className="min-h-[300px]">
+
+                <div className="space-y-5">
+                  <h3 className="mb-4 text-lg font-medium  justify-between items-start">Allow Features</h3>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Create Leaders</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow creating new leader account
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+
+                      checked={findFeature(features, 'leaders')?.value}
+                      onCheckedChange={e => handleFeatues('leaders')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Biometric Device</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using biometric scanners
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'biometric')?.value}
+                      onCheckedChange={e => handleFeatues('biometric')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">GSM Module</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow system to interact with sms
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'sms')?.value}
+                      onCheckedChange={e => handleFeatues('sms')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Ask AI</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using AI Features
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'ai')?.value}
+                      onCheckedChange={e => handleFeatues('ai')}
+                    />
                   </div>
                 </div>
               </div>

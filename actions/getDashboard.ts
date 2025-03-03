@@ -26,13 +26,18 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     const [teamReach, subscriptions, contacts, recentContacts] = await Promise.all([
       Contact.countDocuments({ ...options }),
       Contact.countDocuments({ subscribed: true, ...options }),
-      Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
+      Contact.countDocuments({
+        'tags.user': id,
+      }),
+      // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })
         .sort({ updatedAt: -1 })
         .limit(5)
         .select("name phone createdAt updatedAt")
         .lean(), // ✅ Convert to plain objects
     ]);
+
+
 
     // Generate Chart Data
     const overview = await Contact.find({ ...options }).sort({ createdAt: 1 }).select("createdAt").lean(); // ✅ Use .lean()

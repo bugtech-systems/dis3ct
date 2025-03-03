@@ -30,7 +30,7 @@ export default function DashboardPage() {
     if (!system || !user) return;
 
     try {
-      const dashData = await getLeaderDashboard(user?._id);
+      const dashData = await getLeaderDashboard(system?._id);
 
       // Only update state if data actually changes
       setDashboardData((prevData) => {
@@ -41,7 +41,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [system, user]);
+  }, [system]);
 
 
   // Fetch dashboard data when user changes
@@ -58,10 +58,22 @@ export default function DashboardPage() {
             {/* Team Reach */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Team Reach</CardTitle>
+                <CardTitle className="text-sm font-medium">Target Reach</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardData?.teamReach}</div>
+              </CardContent>
+            </Card>
+
+
+
+            {/* My Contacts */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Actual Reach</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
               </CardContent>
             </Card>
 
@@ -72,16 +84,6 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
-              </CardContent>
-            </Card>
-
-            {/* My Contacts */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">My Contacts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
               </CardContent>
             </Card>
           </div>

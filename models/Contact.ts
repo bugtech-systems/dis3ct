@@ -28,6 +28,7 @@ export interface IContact extends Document {
   biometric?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
+  tags?: any[];
   recordType: 'contact' | 'master_list' | 'hotline';
   coordinates: any;
   isDeleted: boolean;
@@ -52,6 +53,7 @@ const ContactSchema = new Schema<IContact>(
     activePreset: { type: String, maxlength: 255 },
     biometric: { type: Schema.Types.ObjectId, ref: 'Fingerprint' },
     subscribed: { type: Boolean, default: false },
+    tags: [{ tagType: String, user: { type: Schema.Types.ObjectId, ref: 'User' } }],
     parNum: { type: Schema.Types.ObjectId, ref: 'User' },
     refNum: { type: Schema.Types.ObjectId, ref: 'User' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],

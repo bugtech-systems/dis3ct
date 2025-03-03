@@ -21,6 +21,7 @@ import { DataTableToolbarActions } from "./data-table-toolbar-actions"
 import { UploadContactForm } from "@/components/contacts/UploadContactForm"
 import RefreshButton from "@/components/RefreshButton"
 
+let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }, { label: 'Unknown', value: undefined }];
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -82,6 +83,7 @@ export function DataTableToolbar<TData>({
   const selectedCityValues = new Set(table.getColumn("citymun")?.getFilterValue() as string[])
   const selectedBrgyValues = new Set(table.getColumn("barangay")?.getFilterValue() as string[])
   const selectedRegionValues = new Set(table.getColumn("region")?.getFilterValue() as string[])
+  const selectedTagValues = new Set(table.getColumn("tag")?.getFilterValue() as string[])
 
   const column = table.getColumn("precinct"); // Replace with your column accessorKey
 
@@ -141,6 +143,13 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("precinct")}
             title="Precinct"
             options={precinctOptions}
+          />
+        )}
+        {(table.getColumn("tag")) && (
+          <DataTableFacetedFilter
+            column={table.getColumn("tag")}
+            title="Label"
+            options={tagsLabel}
           />
         )}
         {/* {(user?.userLevel == 'admin' && table.getColumn("userLevel")) && (

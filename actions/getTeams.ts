@@ -44,7 +44,7 @@ const getTeams = async (): Promise<any[]> => {
     }, {
       path: 'contact',
       options: { strictPopulate: false } // Allows missing `parNum` without errors
-    }]).lean();
+    }]).select('name phone userType configs username accessCode accessLevel').lean();
 
     return sanitizeObject(teams);
   } catch (err) {

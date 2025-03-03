@@ -74,23 +74,33 @@ export const resetPassword = async (phone: string, newPassword: string) => {
 
 
 export const updateUser = async (userId: string, data: any) => {
-    await connectDB();
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    try {
 
-    const user = await User.findByIdAndUpdate(userId, {
-        ...data,
-        ...(data.password ? { password: hashedPassword } : {})
-    }, {
-        new: true,
-        runValidators: true,
-    });
+        await connectDB();
 
-    if (!user) throw new Error("User not found");
-    if (user.deletedAt) throw new Error("User is deactivated");
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+
+        const user = await User.findByIdAndUpdate(userId, {
+            ...data,
+            ...(data.password ? { password: hashedPassword } : {})
+        }, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!user) throw new Error("User not found");
+        if (user.deletedAt) throw new Error("User is deactivated");
 
 
 
 
-    return user;
+        return user;
+
+    } catch (err) {
+
+        console.log(err, 'ERRR')
+        return null
+    }
+
 };

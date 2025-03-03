@@ -321,3 +321,17 @@ export function mergeUniqueObjects(existingArray: any, newArray: any) {
 
   return existingArray;
 }
+
+
+export function findFeature(confs, type) {
+  let configs: any[] = confs ? confs : [];
+
+  let config = configs.find(conf => conf.title == type);
+
+  if (config) {
+    return config
+  } else {
+    return { title: type, value: false }
+  }
+
+}

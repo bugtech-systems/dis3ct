@@ -1,4 +1,4 @@
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "100", 10);
     const search = searchParams.get("search") || "";
     const system = searchParams.get("system");
-    // const userId = searchParams.get("userId");
+    const userId = searchParams.get("userId");
     const brgyCode = searchParams.get("brgyCode");
     const code = searchParams.get("code");
     const level = searchParams.get("level");
@@ -160,18 +160,20 @@ export async function GET(req: NextRequest) {
     contacts = await Contact.find(query)
       // .skip(skip > 0 ? skip : 0)
       .limit(limit)
-      .sort({ createdAt: -1 })
+      .sort({ name: 1 })
       .lean();
 
 
     // Process and enrich contacts with region, province, city, and barangay names
     const newContacts = contacts.map((contact: any) => {
+      let allTags = contact.tags ? contact.tags : [];
       let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
       let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
+      let tags = allTags.filter(tag => String(tag.user) == String(system));
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, keyStr }
+      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
     })
 
     // Get total contact count for pagination
@@ -179,7 +181,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       {
-        data: newContacts,
+        data: sanitizeObject(newContacts),
         pagination: {
           total: totalContacts,
           page,

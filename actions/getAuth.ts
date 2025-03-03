@@ -25,7 +25,8 @@ const getAuth = async (): Promise<any> => {
     }, {
       path: 'contact',
       options: { strictPopulate: false } // Allows missing `parNum` without errors
-    }]);
+    }]).select('name phone userType configs username accessCode accessLevel');
+
 
     return sanitizeObject(user);
   } catch (err) {

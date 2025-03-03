@@ -3,8 +3,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 // Define the Fingerprint document interface
 export interface IFingerprint extends Document {
     user_id: string;
-    biometricId: string;
-    templates: string[]; // Hex-encoded fingerprint templates
+    biometricId: Number;
+    templates?: string[]; // Hex-encoded fingerprint templates
     enrolledAt?: Date;
     lastUpdated?: Date;
 }
@@ -13,8 +13,8 @@ export interface IFingerprint extends Document {
 const FingerprintSchema: Schema<IFingerprint> = new Schema(
     {
         user_id: { type: String, required: true, unique: true },
-        biometricId: { type: String, required: true, unique: true },
-        templates: { type: [String], required: true, validate: (val: string[]) => val.length === 3 }, // Ensures exactly 3 templates
+        biometricId: { type: Number, required: true, unique: true },
+        templates: { type: [String], validate: (val: string[]) => val.length === 3 }, // Ensures exactly 3 templates
         enrolledAt: { type: Date, default: Date.now },
         lastUpdated: { type: Date, default: Date.now }
     },
