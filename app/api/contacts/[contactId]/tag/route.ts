@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getServerSession } from "next-auth";
 import Contact from "@/models/Contact";
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 import User from "@/models/User";
@@ -71,7 +71,7 @@ export const POST = async (
 
     await updatedContact?.save()
 
-    return NextResponse.json(updatedContact, { status: 200 });
+    return NextResponse.json({ ...sanitizeObject(updatedContact), tag: type }, { status: 200 });
   } catch (err) {
     console.log("[courseId_publish_POST]", err);
     return new Response("Internal Server Error", { status: 500 });

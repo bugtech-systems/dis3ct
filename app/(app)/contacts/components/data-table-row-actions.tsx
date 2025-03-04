@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
+import { replaceObjectInArray } from "@/lib/helpers"
 
 let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
 
@@ -51,7 +52,7 @@ export function DataTableRowActions<TData>({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
   const { setModal, setRecord, setRefreshId } = useComponent();
-  const { user, system } = useContact();
+  const { user, system, setContactTable, contactTable } = useContact();
 
 
   const handleDelete = async () => {
@@ -121,8 +122,11 @@ export function DataTableRowActions<TData>({
 
 
       if (response.data) {
+        console.log(replaceObjectInArray(contactTable, response.data), 'TAG', response.data)
         // router.refresh();
-        setRefreshId(Math.random())
+        // setRefreshId(Math.random())
+        setContactTable(replaceObjectInArray(contactTable, response.data))
+
         toast.success(`Label Updated Successfully!`)
       } else {
         toast.error("Failed to send OTP. Please try again.")
@@ -236,7 +240,7 @@ export function DataTableRowActions<TData>({
 
 
               <DropdownMenuSeparator />
-              {(contact?.userLevel == 'system') &&
+              {(contact?.userLevel == 'admin') &&
                 <>
                   <DropdownMenuItem
                     onClick={() => handleRestart()}
@@ -246,17 +250,19 @@ export function DataTableRowActions<TData>({
 
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+
+
+
+                  <DropdownMenuItem
+                    onClick={() => setShowDeleteDialog(true)}
+                  >
+                    Delete
+                    <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
+                  </DropdownMenuItem>
                 </>
+
               }
 
-
-
-              <DropdownMenuItem
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                Delete
-                <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
-              </DropdownMenuItem>
 
             </>
           }

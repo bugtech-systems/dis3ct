@@ -16,8 +16,8 @@ from datetime import datetime
 sys.dont_write_bytecode = True
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "fingerprintDB"
+MONGO_URI = "mongodb+srv://alayon:Jkkulf5AvWjN4JGm@cluster0.ljfau.mongodb.net/"
+DB_NAME = "alayon-test"
 COLLECTION_NAME = "fingerprints"
 COLLECTION_CONTACT = "contacts"
 COLLECTION_COUNTERS = "counters"

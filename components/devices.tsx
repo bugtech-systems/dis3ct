@@ -17,7 +17,7 @@ import { useComponent } from "./providers/ComponentContext";
 const socket = io("http://localhost:5000");
 
 export function DeviceForm() {
-  const { modal, setModal, modalId } = useComponent();
+  const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
   const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
   const [isConnected, setIsConnected] = React.useState(false);
 
@@ -70,23 +70,26 @@ export function DeviceForm() {
 
 
   React.useEffect(() => {
-    socket.on("connect", () => {
-      console.log("✅ Socket connected!");
-      setScannerStatus("Connected");
-      setIsConnected(true);
-    });
+    if (biometricRunning) {
 
-    socket.on("server_response", (data) => {
-      console.log("📡 Server Response:", data.message);
-      setScannerStatus(data.message);
-      // setScannerStatus("Connected");
-    });
+      socket.on("connect", () => {
+        console.log("✅ Socket connected!");
+        setScannerStatus("Connected");
+        setIsConnected(true);
+      });
 
-    socket.on("status_response", (data) => {
-      console.log("📡 Server Response:", data);
-      // setScannerStatus(data.message);
-      // setScannerStatus("Connected");
-    });
+      socket.on("server_response", (data) => {
+        console.log("📡 Server Response:", data.message);
+        setScannerStatus(data.message);
+        // setScannerStatus("Connected");
+      });
+
+      socket.on("status_response", (data) => {
+        console.log("📡 Server Response:", data);
+        // setScannerStatus(data.message);
+        // setScannerStatus("Connected");
+      });
+    }
 
 
 
@@ -100,7 +103,7 @@ export function DeviceForm() {
       socket.off("server_response");
       socket.off("status_response");
     };
-  }, []);
+  }, [biometricRunning]);
 
 
 

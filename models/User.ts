@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
-    phone: string;
+    phone?: string;
     username: string;
     password: string;
     otp?: string;
@@ -18,10 +18,10 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema(
     {
-        phone: { type: String, required: true },
+        phone: { type: String, required: false },
         name: { type: String, required: false },
         username: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
+        password: { type: String, required: false },
         otp: { type: String, default: null },
         recoveryCode: { type: String, default: null },
         contact: { type: Schema.Types.ObjectId, ref: "Contact", default: null },

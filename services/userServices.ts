@@ -78,12 +78,10 @@ export const updateUser = async (userId: string, data: any) => {
     try {
 
         await connectDB();
-
         const hashedPassword = await bcrypt.hash(data.password, 10);
-
         const user = await User.findByIdAndUpdate(userId, {
             ...data,
-            ...(data.password ? { password: hashedPassword } : {})
+            ...((data.password && String(data.password).length < 20) ? { password: hashedPassword } : {})
         }, {
             new: true,
             runValidators: true,

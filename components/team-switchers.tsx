@@ -115,7 +115,7 @@ export function TeamSwitchers({
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
-            {teams.length > 1 ?
+            {(teams.length > 1 || user?.userType == 'admin') ?
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
@@ -173,7 +173,7 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
-              {(system && user?.userType == 'admin') &&
+              {(system && user?.userType == 'admin' && user?._id != system._id) &&
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

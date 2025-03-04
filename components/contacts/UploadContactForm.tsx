@@ -330,7 +330,7 @@ export function UploadContactForm() {
 
 
 
-  }, [selectedProvince]);
+  }, [selectedProvince, system]);
 
 
   // Fetch Barangays when Municipality changes
@@ -349,7 +349,7 @@ export function UploadContactForm() {
       setValidFiles([])
     }
 
-  }, [open])
+  }, [open, system])
 
 
 

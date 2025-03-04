@@ -20,7 +20,7 @@ import { ViewContactForm } from "./contacts/ViewContactForm";
 const socket = io("http://localhost:5000");
 
 export function ScannerForm() {
-  const { modal, setModal, modalId } = useComponent();
+  const { modal, setModal, modalId, biometricRunning } = useComponent();
   const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
   const [scanProgress, setScanProgress] = React.useState(0);
   const [record, setRecord] = React.useState(null);
@@ -71,75 +71,78 @@ export function ScannerForm() {
   }, [modal]);
 
   React.useEffect(() => {
-    socket.on("connect", () => {
-      console.log("✅ Socket connected!");
-      setScannerStatus("Connected");
-      setIsConnected(true);
-    });
+    if (biometricRunning) {
 
-    socket.on("server_response", (data) => {
-      console.log("📡 Server Response:", data.message);
-      setScannerStatus(data.message);
-    });
+      socket.on("connect", () => {
+        console.log("✅ Socket connected!");
+        setScannerStatus("Connected");
+        setIsConnected(true);
+      });
 
-    socket.on("status_response", (data) => {
-      console.log("📡 Status Response:", data);
-    });
+      socket.on("server_response", (data) => {
+        console.log("📡 Server Response:", data.message);
+        setScannerStatus(data.message);
+      });
 
-    socket.on("scanner_ready", () => {
-      console.log("🟢 Scanner is ready.");
-      setScannerStatus("Ready");
-      setIsConnected(true);
-    });
+      socket.on("status_response", (data) => {
+        console.log("📡 Status Response:", data);
+      });
 
-    socket.on("scanner_disconnected", () => {
-      console.warn("🔴 Scanner disconnected.");
-      setScannerStatus("Disconnected");
-      setIsConnected(false);
-    });
+      socket.on("scanner_ready", () => {
+        console.log("🟢 Scanner is ready.");
+        setScannerStatus("Ready");
+        setIsConnected(true);
+      });
 
-    socket.on("fingerprint_enrolled", (data) => {
-      console.log("🔍 Fingerprint Verified for User:", data);
-      handleRecord(data.user_id)
-      // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
-    });
+      socket.on("scanner_disconnected", () => {
+        console.warn("🔴 Scanner disconnected.");
+        setScannerStatus("Disconnected");
+        setIsConnected(false);
+      });
 
-    socket.on("fingerprint_scan", (data) => {
-      console.log("📝 Fingerprint Scan Step:", data.step);
-      setScanProgress(data.step);
-      if (data.step >= 3) {
-        toast.success("✅ Fingerprint enrolled successfully!");
-        setScanProgress(0);
+      socket.on("fingerprint_enrolled", (data) => {
+        console.log("🔍 Fingerprint Verified for User:", data);
+        handleRecord(data.user_id)
+        // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
+      });
+
+      socket.on("fingerprint_scan", (data) => {
+        console.log("📝 Fingerprint Scan Step:", data.step);
+        setScanProgress(data.step);
+        if (data.step >= 3) {
+          toast.success("✅ Fingerprint enrolled successfully!");
+          setScanProgress(0);
+          setIsEnrolling(false);
+          setModal(null)
+        }
+      });
+
+      socket.on("fingerprint_verified", (data) => {
+        console.log("🔍 Fingerprint Verified for User:", data.user_id);
+        handleRecord(data.user_id)
+        // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
+      });
+
+      socket.on("fingerprint_not_verified", () => {
+        console.warn("⚠️ Fingerprint not recognized.");
         setIsEnrolling(false);
+        setScanProgress(0);
+        toast.error("Fingerprint not recognized.");
         setModal(null)
-      }
-    });
+        setRecord(null)
+      });
 
-    socket.on("fingerprint_verified", (data) => {
-      console.log("🔍 Fingerprint Verified for User:", data.user_id);
-      handleRecord(data.user_id)
-      // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
-    });
+      socket.on("enrollment_started", (data) => {
+        console.log(`🆕 Enrollment started for User ID: ${data.user_id}`);
+        toast.success(`Enrollment started for User ID: ${data.user_id}.`);
+      });
 
-    socket.on("fingerprint_not_verified", () => {
-      console.warn("⚠️ Fingerprint not recognized.");
-      setIsEnrolling(false);
-      setScanProgress(0);
-      toast.error("Fingerprint not recognized.");
-      setModal(null)
-      setRecord(null)
-    });
-
-    socket.on("enrollment_started", (data) => {
-      console.log(`🆕 Enrollment started for User ID: ${data.user_id}`);
-      toast.success(`Enrollment started for User ID: ${data.user_id}.`);
-    });
-
-    socket.on("enrollment_error", (data) => {
-      console.error("❌ Enrollment Error:", data.error);
-      toast.error(data.error);
-      setIsEnrolling(false);
-    });
+      socket.on("enrollment_error", (data) => {
+        console.error("❌ Enrollment Error:", data.error);
+        toast.error(data.error);
+        setIsEnrolling(false);
+      });
+    }
 
     return () => {
       console.log("🚪 Cleaning up socket listeners...");
@@ -154,7 +157,7 @@ export function ScannerForm() {
       socket.off("enrollment_started");
       socket.off("enrollment_error");
     };
-  }, []);
+  }, [biometricRunning]);
 
   const handleInit = () => {
     // handleShutdown()

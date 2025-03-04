@@ -8,9 +8,9 @@ import { useComponent } from "@/components/providers/ComponentContext";
 import { mergeUniqueObjects } from "@/lib/helpers";
 
 export default function ContactsPage() {
-    const { system } = useContact()
+    const { system, contactTable, setContactTable } = useContact()
     const { refreshId, setIsRefreshing, setRefreshId, isRefreshing } = useComponent();
-    const [contacts, setContacts] = useState([]);
+    // const [contacts, setContacts] = useState([]);
     const [limit, setLimit] = useState(10000);
     const [currentSystem, setCurrentSystem] = useState<any>([]);
 
@@ -27,7 +27,7 @@ export default function ContactsPage() {
 
             if (resData) {
                 let { data, pagination } = resData;
-                setContacts(data)
+                setContactTable(data)
                 setLimit(pagination.total)
                 // return
                 // setIsRefreshing(false)
@@ -78,7 +78,7 @@ export default function ContactsPage() {
             setLimit(10000)
             setRefreshId(null)
             setCurrentSystem(system)
-            setContacts([])
+            setContactTable([])
             handleInit()
         }
 
@@ -99,7 +99,7 @@ export default function ContactsPage() {
 
                 {/* Search Input */}
                 <CardsDataTable
-                    data={contacts}
+                    data={contactTable}
                     columns={columns}
                 />
             </div>

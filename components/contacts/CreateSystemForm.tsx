@@ -116,23 +116,6 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
   }, [user, open]);
 
-  // Fetch Regions on Component Mount
-  // React.useEffect(() => {
-  //   axios.get("/api/location/regions").then((res) => {
-  //     setRegions(res.data.data);
-  //   });
-  // }, []);
-
-  // // Fetch Provinces when Region changes
-  // React.useEffect(() => {
-  //   if (selectedRegion) {
-  //     axios.get(`/api/location/provinces/${selectedRegion}`).then((res) => {
-  //       setProvinces(res.data.data);
-  //       setMunicipalities([]);
-  //       setBarangays([]);
-  //     });
-  //   }
-  // }, [selectedRegion]);
 
   const handleAccessLevel = (e) => prop => {
 
@@ -171,7 +154,14 @@ export function CreateSystemForm({ contact, open, setOpen }: {
       axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
         setMunicipalities(res.data.data);
         setBarangays([]);
-        setSelectedMunicipality(null)
+        // setSelectedMunicipality(null)
+        setSelectedBarangay(null)
+      });
+    } else {
+      axios.get(`/api/location/municipalities`).then((res) => {
+        setMunicipalities(res.data.data);
+        setBarangays([]);
+        // setSelectedMunicipality(null)
         setSelectedBarangay(null)
       });
     }
@@ -189,17 +179,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
 
     return () => {
-      setPhone("")
-      setName("")
-      setAddress("")
-      setSelectedRegion("")
-      setSelectedProvince(null)
-      setSelectedMunicipality("")
-      setSelectedBarangay(null)
-      // setSystem(null);
-      setMunicipalities([])
-      setBarangays([])
-      setPort("");
+
     }
 
   }, [open])
@@ -248,7 +228,17 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
         return;
       });
-
+      setPhone("")
+      setName("")
+      setAddress("")
+      setSelectedRegion("")
+      setSelectedProvince(null)
+      setSelectedMunicipality("")
+      setSelectedBarangay(null)
+      // setSystem(null);
+      setMunicipalities([])
+      setBarangays([])
+      setPort("");
       // toast({ title: "Success", description: response.data.message, status: "success" });
       setOpen(false); // Close modal after success
       toast.success('System created Successfully');
@@ -356,7 +346,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                     </SelectTrigger>
                     <SelectContent>
                       {barangays.map((brgy: any) => (
-                        <SelectItem key={brgy.brgyCode} value={brgy}>
+                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
                           {brgy.brgyDesc}
                         </SelectItem>
                       ))}

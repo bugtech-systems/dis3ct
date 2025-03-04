@@ -72,16 +72,22 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
   const handleLocation = async (data) => {
-    if (data) {
-      let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
-      if (response?.data) {
-        let { regCode, provCode, citymunCode, brgyCode } = response.data;
-        setSelectedRegion(regCode)
-        setSelectedProvince(provCode)
-        setSelectedMunicipality(citymunCode)
-        setSelectedBarangay(brgyCode)
+    try {
+
+      if (data) {
+        let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
+        if (response?.data) {
+          let { regCode, provCode, citymunCode, brgyCode } = response.data;
+          setSelectedRegion(regCode)
+          setSelectedProvince(provCode)
+          setSelectedMunicipality(citymunCode)
+          setSelectedBarangay(brgyCode)
+        }
       }
+    } catch (err) {
+      console.log(err, 'ERR')
     }
+
   }
 
 
