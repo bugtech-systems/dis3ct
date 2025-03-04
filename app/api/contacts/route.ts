@@ -159,7 +159,7 @@ export async function GET(req: NextRequest) {
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
       // .skip(skip > 0 ? skip : 0)
-      .limit(10)
+      .limit(limit)
       .sort({ name: 1 })
       .lean();
 
