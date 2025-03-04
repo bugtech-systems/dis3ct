@@ -38,6 +38,10 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10); // Default 10 rows per page
   const [search, setSearch] = React.useState("");
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [rowSelection, setRowSelection] = React.useState({});
   /*  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
      [],
@@ -72,6 +76,7 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
       sorting,
       columnVisibility,
       rowSelection,
+
       // columnFilters,
     },
     enableRowSelection: true,
@@ -85,7 +90,7 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-
+    // onPaginationChange: (e) => console.log(e, 'pagination')
     /*   getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
       getPaginationRowModel: getPaginationRowModel(),

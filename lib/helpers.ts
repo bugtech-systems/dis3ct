@@ -229,7 +229,7 @@ export function convertQuillToPlainText(quillContent: string): string {
 }
 
 
-export function sanitizePhoneNumber(phoneNumber: any) {
+export function sanitizePhoneNumber(phoneNumber: any | null) {
   // Remove any non-numeric characters from the phone number
   const sanitized = String(phoneNumber).replace(/\D/g, '');
 
@@ -339,4 +339,25 @@ export function findFeature(confs, type) {
 
 export function replaceObjectInArray(existingArray, newObject, key = "_id") {
   return existingArray.map(item => item[key] === newObject[key] ? newObject : item);
+}
+
+
+
+export function extractJsonFromText(text) {
+  const jsonRegex = /{[^{}]*}/; // Match a simple JSON object (single-level)
+
+  const match = text.match(jsonRegex);
+  if (!match) {
+    return { textWithoutJson: text, jsonObject: null };
+  }
+
+  let jsonString = match[0];
+  let remainingText = text.replace(jsonString, '').trim();
+
+  try {
+    let jsonObject = JSON.parse(jsonString);
+    return { textWithoutJson: remainingText, jsonObject };
+  } catch (error) {
+    return { textWithoutJson: text, jsonObject: null }; // Return original text if JSON parsing fails
+  }
 }

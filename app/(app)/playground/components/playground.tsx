@@ -90,8 +90,8 @@ export default function PlaygroundPage() {
 
             setUserMessage('')
 
-            // let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
-            let apiUrl = '/api/presets/chat'
+            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
+            // let apiUrl = '/api/presets/chat'
 
             if (isTask) {
 
@@ -119,9 +119,6 @@ export default function PlaygroundPage() {
                 })
 
             } else {
-
-
-
 
 
                 let resp = await axios.post(apiUrl, {

@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import connectDB from "@/lib/mongodb";
 import crypto from "crypto";
+import System from "@/models/System";
+import { sanitizePhoneNumber } from "@/lib/helpers";
 
 export const
     registerUser = async (userData: any) => {
@@ -9,14 +11,20 @@ export const
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         // const refNum = crypto.randomBytes(6).toString("hex").toUpperCase(); // Generate a unique ref number
 
-        const newUser = new User({
+        const newUser = await User.create({
             ...userData,
             password: hashedPassword,
             // refNum,
         });
 
-        if (userData.userType == 'system') {
-            newUser.parent = newUser._id;
+        if (newUser && userData.userType == 'system') {
+            newUser.parent = newUser._id as any;
+            await System.create({
+                number: userData.phone,
+                port: userData.port,
+                description: userData.name
+            })
+
         }
 
         await newUser.save();
@@ -78,10 +86,15 @@ export const updateUser = async (userId: string, data: any) => {
     try {
 
         await connectDB();
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        let hashedPassword;
+        console.log("UPDATE USER", data)
+        if (data.password) {
+            hashedPassword = await bcrypt.hash(data.password, 10);
+        }
+
         const user = await User.findByIdAndUpdate(userId, {
             ...data,
-            ...((data.password && String(data.password).length < 20) ? { password: hashedPassword } : {})
+            ...((hashedPassword && data.password && String(data.password).length < 20) ? { password: hashedPassword } : {})
         }, {
             new: true,
             runValidators: true,
@@ -91,6 +104,22 @@ export const updateUser = async (userId: string, data: any) => {
         if (user.deletedAt) throw new Error("User is deactivated");
 
 
+        console.log(user, "UPDATE USER", data)
+
+        if (user.userType == 'system') {
+            let system = await System.findOne({ number: sanitizePhoneNumber(user.phone) });
+            if (system) {
+                system.port = data.port ? data.port : system.port
+                system.description = data.name
+                await system.save()
+            } else {
+                await System.create({
+                    number: data.phone,
+                    port: data.port,
+                    description: data.name
+                })
+            }
+        }
 
 
         return user;

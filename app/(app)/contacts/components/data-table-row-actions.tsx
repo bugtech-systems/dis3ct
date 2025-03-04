@@ -36,7 +36,7 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
-import { replaceObjectInArray } from "@/lib/helpers"
+import { findFeature, replaceObjectInArray } from "@/lib/helpers"
 import { SendInviteForm } from "@/components/contacts/SendInviteForm"
 import { record } from "zod"
 
@@ -208,32 +208,39 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => handleSubscribed()}
-          >
-            {contact?.subscribed ? 'Unsubscribe' : 'Subscribe'}
-            <DropdownMenuShortcut>{contact?.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
+          {(findFeature(user.configs, 'biometrics')?.value || (user?.userType == 'admin')) &&
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setModal('scanner', contact?._id)}
+              >
+                Set Biometrics
+                <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
 
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setModal('scanner', contact?._id)}
-          >
-            Set Biometrics
-            <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </>
+          }
+          {(findFeature(user.configs, 'sms')?.value || (user?.userType == 'admin')) &&
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleSubscribed()}
+              >
+                {contact?.subscribed ? 'Unsubscribe' : 'Subscribe'}
+                <DropdownMenuShortcut>{contact?.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
 
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setModal('sendInvite', contact?._id)}
-          >
-            Send Invite
-            <DropdownMenuShortcut><MessageCircleDashedIcon size={18} /></DropdownMenuShortcut>
-
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {(user?.userType == 'system' || user?.userType == 'admin') &&
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setModal('sendInvite', contact?._id)}
+              >
+                Send Invite
+                <DropdownMenuShortcut><MessageCircleDashedIcon size={18} /></DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
+          {(user?.userType == 'admin') &&
             <>
 
 

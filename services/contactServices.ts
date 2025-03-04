@@ -2,6 +2,7 @@ import { convertQuillToPlainText, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import AiPreset from "@/models/AiPreset";
 import Contact, { IContact } from "@/models/Contact";
+import User from "@/models/User";
 
 /**
  * Create a new contact.
@@ -123,7 +124,7 @@ export const getContactByNumber = async (
       phone: sanitizePhoneNumber(number)
     } as any;
 
-    const systemData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+    const systemData = await User.findOne({ phone: sanitizePhoneNumber(system) });
     if (systemData) {
       options.parNum = systemData.id
     }
@@ -150,7 +151,7 @@ export const getSystemByNumber = async (
     } as any;
 
 
-    const systemData = await Contact.findOne({ phone: sanitizePhoneNumber(number), userLevel: 'system' }).lean();
+    const systemData = await User.findOne({ phone: sanitizePhoneNumber(number), userType: 'system' }).lean();
 
     if (!systemData) {
       return { success: false, error: "System not found" };

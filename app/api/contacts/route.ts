@@ -98,10 +98,10 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "100", 10);
     const search = searchParams.get("search") || "";
     const system = searchParams.get("system");
-    const userId = searchParams.get("userId");
     const brgyCode = searchParams.get("brgyCode");
     const code = searchParams.get("code");
     const level = searchParams.get("level");
+    const withPhone = searchParams.get("phone");
 
     // const citymunCode = searchParams.get("citymunCode");
 
@@ -131,12 +131,19 @@ export async function GET(req: NextRequest) {
     // Apply user-level filtering
     let query: any = { deletedAt: null };
 
+
+
+
     if (parent.userType === "admin") {
       // Admin sees all contacts
     } else if (parent.userType === "system") {
       query.parNum = parent._id;
     } else if (brgys.length) {
       query.$or = brgys;
+    }
+
+    if (withPhone) {
+      query.phone = { $exists: true, $ne: '' }
     }
 
     if (search) {

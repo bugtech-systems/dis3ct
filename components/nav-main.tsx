@@ -82,7 +82,7 @@ export function NavMain() {
 
 
   const pathname = usePathname();
-  let items = (user && user.userLevel == 'admin') ? navAdmin : (user && (user.userLevel == 'system' && user.subscription == 'pro')) ? navSystem : navNormal;
+  let items = (user && user.userType == 'admin') ? navAdmin : (user && (user.userType == 'system' && user.subscription == 'pro')) ? navSystem : navNormal;
 
 
   // Fetch user data and set it in context

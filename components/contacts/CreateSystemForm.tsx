@@ -215,17 +215,9 @@ export function CreateSystemForm({ contact, open, setOpen }: {
         password,
         refNum: user._id,
         parent: user.userType != 'admin' ? user.parent : null,
-        configs: features
+        configs: features,
+        port
       }).then((resp) => {
-        console.log(resp, "RESPP SYS")
-        if (userType == 'system') {
-          axios.post("/api/contacts/save/system", {
-            phone: sanitizePhoneNumber(phone),
-            port,
-            description: name
-          })
-        }
-
         return;
       });
       setPhone("")
@@ -256,7 +248,6 @@ export function CreateSystemForm({ contact, open, setOpen }: {
 
 
 
-  console.log(features, ' FF')
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>

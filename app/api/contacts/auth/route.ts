@@ -27,6 +27,8 @@ export const GET = async (req: NextRequest) => {
         }
 
 
+
+
         return NextResponse.json(
             contact,
             { status: 200 }

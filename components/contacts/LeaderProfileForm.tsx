@@ -172,6 +172,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         accessLevel,
         userType,
         configs: features,
+        port,
         ...(password ? { password } : {}),
       })
 
@@ -243,6 +244,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
     }
 
     return () => {
+      setPassword("");
       setPhone("")
       setName("")
       setFeatures([])

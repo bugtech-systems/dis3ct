@@ -92,7 +92,6 @@ export default function ContactsPage() {
     }, [refreshId, currentSystem])
 
 
-    console.log(contactTable, 'co')
     return (
         <>
 
