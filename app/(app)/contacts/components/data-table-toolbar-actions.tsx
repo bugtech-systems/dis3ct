@@ -30,7 +30,6 @@ import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
 import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm"
 import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
-import { ViewContactForm } from "@/components/contacts/ViewContactForm"
 
 
 

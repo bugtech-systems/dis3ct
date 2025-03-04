@@ -199,6 +199,7 @@ export function ScannerForm() {
     toast.success("Enrollment started. Scan your fingerprint.");
   };
 
+
   return (
     <>
       <ViewContactForm open={modal == 'viewContact'} setOpen={setModal} contact={record} />

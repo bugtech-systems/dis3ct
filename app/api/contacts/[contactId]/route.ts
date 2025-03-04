@@ -60,10 +60,7 @@ export const GET = async (
     await dbConnect();
     const { contactId } = params;
 
-    const contact = await Contact.findOne({
-      phone: sanitizePhoneNumber(contactId),
-      deletedAt: null
-    }).populate('parNum');
+    const contact = await Contact.findById(contactId).populate('parNum');
 
     if (!contact) {
       return new NextResponse("Contact not found", { status: 404 });
@@ -92,7 +89,6 @@ export const DELETE = async (
 
     const userId = session.user.id;
     const { contactId } = params;
-    console.log(contactId, userId, 'DELETE AUTH')
 
     if (!(await isAuthorized(userId, contactId))) {
       return new NextResponse("Forbidden", { status: 403 });

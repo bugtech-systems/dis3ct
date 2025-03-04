@@ -98,7 +98,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
     let newConfs = features;
 
 
-    console.log(config, 'CONF', findFeature(features, type))
     if (config.title == type) {
       newConfs = features.filter(conf => conf.title != type);
 
@@ -113,7 +112,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
       });
     }
 
-    console.log(newConfs, 'NEW CONF')
     setFeatures(newConfs)
   }
 
@@ -259,7 +257,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   }, [profile, open])
 
 
-  console.log(profile, 'PROF')
   // console.log(selectedProvince, municipalities, 'PROV', system, user)
 
   return (

@@ -12,67 +12,29 @@ export const POST = async (req: NextRequest) => {
 
     if (!data?.phone) return new NextResponse("Not Found", { status: 404 })
 
-    let { phone, system, referrer, userLevel, username, otpCode, name } = data;
+    let { phone, recordId, isFlash } = data;
 
-    let newPhone = sanitizePhoneNumber(data?.phone);
+    let newPhone = sanitizePhoneNumber(phone);
 
+    if (!recordId) {
+      return NextResponse.json({ message: 'Record not found!' }, { status: 404 });
+    }
 
     await connectToDatabase();
 
+    let record = await Contact.findById(recordId) as any;
 
-
-
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system ?? referrer), userLevel: 'system', deletedAt: null });
-
-    // if (!parentData) {
-    //   return NextResponse.json({ error: "System contact not found." }, { status: 400 });
-    // }
-
-
-    let refData = await Contact.findOne({ phone: sanitizePhoneNumber(referrer ?? system), parNum: parentData?._id, deletedAt: null });
-
-
-
-
-    if (!refData) {
-      refData = parentData
-      // return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
-    }
-
-
-    let contact = await Contact.findOne({ phone: sanitizePhoneNumber(phone), parNum: parentData?._id, deletedAt: null }) as any;
-
-    if (!contact) {
-      contact = new Contact({
-        phone: sanitizePhoneNumber(phone),
-        refNum: refData?._id,
-        parNum: parentData?._id,
-        userLevel, username, otpCode, name
-      }) as any;
-
-      if (userLevel == 'admin') {
-        contact.refNum = contact?._id;
-        contact.parNum = contact?._id;
-      }
+    if (record) {
+      record.phone = newPhone;
+      await record.save()
 
     }
 
 
 
-    let refExist = contact?.uplines?.find(contact => contact == refData.id)
 
-    if (!refExist && refData) {
-      contact?.uplines?.push(refData.id)
-    }
-
-
-
-
-    const savedContact = await contact.save();
-
-
-
-    return NextResponse.json(savedContact, { status: 201 });
+    console.log(record, 'RECORD')
+    return NextResponse.json({ message: 'Invite Sent!' }, { status: 201 });
 
   } catch (error) {
     console.error('Error creating contact:', error);

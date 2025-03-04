@@ -39,7 +39,7 @@ export function DeviceForm() {
       const data = await response.json();
       console.log(data, 'RESP INIT')
       setScannerStatus("Connected!");
-
+      setBiometricRunning(true)
     } catch (err) {
       setIsConnected(false)
     }

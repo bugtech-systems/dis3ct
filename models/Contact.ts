@@ -72,6 +72,9 @@ const ContactSchema = new Schema<IContact>(
 ContactSchema.index({ idNum: 1 });
 ContactSchema.index({ name: 1 });
 ContactSchema.index({ refNum: 1 });
+ContactSchema.index({ parNum: 1 });
+ContactSchema.index({ brgyCode: 1 });
+ContactSchema.index({ citymunCode: 1 });
 
 
 const Contact = (mongoose.models && mongoose.models.Contact)

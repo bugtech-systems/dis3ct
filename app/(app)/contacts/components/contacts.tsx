@@ -6,6 +6,7 @@ import CardsDataTable from "./data-table"
 import { useContact } from "@/components/providers/ContactProvider";
 import { useComponent } from "@/components/providers/ComponentContext";
 import { mergeUniqueObjects } from "@/lib/helpers";
+import { SendInviteForm } from "@/components/contacts/SendInviteForm";
 
 export default function ContactsPage() {
     const { system, contactTable, setContactTable } = useContact()
@@ -91,9 +92,11 @@ export default function ContactsPage() {
     }, [refreshId, currentSystem])
 
 
-
+    console.log(contactTable, 'co')
     return (
         <>
+
+            <SendInviteForm />
             <div className="flex-1 space-y-4 p-3">
                 {/* <DataTable data={tasks} columns={columns} /> */}
 

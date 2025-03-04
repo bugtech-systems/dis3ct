@@ -173,11 +173,13 @@ export async function GET(req: NextRequest) {
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
       let tags = allTags.filter(tag => String(tag.user) == String(system));
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
+      return { _id: contact._id, name: contact.name, phone: contact.phone, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
     })
 
     // Get total contact count for pagination
     const totalContacts = await Contact.countDocuments(query);
+
+
 
     return NextResponse.json(
       {

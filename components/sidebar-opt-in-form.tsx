@@ -16,11 +16,15 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { useSession } from "next-auth/react";
 import { Contact } from "@/data/schema";
 import { useContact } from "./providers/ContactProvider";
+import { Label } from "./ui/label";
+import { Switch } from "./ui/switch";
+import { useComponent } from "./providers/ComponentContext";
 
-export function SidebarOptInForm() {
+export function SidebarOptInForm({ record }: { record: any }) {
   const { user, system, setUser } = useContact()
-  const { data: session } = useSession() as any; // Get the session data from next-auth
+  const { setModal } = useComponent()
   const [mobile, setMobile] = useState("");
+  const [isFlash, setIsFlash] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter(); // ⬅ Initialize useRouter
@@ -32,9 +36,6 @@ export function SidebarOptInForm() {
     // Philippine mobile number should match these formats:
     return /^(9\d{9}|09\d{9}|639\d{9}|\+639\d{9})$/.test(sanitizedNumber);
   };
-
-
-
 
   // 📌 Handle Form Submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,10 +57,14 @@ export function SidebarOptInForm() {
     try {
 
 
-      const response = await axios.post("/api/contacts", { phone: mobile, referrer: user?.phone, system: system?.phone });
+      const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system, isFlash });
 
-      toast.success("Invite Sent!");
-      setMobile(""); // Clear input after success
+      if (response.data) {
+        toast.success("Invite Sent!");
+        setMobile(""); // Clear input after success
+        setModal(null)
+      }
+
     } catch (err: any) {
       setError(err.response?.data?.error || "Failed to send invite.");
       toast.error("Failed to send invite.");
@@ -70,31 +75,39 @@ export function SidebarOptInForm() {
   };
 
 
-
   return (
-    <Card className="shadow-none">
-      <form onSubmit={handleSubmit}>
-        <CardHeader className="p-4 pb-0">
-          <CardTitle className="text-sm">Invite Someone to Subscribe</CardTitle>
-          <CardDescription>Opt-in to receive updates and news about Maretext.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-2.5 p-4">
-          <SidebarInput
-            placeholder="Mobile Number"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-          />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button
-            type="submit"
-            className="w-full bg-sidebar-primary text-sidebar-primary-foreground shadow-none"
-            size="sm"
-            disabled={loading}
-          >
-            {loading ? "Sending..." : "Send Invite"}
-          </Button>
-        </CardContent>
-      </form>
-    </Card>
+    <form onSubmit={handleSubmit}>
+      <CardHeader className="p-4 pb-0">
+        <CardTitle className="text-sm">Invite Someone to Subscribe</CardTitle>
+        <CardDescription>Opt-in to receive updates and news about Maretext.</CardDescription>
+      </CardHeader>
+
+      <CardContent className="grid gap-2.5 p-4">
+        {record &&
+          <div>
+            Send Invite to: <br /> {record.name}
+          </div>
+        }
+        <SidebarInput
+          placeholder="Mobile Number"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <div className="flex items-center">
+          <Label htmlFor="flash-message" className="flex items-center gap-2 text-xs font-normal">
+            <Switch id="flash-message" checked={isFlash} onCheckedChange={setIsFlash} /> Flash Message
+          </Label>
+        </div>
+        <Button
+          type="submit"
+          className="w-full bg-sidebar-primary text-sidebar-primary-foreground shadow-none"
+          size="sm"
+          disabled={loading}
+        >
+          {loading ? "Sending..." : "Send Invite"}
+        </Button>
+      </CardContent>
+    </form>
   );
 }

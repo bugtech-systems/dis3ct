@@ -24,6 +24,7 @@ export default async function Page() {
 
   return (
     <>
+
       <ContactsPage
       // contacts={contacts}
       />

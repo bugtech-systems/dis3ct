@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { ListRestartIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { ListRestartIcon, MessageCircleDashedIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -37,6 +37,8 @@ import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
 import { replaceObjectInArray } from "@/lib/helpers"
+import { SendInviteForm } from "@/components/contacts/SendInviteForm"
+import { record } from "zod"
 
 let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
 
@@ -141,20 +143,8 @@ export function DataTableRowActions<TData>({
 
 
 
-  /*  useEffect(() => {
-     let tag = contact?.tag;
-     if (tag) {
-       setActiveTag(tag);
-     }
-   }, [contact?.tag]) */
-
-
-
-
-
   return (
     <>
-
 
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -210,8 +200,8 @@ export function DataTableRowActions<TData>({
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup value={contact?.tag} onValueChange={handleTag}>
                 {tagsLabel.map((label) => (
-                  <DropdownMenuRadioItem key={label.value} value={label.value}>
-                    {label.label}
+                  <DropdownMenuRadioItem key={label?.value} value={label?.value}>
+                    {label?.label}
                   </DropdownMenuRadioItem>
                 ))}
               </DropdownMenuRadioGroup>
@@ -232,6 +222,14 @@ export function DataTableRowActions<TData>({
           >
             Set Biometrics
             <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
+
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setModal('sendInvite', contact?._id)}
+          >
+            Send Invite
+            <DropdownMenuShortcut><MessageCircleDashedIcon size={18} /></DropdownMenuShortcut>
 
           </DropdownMenuItem>
           <DropdownMenuSeparator />

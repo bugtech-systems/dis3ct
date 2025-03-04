@@ -16,7 +16,6 @@ const getContactId = async (id): Promise<any> => {
             return [];
         }
 
-        console.log('GET CONTACT', id)
 
         await connectToDatabase();
         let finger = await FingerPrint.findOne({ biometricId: Number(id) }).select('user_id biometricId');
