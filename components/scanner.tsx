@@ -147,7 +147,7 @@ export function ScannerForm() {
     return () => {
 
       console.log("🚪 Cleaning up socket listeners...");
-      socket.off("connect");
+      // socket.off("connect");
       socket.off("server_response");
       socket.off("scanner_ready");
       socket.off("scanner_disconnected");
