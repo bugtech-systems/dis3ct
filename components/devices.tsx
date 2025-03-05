@@ -17,6 +17,7 @@ import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
 import { findFeature } from "@/lib/helpers";
 
+const socket = io("http://localhost:5000");
 
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
@@ -35,7 +36,7 @@ export function DeviceForm() {
         method: "POST"
       });
 
-      // socket.emit("init");
+      socket.emit("init");
       setScannerStatus("Initializing...");
       setIsConnected(true)
 
@@ -98,9 +99,7 @@ export function DeviceForm() {
 
   React.useEffect(() => {
 
-    const socket = io("http://localhost:5000");
     if (biometricRunning) {
-
       socket.on("connect", () => {
         console.log("✅ Socket connected!");
         setScannerStatus("Connected");
@@ -128,8 +127,7 @@ export function DeviceForm() {
 
     return () => {
       console.log("🚪 Cleaning up socket listeners...");
-      socket.disconnect();
-      socket.off("connect");
+      socket.off("disconnect")
       socket.off("server_response");
       socket.off("status_response");
     };

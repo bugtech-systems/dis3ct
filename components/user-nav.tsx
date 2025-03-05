@@ -25,7 +25,6 @@ import { useComponent } from "./providers/ComponentContext";
 import getAuth from "@/actions/getAuth";
 import getTeams from "@/actions/getTeams";
 import { DeviceForm } from "./devices";
-import { ScannerForm } from "./scanner";
 
 export function UserNav({ user }: { user: any }) {
   const { modal, setModal } = useComponent();
@@ -113,7 +112,6 @@ export function UserNav({ user }: { user: any }) {
       <LeaderProfileForm profile={currentUser} open={open} setOpen={setOpen} />
       <CreateLeaderFormDialog contact={currentUser} type="new" open={modal == 'newLeader'} setOpen={setModal} />
       <DeviceForm />
-      <ScannerForm />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">

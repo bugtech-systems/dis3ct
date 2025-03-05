@@ -49,6 +49,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   setOpen: (value: boolean) => void
 }) {
   const router = useRouter(); // ⬅ Initialize useRouter
+  const { user } = useContact()
   // State for form fields
   const [phone, setPhone] = React.useState("");
   const [name, setName] = React.useState("");
@@ -135,15 +136,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
       setSelectedBarangay(prop)
     }
   }
-
-
-
-
-
-
-
-
-
 
   // 📌 Handle Form Submission
   const handleSubmit = async () => {
@@ -278,7 +270,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
               <TabsTrigger value="access" >
                 Access
               </TabsTrigger>
-              {profile?.userType == 'admin' &&
+              {user?.userType == 'admin' &&
                 <TabsTrigger value="features">Features</TabsTrigger>
               }
             </TabsList>

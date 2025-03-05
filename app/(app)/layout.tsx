@@ -15,6 +15,7 @@ import { CreateContactForm } from "@/components/contacts/CreateContactForm";
 import getAuth from "@/actions/getAuth";
 import { ScannerForm } from "@/components/scanner";
 import { ComponentProvider } from "@/components/providers/ComponentContext";
+import { ViewContactForm } from "@/components/contacts/ViewContactForm";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -70,7 +71,9 @@ export default async function RootLayout({
               <Separator orientation="vertical" className="mr-2 h-4" />
 
               <div className="flex flex-grow items-end justify-end items-center mr-2 space-x-7">
-                <ScannerForm contact={null} />
+                <ScannerForm />
+                <ViewContactForm />
+
                 {/* <CreateContactForm /> */}
                 <UserNav
                   user={newUser}

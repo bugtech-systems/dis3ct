@@ -133,8 +133,8 @@ export function ScannerForm() {
       });
 
       socket.on("enrollment_started", (data) => {
-        console.log(`🆕 Enrollment started for User ID: ${data.user_id}`);
-        toast.success(`Enrollment started for User ID: ${data.user_id}.`);
+        // console.log(`🆕 Enrollment started for User ID: ${data.user_id}`);
+        // toast.success(`Enrollment started for User ID: ${data.user_id}.`);
       });
 
       socket.on("enrollment_error", (data) => {
@@ -145,6 +145,7 @@ export function ScannerForm() {
     }
 
     return () => {
+
       console.log("🚪 Cleaning up socket listeners...");
       socket.off("connect");
       socket.off("server_response");
@@ -156,6 +157,7 @@ export function ScannerForm() {
       socket.off("fingerprint_not_verified");
       socket.off("enrollment_started");
       socket.off("enrollment_error");
+
     };
   }, [biometricRunning]);
 
@@ -202,7 +204,6 @@ export function ScannerForm() {
 
   return (
     <>
-      <ViewContactForm open={modal == 'viewContact'} setOpen={setModal} contact={record} />
       <Dialog open={modal === "scanner"} onOpenChange={(e) => setModal(e)}>
         <DialogContent>
           <DialogHeader>

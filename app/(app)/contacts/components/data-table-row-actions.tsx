@@ -145,8 +145,6 @@ export function DataTableRowActions<TData>({
 
   return (
     <>
-
-
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -208,7 +206,7 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          {(findFeature(user.configs, 'biometrics')?.value || (user?.userType == 'admin')) &&
+          {(findFeature(user.configs, 'biometric')?.value || (user?.userType == 'admin')) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem

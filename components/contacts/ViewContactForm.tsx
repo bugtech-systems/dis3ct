@@ -33,11 +33,42 @@ import { useRouter } from "next/navigation"; // ⬅ Import useRouter
 import { useContact } from "../providers/ContactProvider";
 import WebcamSelector from "../webcam-selector";
 import { useComponent } from "../providers/ComponentContext";
+import getContactId from "@/actions/getContactId";
 
-export function ViewContactForm({ contact, open, setOpen }: { contact: any; open: any; setOpen: any }) {
-  // const { user, system } = useContact();
+export function ViewContactForm() {
+  const { modal, setModal, modalId } = useComponent();
+  const [contact, setContact] = React.useState(null)
 
 
+  const handleGetContact = async () => {
+    // e.preventDefault();
+
+
+    try {
+
+
+
+
+
+      const response = await axios.get(`/api/contacts/${modalId}`);
+
+      if (response.data) {
+        console.log(response.data, 'copntt')
+        setContact(response.data)
+
+      }
+
+    } catch (error: any) {
+      console.log(error, 'ERROR')
+    }
+  };
+
+  React.useEffect(() => {
+    if (modalId) {
+      handleGetContact()
+    }
+
+  }, [modalId])
 
   // State for form fields
 
@@ -49,7 +80,7 @@ export function ViewContactForm({ contact, open, setOpen }: { contact: any; open
   return (
     <>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={modal == 'viewContact'} onOpenChange={() => setModal(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>View Record</DialogTitle>
@@ -121,7 +152,7 @@ export function ViewContactForm({ contact, open, setOpen }: { contact: any; open
           </Tabs>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
+            <Button variant="outline" onClick={() => setModal(null)}>Close</Button>
             {/* <Button onClick={() => handleSubmit()}>Save</Button> */}
           </DialogFooter>
         </DialogContent>

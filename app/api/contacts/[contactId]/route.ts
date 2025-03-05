@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import Contact from "@/models/Contact";
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
+import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+
 
 // ✅ Secure Helper Function to Check Authorization
 const isAuthorized = async (userId: string, contactId: string) => {
@@ -60,13 +62,27 @@ export const GET = async (
     await dbConnect();
     const { contactId } = params;
 
-    const contact = await Contact.findById(contactId).populate('parNum');
+    const contact = await Contact.findById(contactId).populate('parNum').lean();
 
     if (!contact) {
       return new NextResponse("Contact not found", { status: 404 });
     }
 
-    return NextResponse.json(contact, { status: 200 });
+    let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
+    let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
+    let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
+    let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
+
+    let newContact = {
+      ...contact,
+      barangay,
+      citymun,
+      province,
+      region
+    }
+
+
+    return NextResponse.json(sanitizeObject(newContact), { status: 200 });
   } catch (error) {
     console.error("Error fetching contact:", error);
     return NextResponse.json(
