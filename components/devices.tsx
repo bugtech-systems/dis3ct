@@ -17,7 +17,9 @@ import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
 import { findFeature } from "@/lib/helpers";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000", {
+  autoConnect: false
+});
 
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
@@ -119,19 +121,17 @@ export function DeviceForm() {
       });
     }
 
-
-
-
-
-
-
     return () => {
-      console.log("🚪 Cleaning up socket listeners...");
-      socket.off("disconnect")
-      socket.off("server_response");
-      socket.off("status_response");
+      if (biometricRunning) {
+
+        console.log("🚪 Cleaning up socket listeners...");
+        socket.off("disconnect")
+        socket.off("server_response");
+        socket.off("status_response");
+      }
+
     };
-  }, []);
+  }, [biometricRunning]);
 
 
 

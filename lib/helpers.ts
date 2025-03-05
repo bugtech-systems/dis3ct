@@ -361,3 +361,8 @@ export function extractJsonFromText(text) {
     return { textWithoutJson: text, jsonObject: null }; // Return original text if JSON parsing fails
   }
 }
+
+
+export function formatVoterSms({ name, address, barangay, municipality, province, region, precinct }) {
+  return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\n\nChange starts with us!\n Support Team Pag BaBag'o. \nTogether, we can build a better future!`;
+}

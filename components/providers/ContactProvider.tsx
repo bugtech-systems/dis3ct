@@ -41,24 +41,7 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({
   const [selectedContacts, setSelectedContacts] = useState<IContact[]>([]);
   const [teams, setTeams] = useState<IContact[]>([]);
 
-  // React.useEffect(() => {
-  //   // Fetch user details from API if session exists
 
-  //   console.log(system, 'SYSTEM')
-  //   if (system) {
-  //     axios.get(`/api/system/${system?.phone}`)
-  //       .then((response) => {
-  //           if(response.data){
-  //             setParentSystem(response.data)
-  //           }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching user data:", error);
-  //       })
-  //       // .finally(() => setLoading(false));
-  // }
-
-  // }, [system]);
 
 
   return (

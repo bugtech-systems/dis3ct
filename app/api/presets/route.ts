@@ -29,16 +29,12 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     let systemParam = searchParams.get("system");
     let options = { contact: null } as any;
 
-    if (systemParam) {
-      let senderContact = await getContactByNumber(sanitizePhoneNumber(systemParam));
-
-
-
-      if (senderContact.data) {
-        options.contact = senderContact.data.id;
-      }
-
-    }
+    // if (systemParam) {
+    //   let senderContact = await getContactByNumber(sanitizePhoneNumber(systemParam));
+    //   if (senderContact.data) {
+    //     options.contact = senderContact.data.id;
+    //   }
+    // }
 
 
 

@@ -21,7 +21,7 @@ import { Switch } from "./ui/switch";
 import { useComponent } from "./providers/ComponentContext";
 
 export function SidebarOptInForm({ record }: { record: any }) {
-  const { user, system, setUser } = useContact()
+  const { system } = useContact()
   const { setModal } = useComponent()
   const [mobile, setMobile] = useState("");
   const [isFlash, setIsFlash] = useState(false);
@@ -57,7 +57,7 @@ export function SidebarOptInForm({ record }: { record: any }) {
     try {
 
 
-      const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system, isFlash });
+      const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system: system.phone, isFlash });
 
       if (response.data) {
         toast.success("Invite Sent!");
@@ -66,6 +66,7 @@ export function SidebarOptInForm({ record }: { record: any }) {
       }
 
     } catch (err: any) {
+      console.log(err, 'ERR')
       setError(err.response?.data?.error || "Failed to send invite.");
       toast.error("Failed to send invite.");
     } finally {

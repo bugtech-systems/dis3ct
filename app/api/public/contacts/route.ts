@@ -1,9 +1,12 @@
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { formatVoterSms, sanitizePhoneNumber } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
 import Mobile from "@/models/Mobile";
+import axios from "axios";
+import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 
+let apiUrl = `http://localhost:3000/api/tasks`
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -12,13 +15,15 @@ export const POST = async (req: NextRequest) => {
 
     if (!data?.phone) return new NextResponse("Not Found", { status: 404 })
 
-    let { phone, recordId, isFlash } = data;
+    let { phone, recordId, system, isFlash } = data;
 
     let newPhone = sanitizePhoneNumber(phone);
 
     if (!recordId) {
       return NextResponse.json({ message: 'Record not found!' }, { status: 404 });
     }
+
+
 
     await connectToDatabase();
 
@@ -27,6 +32,42 @@ export const POST = async (req: NextRequest) => {
     if (record) {
       record.phone = newPhone;
       await record.save()
+
+      let barangay = barangays.find((brgy: any) => brgy.brgyCode == record.brgyCode)?.brgyDesc;
+      let citymun = municipalities.find((citymun: any) => citymun.citymunCode == record.citymunCode)?.citymunDesc;
+      let province = provinces.find((province: any) => province.provCode == record.provCode)?.provDesc;
+      let region = regions.find((region: any) => region.regCode == record.regCode)?.regDesc;
+
+      let resp = await axios.post(apiUrl, {
+        status: 'Todo',
+        priority: 'Medium',
+        category: 'Sms',
+        title: 'Send Message',
+        taskObject: JSON.stringify({
+          // ...preset,
+
+          isFlash,
+          phone: phone,
+          system: system,
+          message: formatVoterSms({
+            name: record.name,
+            address: record.address,
+            precinct: record.precinct,
+            barangay,
+            municipality: citymun,
+            province,
+            region,
+          })
+
+        })
+      }) as any;
+
+      if (resp.success) {
+        console.log('SUCCESS 200')
+      }
+
+
+
 
     }
 

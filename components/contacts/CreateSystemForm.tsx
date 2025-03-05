@@ -36,11 +36,12 @@ import { useContact } from "../providers/ContactProvider";
 import { Switch } from "@/components/ui/switch"
 
 
-export function CreateSystemForm({ contact, open, setOpen }: {
+export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
   user?: Contact;
   contact?: Contact;
   open?: boolean;
-  setOpen: (value: boolean) => void
+  setOpen: (value: boolean) => void;
+  type: any;
 }) {
   const router = useRouter(); // ⬅ Initialize useRouter
   const { user, system } = useContact();
@@ -138,7 +139,6 @@ export function CreateSystemForm({ contact, open, setOpen }: {
     }
   }
 
-
   React.useEffect(() => {
     if (selectedMunicipality) {
       axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
@@ -174,15 +174,6 @@ export function CreateSystemForm({ contact, open, setOpen }: {
   }, [accessLevel, selectedProvince]);
 
 
-
-  React.useEffect(() => {
-
-
-    return () => {
-
-    }
-
-  }, [open])
 
 
 
@@ -220,6 +211,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
       }).then((resp) => {
         return;
       });
+
       setPhone("")
       setName("")
       setAddress("")
@@ -253,9 +245,9 @@ export function CreateSystemForm({ contact, open, setOpen }: {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{contact?.id ? 'Edit' : 'Create'} System</DialogTitle>
+            <DialogTitle>{contact?.id ? 'Edit' : 'Create'} {type == 'leader' ? 'Leader' : 'System'}</DialogTitle>
             <DialogDescription>
-              Add a new system.
+              Add a new {type == 'leader' ? 'Leader' : 'System'}.
             </DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
@@ -436,6 +428,12 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                         <SelectValue placeholder="Select a plan" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="leader">
+                          <span className="font-medium">Leader</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Team Leader
+                          </span>
+                        </SelectItem>
                         <SelectItem value="system">
                           <span className="font-medium">System</span> -{" "}
                           <span className="text-muted-foreground">
@@ -448,6 +446,7 @@ export function CreateSystemForm({ contact, open, setOpen }: {
                             System Admin
                           </span>
                         </SelectItem>
+
                       </SelectContent>
                     </Select>
                   </div>

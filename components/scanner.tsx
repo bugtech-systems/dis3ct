@@ -17,7 +17,9 @@ import getFingerId from "@/actions/getFingerId";
 import getContactId from "@/actions/getContactId";
 import { ViewContactForm } from "./contacts/ViewContactForm";
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000", {
+  autoConnect: false
+});
 
 export function ScannerForm() {
   const { modal, setModal, modalId, biometricRunning } = useComponent();

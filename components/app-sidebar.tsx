@@ -8,7 +8,6 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar"
-import { SidebarOptInForm } from "./sidebar-opt-in-form"
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar | any>) {
   return (
