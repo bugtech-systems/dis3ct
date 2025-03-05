@@ -66,7 +66,7 @@ async function processApiResponse(response: any) {
     let contact: any;
 
     let { textWithoutJson, jsonObject } = extractJsonFromText(response.message.content)
-
+    console.log(textWithoutJson, jsonObject, 'EXTRACTION')
     if ((response.message.content && isParsableObject(cleanJsonObject(response.message.content))) || jsonObject) {
       let contentData = jsonObject ? jsonObject : JSON.parse(cleanJsonObject(response.message.content))
 
@@ -97,10 +97,10 @@ async function processApiResponse(response: any) {
           phone: contentData?.phone ? contentData?.phone : sender,
           system
         })
-        if (contentData.message) {
+        if (contentData.message || textWithoutJson) {
           await handleNewMessage({
             sender,
-            message: contentData.message,
+            message: contentData.message || textWithoutJson,
             system,
             isFlash: true
           })
