@@ -125,8 +125,10 @@ export function DataTableRowActions<TData>({
 
       if (response.data) {
         console.log(replaceObjectInArray(contactTable, response.data), 'TAG', response.data)
+        let newArr = replaceObjectInArray(contactTable, response.data);
         // router.refresh();
         // setRefreshId(Math.random())
+        console.log(newArr, 'NEW ARR')
         setContactTable(replaceObjectInArray(contactTable, response.data))
 
         toast.success(`Label Updated Successfully!`)

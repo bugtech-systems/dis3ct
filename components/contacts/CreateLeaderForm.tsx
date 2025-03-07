@@ -266,7 +266,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
               <TabsTrigger value="access" >
                 Access
               </TabsTrigger>
-              {user.userType == 'admin' &&
+              {user?.userType == 'admin' &&
                 <TabsTrigger value="features">Features</TabsTrigger>
               }
             </TabsList>

@@ -338,7 +338,7 @@ export function findFeature(confs, type) {
 
 
 export function replaceObjectInArray(existingArray, newObject, key = "_id") {
-  return existingArray.map(item => item[key] === newObject[key] ? newObject : item);
+  return existingArray.map(item => item[key] === newObject[key] ? { ...item, ...newObject } : item);
 }
 
 
