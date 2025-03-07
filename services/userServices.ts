@@ -24,7 +24,6 @@ export const
                 port: userData.port,
                 description: userData.name
             })
-
         }
 
         await newUser.save();

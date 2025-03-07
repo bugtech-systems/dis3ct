@@ -25,9 +25,10 @@ import { useComponent } from "./providers/ComponentContext";
 import getAuth from "@/actions/getAuth";
 import getTeams from "@/actions/getTeams";
 import { DeviceForm } from "./devices";
+import { findFeature } from "@/lib/helpers";
 
 export function UserNav({ user }: { user: any }) {
-  const { modal, setModal } = useComponent();
+  const { modal, setModal, record, setRecord } = useComponent();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { setUser, setSystem, system, setTeams } = useContact();
@@ -50,6 +51,9 @@ export function UserNav({ user }: { user: any }) {
     let authUser = await getAuth();
     let teamData = await getTeams();
 
+
+    console.log(authUser, teamData, 'TT')
+
     if (authUser) {
       setUser(authUser);
       if (teamData.length) {
@@ -59,26 +63,15 @@ export function UserNav({ user }: { user: any }) {
       if (parent) {
         let sys = teamData?.find(team => team._id == parent);
         if (sys) {
-
           handleSystems(sys)
-        } else if (authUser && authUser.parent) {
-          handleSystems(authUser.parent);
-
         } else if (authUser.userType == 'system' || authUser.userType == 'admin') {
           handleSystems(authUser);
         }
         return;
-
-
-      } else if (authUser && authUser.parent) {
-        handleSystems(authUser.parent);
-
-      } else if (authUser.userType == 'system' || authUser.userType == 'admin') {
+      } else if (authUser.userType == 'system' || authUser.userType == 'admin' || authUser.userType == 'leader') {
         handleSystems(authUser);
       }
-
     }
-
   }
 
 
@@ -106,11 +99,10 @@ export function UserNav({ user }: { user: any }) {
 
   let currentUser = user?.userType == 'admin' ? system : user;
 
-
   return (
     <>
       <LeaderProfileForm profile={currentUser} open={open} setOpen={setOpen} />
-      <CreateLeaderFormDialog contact={currentUser} type="new" open={modal == 'newLeader'} setOpen={setModal} />
+      <CreateLeaderFormDialog contact={record} type="leader" open={modal == 'newLeader'} setOpen={setModal} />
       <DeviceForm />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -146,8 +138,11 @@ export function UserNav({ user }: { user: any }) {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {(currentUser?.userType == 'admin') &&
-              <DropdownMenuItem onClick={() => setModal('newLeader')}>New Leader</DropdownMenuItem>
+            {((user?.userType == 'leader') || (user?.userType == 'admin') || (currentUser?.userType == 'system' && findFeature(currentUser.configs, 'leaders').value)) &&
+              <DropdownMenuItem onClick={() => {
+                setRecord({})
+                setModal('newLeader')
+              }}>New Leader</DropdownMenuItem>
             }
           </DropdownMenuGroup>
 

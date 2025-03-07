@@ -189,7 +189,14 @@ export function DataTableRowActions<TData>({
           >View Details</DropdownMenuItem>
 
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              setRecord(contact)
+              setModal('newLeader', contact?._id)
+            }}
+          >Set Leader</DropdownMenuItem>
 
+          <DropdownMenuSeparator />
 
 
 

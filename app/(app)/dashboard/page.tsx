@@ -31,7 +31,7 @@ export default function DashboardPage() {
 
     try {
       const dashData = await getLeaderDashboard(system?._id);
-
+      console.log(dashData, 'DASHBOARD DATA')
       // Only update state if data actually changes
       setDashboardData((prevData) => {
         return JSON.stringify(prevData) !== JSON.stringify(dashData)

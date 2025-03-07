@@ -9,7 +9,7 @@ import { mergeUniqueObjects } from "@/lib/helpers";
 import { SendInviteForm } from "@/components/contacts/SendInviteForm";
 
 export default function ContactsPage() {
-    const { system, contactTable, setContactTable } = useContact()
+    const { system, contactTable, setContactTable, user } = useContact()
     const { refreshId, setIsRefreshing, setRefreshId, isRefreshing } = useComponent();
     // const [contacts, setContacts] = useState([]);
     const [limit, setLimit] = useState(10000);
@@ -19,7 +19,7 @@ export default function ContactsPage() {
 
         try {
             setIsRefreshing(true)
-            const response = await fetch(`/api/contacts?system=${e._id}&limit=${e?.limit ? e.limit : limit}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}`);
+            const response = await fetch(`/api/contacts?system=${e._id}&userId=${user._id}&limit=${e?.limit ? e.limit : limit}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch contacts")
             }

@@ -29,176 +29,222 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
-import { TContact } from "@/utils/types";
-import { Contact } from "@/data/schema"
+import { Contact } from "@/app/(app)/contacts/data/schema"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
-import { sanitizePhoneNumber } from "@/lib/helpers";
-import { UserLevelSelect } from "../user-level";
+import { findFeature, sanitizePhoneNumber } from "@/lib/helpers";
 import { useContact } from "../providers/ContactProvider";
+import { Switch } from "@/components/ui/switch"
 
 
-export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
+export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader' }: {
   contact?: any;
-  open: boolean;
+  open?: boolean;
   setOpen: (value: boolean) => void;
-  type?: string;
+  type: any;
 }) {
-  const { system, user } = useContact();
   const router = useRouter(); // ⬅ Initialize useRouter
+  const { user, system } = useContact();
   // State for form fields
   const [phone, setPhone] = React.useState("");
-  const [username, setUsername] = React.useState("");
   const [name, setName] = React.useState("");
   const [address, setAddress] = React.useState("");
-  const [userLevel, setUserLevel] = React.useState("normal");
-  const [subscription, setSubscription] = React.useState("basic");
-  const [pin, setPinCode] = React.useState("");
+  const [accessLevel, setAccessLevel] = React.useState("brgyCode");
+  const [userType, setUserType] = React.useState("leader");
+  const [accessCode, setAccessCode] = React.useState(null);
+  const [port, setPort] = React.useState("");
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [features, setFeatures] = React.useState([]);
 
   // State for dynamic location selections
-  const [regions, setRegions] = React.useState([]);
-  const [provinces, setProvinces] = React.useState([]);
   const [municipalities, setMunicipalities] = React.useState([]);
   const [barangays, setBarangays] = React.useState([]);
 
   const [selectedRegion, setSelectedRegion] = React.useState("");
   const [selectedProvince, setSelectedProvince] = React.useState("");
   const [selectedMunicipality, setSelectedMunicipality] = React.useState("");
-  const [selectedBarangay, setSelectedBarangay] = React.useState("");
+  const [selectedBarangay, setSelectedBarangay] = React.useState(null);
+
+
+
+  const handleLocation = async (data) => {
+    if (data) {
+      let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
+      if (response?.data) {
+        let { regCode, provCode, citymunCode, brgyCode } = response.data;
+        setAccessCode(data.accessCode)
+        setAccessLevel(data.accessLevel)
+        setSelectedProvince(provCode)
+        setSelectedRegion(regCode)
+        setSelectedMunicipality(citymunCode)
+      }
+    }
+  }
+
+
+  const handleFeatues = (type) => {
+    let config = findFeature(features, type);
+    let newConfs = features;
+
+
+    console.log(config, 'CONF', findFeature(features, type))
+    if (config.title == type) {
+      newConfs = features.filter(conf => conf.title != type);
+
+      newConfs.push({
+        title: type,
+        value: !config.value
+      })
+    } else {
+      newConfs.push({
+        title: type,
+        value: true
+      });
+    }
+
+    console.log(newConfs, 'NEW CONF')
+    setFeatures(newConfs)
+  }
+
 
   // Fetch Regions on Component Mount
   React.useEffect(() => {
-    axios.get("/api/location/regions").then((res) => {
-      setRegions(res.data.data);
-    });
-  }, []);
+    if (user && open) {
+      handleLocation(system ? system : user)
 
-  // Fetch Provinces when Region changes
-  React.useEffect(() => {
-    if (selectedRegion) {
-      axios.get(`/api/location/provinces/${selectedRegion}`).then((res) => {
-        setProvinces(res.data.data);
-        setMunicipalities([]);
-        setBarangays([]);
-      });
     }
-  }, [selectedRegion]);
 
-  // Fetch Municipalities when Province changes
-  React.useEffect(() => {
-    if (selectedProvince) {
-      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-      });
+  }, [user, open]);
+
+
+  const handleAccessLevel = (e) => prop => {
+
+
+
+
+    if (e == 'city') {
+      setSelectedMunicipality(prop)
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(prop)
+      }
+
+    } else if (e == 'brgy') {
+      if (accessLevel == 'citymunCode') {
+        setAccessCode(selectedMunicipality)
+      } else if (accessLevel == 'brgyCode') {
+        setAccessCode(prop)
+      }
+      setSelectedBarangay(prop)
     }
-  }, [selectedProvince, selectedRegion]);
+  }
 
-  // Fetch Barangays when Municipality changes
   React.useEffect(() => {
     if (selectedMunicipality) {
       axios.get(`/api/location/barangays/${selectedMunicipality}`).then((res) => {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedMunicipality, selectedProvince, selectedRegion]);
+  }, [selectedMunicipality, accessLevel]);
 
-
+  // // Fetch Barangays when Municipality changes
   React.useEffect(() => {
-    if (contact && type != "new") {
-      setPhone(contact.phone)
-      setUsername(contact.username)
-      setName(contact.name || "")
-      setAddress(contact.address || "")
-      setSelectedRegion(contact.regCode || "")
-      setSelectedProvince(contact.provCode || "")
-      setSelectedMunicipality(contact.citymunCode || "")
-      setSelectedBarangay(contact.brgyCode || "")
-      setUserLevel(contact.userLevel || "")
-      setSubscription(contact.subscription || "")
+    // if (selectedProvince) {
+    if (selectedProvince) {
+      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
+        let citymun = res.data.data.find(city => city.citymunCode == selectedMunicipality)
 
+        if (citymun) {
+          setMunicipalities([citymun]);
+        }
+        // setBarangays([]);
+        // setSelectedMunicipality(null)
+        // setSelectedBarangay(null)
+      });
     } else {
-      setSelectedRegion(user?.regCode || "08")
-      setSelectedProvince(user?.provCode || "0837")
-      setSelectedMunicipality(user?.citymunCode || "")
-      setSelectedBarangay(user?.brgyCode || "")
+      axios.get(`/api/location/municipalities`).then((res) => {
+        setMunicipalities(res.data.data);
+        let citymun = res.data.data.find(city => city.citymunCode == selectedMunicipality)
+        if (citymun) {
+          setMunicipalities([citymun]);
+        }
+        // setBarangays([]);
+        // setSelectedMunicipality(null)
+        // setSelectedBarangay(null)
+      });
     }
+  }, [accessLevel, selectedMunicipality]);
 
-  }, [contact, user, type])
+
 
   React.useEffect(() => {
-    if (!open) {
-
-      setPhone("")
-      setUsername("")
-      setName("")
-      setAddress("")
-      setSelectedRegion(user?.regCode || "08")
-      setSelectedProvince(user?.provCode || "0837")
-      setSelectedMunicipality(user?.citymunCode || "")
-      setSelectedBarangay(user?.brgyCode || "")
-      setUserLevel("normal")
-      setSubscription("basic")
-      setPinCode("")
+    if (contact) {
+      setName(contact?.name || "");
+      setPhone(contact?.phone || "");
+      setAccessCode(contact.accessCode || "");
+      setUserType(contact.userType || "leader")
     }
 
+  }, [contact])
 
-  }, [open])
+
+
+
 
   // 📌 Handle Form Submission
   const handleSubmit = async () => {
     // e.preventDefault();
 
     // Validation
-    if (!phone) {
+    if (!phone || !name) {
       // toast({ title: "Error", description: "All fields are required!", status: "error" });
       // alert('Phone field is required!')
       // console.log('Phone field is required!')
-      toast.error("Phone field is required!");
-
-      return;
-    }
-
-    if (pin && String(pin).length < 6) {
-      // toast({ title: "Error", description: "All fields are required!", status: "error" });
-      // alert('Phone field is required!')
-      // console.log('Phone field is required!')
-      toast.error("Pin Should be 6 digit!");
+      toast.error("Phone or Name field is required!");
 
       return;
     }
 
     try {
-      const response = await axios.post("/api/contacts/save/leader", {
-        userId: contact.id,
+      await axios.post("/api/users", {
+        action: "register",
+        userId: contact?.id,
         phone: sanitizePhoneNumber(phone),
         name,
         username,
-        address,
-        regCode: selectedRegion,
-        provCode: selectedProvince,
-        citymunCode: selectedMunicipality,
-        brgyCode: selectedBarangay,
-        userLevel: userLevel,
-        system: system?.phone,
-        pinCode: pin,
-        subscription
-        // parNum: system.id
+        accessCode,
+        accessLevel,
+        userType,
+        password,
+        refNum: user._id,
+        parent: user.userType == 'system' ? user._id : system.parent,
+        configs: features,
+        port
+      }).then((resp) => {
+        return;
       });
 
+      setPhone("")
+      setName("")
+      setSelectedRegion("")
+      setSelectedProvince(null)
+      setSelectedMunicipality("")
+      setSelectedBarangay(null)
+      // setSystem(null);
+      setMunicipalities([])
+      setBarangays([])
       // toast({ title: "Success", description: response.data.message, status: "success" });
       setOpen(false); // Close modal after success
-      toast.success(response.data.message);
+      toast.success('System created Successfully');
       router.refresh();
-
     } catch (error: any) {
       console.log(error, 'ERROR')
       // toast({ title: "Error", description: error.response?.data?.error || "Failed to save contact.", status: "error" });
       // alert('Failed to save contact.')
-      toast.error(error.response?.data?.error || "Failed to save contact.");
+      toast.error(error.response?.data?.error || "Failed to save System.");
+
 
     }
   };
-
 
 
 
@@ -208,18 +254,21 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create leader</DialogTitle>
+            <DialogTitle>{contact?.id ? 'Edit' : 'Create'} {type == 'leader' ? 'Leader' : 'System'}</DialogTitle>
             <DialogDescription>
-              Add a new leader to manage groups and members.
+              Add a new {type == 'leader' ? 'Leader' : 'System'}.
             </DialogDescription>
           </DialogHeader>
           <Tabs defaultValue="basic" className="space-y-4">
             <TabsList className="flex justify-center">
-              <TabsTrigger value="basic">Details</TabsTrigger>
-              <TabsTrigger value="area">Area</TabsTrigger>
+              <TabsTrigger value="basic">System Details</TabsTrigger>
+              {/* <TabsTrigger value="area">Area</TabsTrigger> */}
               <TabsTrigger value="access" >
                 Access
               </TabsTrigger>
+              {user.userType == 'admin' &&
+                <TabsTrigger value="features">Features</TabsTrigger>
+              }
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
@@ -228,19 +277,85 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
                   <Input id="mobile" placeholder="09123123123" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Contact Name</Label>
+                  <Label htmlFor="name">Leader Name</Label>
                   <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" placeholder="Real St. Tacloban City" value={address} onChange={(e) => setAddress(e.target.value)} />
+                  <Label htmlFor="userLevel">Access Level</Label>
+                  <Select onValueChange={setAccessLevel} value={accessLevel} >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="brgyCode">
+                        <span className="font-medium">Barangay</span> -{" "}
+                        <span className="text-muted-foreground">
+                          Barangay Level
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="citymunCode">
+                        <span className="font-medium">City/Municipality</span> -{" "}
+                        <span className="text-muted-foreground">
+                          City or Municipality Level
+                        </span>
+                      </SelectItem>
+                      {/*   <SelectItem value="provCode">
+                        <span className="font-medium">Province</span> -{" "}
+                        <span className="text-muted-foreground">
+                          Provincial Level
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="regCode">
+                        <span className="font-medium">Region</span> -{" "}
+                        <span className="text-muted-foreground">
+                          Regional Level
+                        </span>
+                      </SelectItem> */}
+                    </SelectContent>
+                  </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>City/Municipality</Label>
+                  <Select
+                    // onValueChange={handleAccessLevel('city')} 
+                    value={selectedMunicipality} disabled={true}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Municipality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {municipalities.map((mun: any) => (
+                        <SelectItem key={mun.citymunCode} value={mun.citymunCode}>
+                          {mun.citymunDesc}{mun.provDesc ? ` - ${mun.provDesc}` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Barangay Selection */}
+                <div className="space-y-2">
+                  <Label>Barangay</Label>
+                  <Select onValueChange={handleAccessLevel('brgy')} value={selectedBarangay} disabled={!accessLevel}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Barangay" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {barangays.map((brgy: any) => (
+                        <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
+                          {brgy.brgyDesc}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
               </div>
             </TabsContent>
             <TabsContent value="area" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
                 {/* Region Selection */}
-                <div className="space-y-2">
+                {/*            <div className="space-y-2">
                   <Label>Region</Label>
                   <Select onValueChange={setSelectedRegion} value={selectedRegion}>
                     <SelectTrigger>
@@ -254,10 +369,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Province Selection */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Province</Label>
                   <Select onValueChange={setSelectedProvince} value={selectedProvince} disabled={!selectedRegion}>
                     <SelectTrigger>
@@ -271,7 +386,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Municipality Selection */}
                 <div className="space-y-2">
@@ -312,69 +427,111 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
               <div className="min-h-[300px]">
                 <div className="space-y-4 py-2 pb-4">
                   <div className="space-y-2">
-                    <Label htmlFor="pin">Username</Label>
+                    <Label htmlFor="username">Username</Label>
                     <Input id="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pin">Pin Code</Label>
-                    <Input id="pin" placeholder="000000" value={pin} onChange={(e) => setPinCode(e.target.value)} />
+                    <Label htmlFor="pin">Password</Label>
+                    <Input id="pin" placeholder="000000" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
-                  <div className="space-y-2">
-                    <UserLevelSelect userLevel={user?.userLevel ?? "barangay"} selectedLevel={userLevel} setSelectedLevel={setUserLevel} />
-                    {/*           <Select onValueChange={setUserLevel} value={userLevel} >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="barangay">
-                                  <span className="font-medium">Barangay</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                    Barangay Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="municipal">
-                                  <span className="font-medium">City/Municipality</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                    City or Municipality Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="provincial">
-                                  <span className="font-medium">Province</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                   Provincial Level
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="regional">
-                                  <span className="font-medium">Region</span> -{" "}
-                                  <span className="text-muted-foreground">
-                                   Regional Level
-                                  </span>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>  */}
-                  </div>
-                  {/*   <div className="space-y-2">
-                    <Label htmlFor="subscription">Subscription plan</Label>
-                    <Select onValueChange={setSubscription} value={subscription}>
+                  {/*  <div className="space-y-2">
+                    <Label htmlFor="subscription">User Type</Label>
+                    <Select onValueChange={setUserType} value={userType}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a plan" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="basic">
-                          <span className="font-medium">Basic</span> -{" "}
+                        <SelectItem value="leader">
+                          <span className="font-medium">Leader</span> -{" "}
                           <span className="text-muted-foreground">
-                            No Sms
+                            Team Leader
                           </span>
                         </SelectItem>
-                        <SelectItem value="pro">
+                        <SelectItem value="system">
+                          <span className="font-medium">System</span> -{" "}
+                          <span className="text-muted-foreground">
+                            Parent System
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="admin">
                           <span className="font-medium">Pro</span> -{" "}
                           <span className="text-muted-foreground">
-                            Unlimited Sms and Flash Sms
+                            System Admin
                           </span>
                         </SelectItem>
+
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Port</Label>
+                    <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
                   </div> */}
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="features" className="space-y-4">
+              <div className="min-h-[300px]">
+
+                <div className="space-y-5">
+                  <h3 className="mb-4 text-lg font-medium  justify-between items-start">Allow Features</h3>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Create Leaders</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow creating new leader account
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+
+                      checked={findFeature(features, 'leaders')?.value}
+                      onCheckedChange={e => handleFeatues('leaders')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Biometric Device</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using biometric scanners
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'biometric')?.value}
+                      onCheckedChange={e => handleFeatues('biometric')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">GSM Module</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow system to interact with sms
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'sms')?.value}
+                      onCheckedChange={e => handleFeatues('sms')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Ask AI</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow using AI Features
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'ai')?.value}
+                      onCheckedChange={e => handleFeatues('ai')}
+                    />
+                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -385,8 +542,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type }: {
             <Button onClick={() => handleSubmit()}>Save</Button>
           </DialogFooter>
 
-        </DialogContent>
-      </Dialog>
+        </DialogContent >
+      </Dialog >
 
     </>
   );

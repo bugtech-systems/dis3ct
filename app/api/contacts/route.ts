@@ -102,8 +102,7 @@ export async function GET(req: NextRequest) {
     const code = searchParams.get("code");
     const level = searchParams.get("level");
     const withPhone = searchParams.get("phone");
-
-    // const citymunCode = searchParams.get("citymunCode");
+    const userId = searchParams.get("userId");
 
 
 
@@ -115,6 +114,7 @@ export async function GET(req: NextRequest) {
     const skip = limit - 10000;
     // Fetch user to determine access level
     let parent = await User.findById(system);
+    let user = await User.findById(userId);
     // let contact = await User.findById(userId);
 
     let contacts = [];
@@ -123,10 +123,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "System not found" }, { status: 404 });
     }
 
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
 
     let brgys = brgyCode ? brgyCode.split(',').map(brgy => {
       return { brgyCode: { $regex: brgy, $options: "i" }, parNum: parent._id }
-    }) : (code && level) ? [{ [level]: code, parNum: parent._id }] : []
+    }) : (code && level) ? [{ [level]: code, parNum: parent.parent }] : []
 
     // Apply user-level filtering
     let query: any = { deletedAt: null };
@@ -136,7 +140,7 @@ export async function GET(req: NextRequest) {
 
     if (parent.userType === "admin") {
       // Admin sees all contacts
-    } else if (parent.userType === "system") {
+    } else if (user.userType === "system") {
       query.parNum = parent._id;
     } else if (brgys.length) {
       query.$or = brgys;
@@ -163,6 +167,9 @@ export async function GET(req: NextRequest) {
          query.parNum = parent?._id;
        } */
 
+
+
+    console.log(query, 'CONTACT QUERY', withPhone, parent, user)
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
       // .skip(skip > 0 ? skip : 0)

@@ -52,9 +52,7 @@ export function TeamSwitchers({
 
   const handleAuth = async () => {
     let authUser = await getAuth();
-    if (authUser && authUser.parent) {
-      handleSystems(authUser.parent);
-    } else if (authUser.userType == 'system' || authUser.userType == 'system') {
+    if (authUser.userType == 'system' || authUser.userType == 'leader') {
       handleSystems(authUser);
     }
   }

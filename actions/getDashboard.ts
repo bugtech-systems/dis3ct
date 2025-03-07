@@ -17,8 +17,11 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     }
 
     let options: any = { deletedAt: null };
-    if (user.userType !== "admin") {
+    if (user.userType == "system") {
       options.parNum = user.parent;
+    } else if (user.userType == 'leader') {
+      options[user.accessLevel] = user.accessCode;
+
     }
 
 

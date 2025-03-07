@@ -130,7 +130,7 @@ export function DataTableToolbar<TData>({
             options={citymunOptions}
           />
         )} */}
-        {(selectedMunicipality && table.getColumn("barangay")) && (
+        {((selectedMunicipality && table.getColumn("barangay")) && user.accessLevel != 'brgyCode') && (
           <DataTableFacetedFilter
             column={table.getColumn("barangay")}
             title="Barangay"

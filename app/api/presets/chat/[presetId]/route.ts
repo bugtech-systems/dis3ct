@@ -98,12 +98,22 @@ async function processApiResponse(response: any) {
           system
         })
         if (contentData.message || textWithoutJson) {
-          await handleNewMessage({
-            sender,
-            message: contentData.message || textWithoutJson,
-            system,
-            isFlash: true
-          })
+          if (contentData?.phone && textWithoutJson) {
+            await handleNewMessage({
+              sender: contentData?.phone,
+              message: textWithoutJson || contentData.message,
+              system,
+              isFlash: true
+            })
+          }
+          if (sender) {
+            await handleNewMessage({
+              sender,
+              message: contentData.message || textWithoutJson,
+              system,
+              isFlash: true
+            })
+          }
         }
 
 
