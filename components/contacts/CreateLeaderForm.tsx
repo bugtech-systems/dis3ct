@@ -182,9 +182,11 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
       setPhone(contact?.phone || "");
       setAccessCode(contact.accessCode || "");
       setUserType(contact.userType || "leader")
+      setFeatures(system.configs || [])
+
     }
 
-  }, [contact])
+  }, [contact, open])
 
 
 
@@ -247,6 +249,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
   };
 
 
+  console.log(system, 'crete')
 
 
   return (

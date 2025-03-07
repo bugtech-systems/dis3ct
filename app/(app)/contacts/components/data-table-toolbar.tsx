@@ -94,6 +94,7 @@ export function DataTableToolbar<TData>({
   });
 
 
+  console.log(user, 'USER TOOLBAR')
 
 
   return (

@@ -16,6 +16,11 @@ export const
             password: hashedPassword,
             // refNum,
         });
+        if (newUser && userData.userType == 'leader') {
+            let parent = User.findById(userData.parent);
+            newUser.configs = parent?.configs ? parent?.configs : [];
+        }
+
 
         if (newUser && userData.userType == 'system') {
             newUser.parent = newUser._id as any;
@@ -104,6 +109,13 @@ export const updateUser = async (userId: string, data: any) => {
 
 
         console.log(user, "UPDATE USER", data)
+        if (user && data.userType == 'leader') {
+            let parent = User.findById(data.parent);
+            user.configs = parent?.configs ? parent?.configs : [];
+        }
+
+
+
 
         if (user.userType == 'system') {
             let system = await System.findOne({ number: sanitizePhoneNumber(user.phone) });

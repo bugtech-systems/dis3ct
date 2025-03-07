@@ -143,7 +143,9 @@ export function DataTableRowActions<TData>({
 
   }
 
+  let parent = system.parent;
 
+  console.log(parent, 'PARENT')
 
   return (
     <>
@@ -215,7 +217,7 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          {(findFeature(user.configs, 'biometric')?.value || (user?.userType == 'admin')) &&
+          {(findFeature(parent.configs, 'biometric')?.value || (system?.userType == 'admin')) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -227,7 +229,7 @@ export function DataTableRowActions<TData>({
               </DropdownMenuItem>
             </>
           }
-          {(findFeature(user.configs, 'sms')?.value || (user?.userType == 'admin')) &&
+          {(findFeature(parent.configs, 'sms')?.value || (user?.userType == 'admin')) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem

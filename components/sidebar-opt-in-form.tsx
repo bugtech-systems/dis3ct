@@ -55,9 +55,9 @@ export function SidebarOptInForm({ record }: { record: any }) {
     setLoading(true);
 
     try {
+      let parent = record.parNum;
 
-
-      const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system: system.phone, isFlash });
+      const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system: parent.phone, isFlash });
 
       if (response.data) {
         toast.success("Invite Sent!");
@@ -75,6 +75,8 @@ export function SidebarOptInForm({ record }: { record: any }) {
     }
   };
 
+
+  console.log(record, 'RECORR')
 
   return (
     <form onSubmit={handleSubmit}>
