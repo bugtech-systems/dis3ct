@@ -45,7 +45,7 @@ export function TeamSwitchers({
     // setTeams([])
     // setSystem(e)
     setParentSystem(e)
-    setRefreshId(Math.random())
+    // setRefreshId(Math.random())
     // localStorage.setItem('system', e._id)
     // signOut({ callbackUrl: '/login' })
   }
