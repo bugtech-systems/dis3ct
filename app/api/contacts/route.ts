@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "100", 10);
     const search = searchParams.get("search") || "";
-    const system = searchParams.get("system");
+    // const system = searchParams.get("system");
     const brgyCode = searchParams.get("brgyCode");
     const code = searchParams.get("code");
     const level = searchParams.get("level");
@@ -189,7 +189,7 @@ export async function GET(req: NextRequest) {
       let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
       let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
-      let tags = allTags.filter(tag => String(tag.user) == String(system));
+      let tags = allTags.filter(tag => String(tag.user) == String(userId));
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
       return { _id: contact._id, name: contact.name, phone: contact.phone, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
     })

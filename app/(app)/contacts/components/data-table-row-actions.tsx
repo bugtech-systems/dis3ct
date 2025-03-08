@@ -54,7 +54,7 @@ export function DataTableRowActions<TData>({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
   const { setModal, setRecord, setRefreshId } = useComponent();
-  const { user, system, setContactTable, contactTable } = useContact();
+  const { user, system, setContactTable, contactTable, parentSystem } = useContact();
 
 
   const handleDelete = async () => {
@@ -120,7 +120,7 @@ export function DataTableRowActions<TData>({
 
   const handleTag = async (type: any) => {
     try {
-      const response = await axios.post(`/api/contacts/${contact._id}/tag`, { type, system: system._id });
+      const response = await axios.post(`/api/contacts/${contact._id}/tag`, { type, system: user._id });
 
 
       if (response.data) {

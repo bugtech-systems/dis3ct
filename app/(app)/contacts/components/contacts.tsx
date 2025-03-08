@@ -19,7 +19,7 @@ export default function ContactsPage() {
 
         try {
             setIsRefreshing(true)
-            const response = await fetch(`/api/contacts?userId=${e._id}&limit=${e?.limit ? e.limit : e?.accessCodes ? limit : 0}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}${e?.accessCodes?.length ? `&brgyCode=${e?.accessCodes}` : ``}`);
+            const response = await fetch(`/api/contacts?userId=${e._id}&limit=${e?.limit ? e.limit : e?.accessCodes ? limit : 0}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}${e?.accessCodes?.length ? `&brgyCode=${e?.accessCodes}` : `&brgyCode=${[e?.accessCode]}`}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch contacts")
             }
