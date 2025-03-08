@@ -36,7 +36,7 @@ export function UserNav({ user }: { user: any }) {
   const handleSystems = async (e: any) => {
     // setActiveTeam(e)
     setSystem(e)
-    // setParentSystem(e)
+    setParentSystem(e)
     if (e) {
       localStorage.setItem('system', e._id)
     } else {
