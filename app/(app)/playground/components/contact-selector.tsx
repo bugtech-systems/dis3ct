@@ -51,7 +51,6 @@ export function ContactSelector() {
       }
       const dataRes = await response.json();
 
-      console.log(dataRes, 'RRESE')
       if (dataRes) {
         let { data } = dataRes;
         setContacts(data) // Assuming API returns { success: true, data: [...] }

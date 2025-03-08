@@ -124,11 +124,9 @@ export function DataTableRowActions<TData>({
 
 
       if (response.data) {
-        console.log(replaceObjectInArray(contactTable, response.data), 'TAG', response.data)
         let newArr = replaceObjectInArray(contactTable, response.data);
         // router.refresh();
         // setRefreshId(Math.random())
-        console.log(newArr, 'NEW ARR')
         setContactTable(replaceObjectInArray(contactTable, response.data))
 
         toast.success(`Label Updated Successfully!`)
@@ -143,9 +141,7 @@ export function DataTableRowActions<TData>({
 
   }
 
-  let parent = system.parent;
-
-  console.log(parent, 'PARENT')
+  let parent = user.parent;
 
   return (
     <>
@@ -193,14 +189,7 @@ export function DataTableRowActions<TData>({
           >View Details</DropdownMenuItem>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => {
-              setRecord(contact)
-              setModal('newLeader', contact?._id)
-            }}
-          >Set Leader</DropdownMenuItem>
 
-          <DropdownMenuSeparator />
 
 
 
@@ -217,7 +206,7 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          {(findFeature(parent.configs, 'biometric')?.value || (system?.userType == 'admin')) &&
+          {(findFeature(parent?.configs, 'biometric')?.value || (system?.userType == 'admin')) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -229,7 +218,7 @@ export function DataTableRowActions<TData>({
               </DropdownMenuItem>
             </>
           }
-          {(findFeature(parent.configs, 'sms')?.value || (user?.userType == 'admin')) &&
+          {(user?.userType == 'admin') &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -239,6 +228,10 @@ export function DataTableRowActions<TData>({
                 <DropdownMenuShortcut>{contact?.subscribed ? <BellOff size={18} /> : <Bell size={18} />} </DropdownMenuShortcut>
 
               </DropdownMenuItem>
+            </>
+          }
+          {(findFeature(parent?.configs, 'sms')?.value || (user?.userType == 'admin')) &&
+            <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setModal('sendInvite', contact?._id)}
@@ -249,6 +242,14 @@ export function DataTableRowActions<TData>({
               <DropdownMenuSeparator />
             </>
           }
+          <DropdownMenuItem
+            onClick={() => {
+              setRecord(contact)
+              setModal('newLeader', contact?._id)
+            }}
+          >Set Leader</DropdownMenuItem>
+
+          <DropdownMenuSeparator />
           {(user?.userType == 'admin') &&
             <>
 

@@ -10,6 +10,7 @@ export interface IUser extends Document {
     userType: "admin" | "system" | "leader";
     accessLevel: "regCode" | "provCode" | "citymunCode" | "brgyCode";
     accessCode?: string;
+    accessCodes?: string[];
     deletedAt?: Date | null;
     parent?: Schema.Types.ObjectId;
     refNum?: string;
@@ -36,6 +37,8 @@ const UserSchema: Schema = new Schema(
         },
         accessCode: { type: String, default: null },
         configs: [{ value: Boolean, title: String }],
+        accessCodes: [String],
+
     },
     { timestamps: true }
 );

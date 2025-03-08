@@ -56,6 +56,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   const [accessLevel, setAccessLevel] = React.useState("brgyCode");
   const [userType, setUserType] = React.useState("system");
   const [accessCode, setAccessCode] = React.useState(null);
+  const [accessCodes, setAccessCodes] = React.useState<any>([]);
   const [port, setPort] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -79,8 +80,8 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
         if (response?.data) {
           let { regCode, provCode, citymunCode, brgyCode } = response.data;
-          setSelectedRegion(regCode)
-          setSelectedProvince(provCode)
+          // setSelectedRegion(regCode)
+          // setSelectedProvince(provCode)
           setSelectedMunicipality(citymunCode)
           setSelectedBarangay(brgyCode)
         }
@@ -134,6 +135,16 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         setAccessCode(prop)
       }
       setSelectedBarangay(prop)
+      let code = accessCodes.find(cd => cd == prop);
+      if (code) {
+        let newCodes = accessCodes.filter(cd => cd != prop);
+        setAccessCodes(newCodes);
+      } else {
+        let newCodes = accessCodes;
+        newCodes.push(prop);
+        setAccessCodes(newCodes)
+      }
+
     }
   }
 
@@ -165,6 +176,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         userType,
         configs: features,
         port,
+        accessCodes,
         ...(password ? { password } : {}),
       })
 
@@ -188,24 +200,18 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   // // Fetch Barangays when Municipality changes
   React.useEffect(() => {
     // if (selectedProvince) {
-    if (selectedProvince) {
-      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-      });
-    } else {
-      axios.get(`/api/location/municipalities`).then((res) => {
-        setMunicipalities(res.data.data);
-        setBarangays([]);
-      });
-    }
+
+    axios.get(`/api/location/municipalities`).then((res) => {
+      setMunicipalities(res.data.data);
+      setBarangays([]);
+    });
 
     // }
 
 
 
 
-  }, [selectedProvince]);
+  }, [accessLevel, selectedProvince]);
 
 
   React.useEffect(() => {
@@ -214,7 +220,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         setBarangays(res.data.data);
       });
     }
-  }, [selectedProvince, selectedMunicipality]);
+  }, [accessLevel, selectedMunicipality]);
 
 
   React.useEffect(() => {
@@ -224,8 +230,9 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
       setName(profile.name || "")
       setAccessCode(profile.accessCode || "");
       setAccessLevel(profile.accessLevel || "brgyCode")
-      setUserType(profile.userType || "")
-      setFeatures(profile.configs || [])
+      setUserType(profile.userType || "leader")
+      setFeatures(profile?.configs || [])
+      setAccessCodes(profile.accessCodes || [])
       handleLocation(profile)
 
       // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
@@ -345,7 +352,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                     <SelectContent>
                       {barangays.map((brgy: any) => (
                         <SelectItem key={brgy.brgyCode} value={brgy.brgyCode}>
-                          {brgy.brgyDesc}
+                          {brgy.brgyDesc} - {accessCodes.find(code => code == brgy.brgyCode) ? 'Selected' : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -436,32 +443,36 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                     <Label htmlFor="pin">Password</Label>
                     <Input id="pin" placeholder="000000" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subscription">User Type</Label>
-                    <Select onValueChange={setUserType} value={userType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="system">
-                          <span className="font-medium">System</span> -{" "}
-                          <span className="text-muted-foreground">
-                            Parent System
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          <span className="font-medium">Pro</span> -{" "}
-                          <span className="text-muted-foreground">
-                            System Admin
-                          </span>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Port</Label>
-                    <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
-                  </div>
+                  {(user?.userType == 'system' || user?.userType == 'admin') &&
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="subscription">User Type</Label>
+                        <Select onValueChange={setUserType} value={userType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a plan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="system">
+                              <span className="font-medium">System</span> -{" "}
+                              <span className="text-muted-foreground">
+                                Parent System
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="admin">
+                              <span className="font-medium">Pro</span> -{" "}
+                              <span className="text-muted-foreground">
+                                System Admin
+                              </span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="mobile">Port</Label>
+                        <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
+                      </div>
+                    </>
+                  }
                 </div>
               </div>
             </TabsContent>

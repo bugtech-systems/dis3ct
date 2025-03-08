@@ -44,7 +44,6 @@ export const POST = async (req: NextRequest) => {
     let { rows } = data;
 
 
-    console.log(rows, 'DELETING')
     let objectIds = [];
 
     objectIds = rows.map((row: any) => (row.id || row._id));
@@ -144,7 +143,6 @@ export const PATCH = async (
     const data = await req.json()
 
 
-    console.log(data, "DELETE")
 
     // const updatedContact = await Contact.findByIdAndUpdate(id,
     //   { $set: { deletedAt: new Date } }

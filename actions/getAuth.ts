@@ -21,7 +21,7 @@ const getAuth = async (): Promise<any> => {
     const user = await User.findById(userId).populate([{
       path: 'parent',
       options: { strictPopulate: false } // Allows missing `parNum` without errors
-    }]).select('name phone userType configs username accessCode accessLevel');
+    }]).select('name phone userType configs username accessCode accessCodes accessLevel');
 
 
     return sanitizeObject(user);

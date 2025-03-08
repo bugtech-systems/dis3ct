@@ -3,7 +3,7 @@ import User from "@/models/User";
 import connectDB from "@/lib/mongodb";
 import crypto from "crypto";
 import System from "@/models/System";
-import { sanitizePhoneNumber } from "@/lib/helpers";
+import { handleNewMessage, internationalizePhoneNumber, sanitizePhoneNumber } from "@/lib/helpers";
 
 export const
     registerUser = async (userData: any) => {
@@ -20,6 +20,7 @@ export const
             let parent = User.findById(userData.parent);
             newUser.configs = parent?.configs ? parent?.configs : [];
         }
+
 
 
         if (newUser && userData.userType == 'system') {
@@ -49,12 +50,34 @@ export const loginUser = async (phone: string, password: string) => {
 
 export const generateOTP = async (phone: string) => {
     await connectDB();
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ phone }).populate([{
+        path: 'parent',
+        options: { strictPopulate: false } // Allows missing `parNum` without errors
+    }]);
     if (!user) throw new Error("User not found");
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.otp = otp;
+    const hashedPassword = await bcrypt.hash(otp, 10);
+
+    user.otp = hashedPassword;
+
+
+
+    let resp = await handleNewMessage({
+        message: `A login attempt was made to your Maretext account. If this was you, enter ${otp} to proceed.`,
+        sender: internationalizePhoneNumber(phone),
+        system: user?.parent?.phone
+    })
+
+
     await user.save();
+
+
+
+
+
+
+
 
     return { message: "OTP generated", otp }; // In production, send via SMS
 };
@@ -91,8 +114,7 @@ export const updateUser = async (userId: string, data: any) => {
 
         await connectDB();
         let hashedPassword;
-        console.log("UPDATE USER", data)
-        if (data.password) {
+        if (data.password && String(data.password).length < 20) {
             hashedPassword = await bcrypt.hash(data.password, 10);
         }
 
@@ -108,7 +130,6 @@ export const updateUser = async (userId: string, data: any) => {
         if (user.deletedAt) throw new Error("User is deactivated");
 
 
-        console.log(user, "UPDATE USER", data)
         if (user && data.userType == 'leader') {
             let parent = User.findById(data.parent);
             user.configs = parent?.configs ? parent?.configs : [];

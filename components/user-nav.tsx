@@ -28,14 +28,15 @@ import { DeviceForm } from "./devices";
 import { findFeature } from "@/lib/helpers";
 
 export function UserNav({ user }: { user: any }) {
-  const { modal, setModal, record, setRecord } = useComponent();
+  const { modal, setModal, record } = useComponent();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const { setUser, setSystem, system, setTeams } = useContact();
+  const { setUser, setSystem, system, setParentSystem, parentSystem } = useContact();
 
   const handleSystems = async (e: any) => {
     // setActiveTeam(e)
     setSystem(e)
+    // setParentSystem(e)
     if (e) {
       localStorage.setItem('system', e._id)
     } else {
@@ -49,28 +50,21 @@ export function UserNav({ user }: { user: any }) {
   const handleAuth = async () => {
 
     let authUser = await getAuth();
-    let teamData = await getTeams();
+    let parent = localStorage.getItem('system')
 
 
-    console.log(authUser, teamData, 'TT')
 
     if (authUser) {
       setUser(authUser);
-      if (teamData.length) {
-        setTeams(teamData)
-      }
-      let parent = localStorage.getItem('system')
-      if (parent) {
-        let sys = teamData?.find(team => team._id == parent);
-        if (sys) {
-          handleSystems(sys)
-        } else if (authUser.userType == 'system' || authUser.userType == 'admin') {
-          handleSystems(authUser);
-        }
+      if (authUser?.parent?._id == parent) {
+        handleSystems(authUser.parent);
+        // setParentSystem(authUser.parent)
         return;
       } else if (authUser.userType == 'system' || authUser.userType == 'admin' || authUser.userType == 'leader') {
         handleSystems(authUser);
       }
+    } else {
+      handleSystems(authUser);
     }
   }
 
@@ -97,7 +91,7 @@ export function UserNav({ user }: { user: any }) {
 
 
 
-  let currentUser = user?.userType == 'admin' ? system : user;
+  let currentUser = parentSystem;
 
   return (
     <>
@@ -138,21 +132,23 @@ export function UserNav({ user }: { user: any }) {
             <DropdownMenuItem
               onClick={() => setOpen(true)}
             >Profile</DropdownMenuItem>
-            {((user?.userType == 'leader') || (user?.userType == 'admin') || (currentUser?.userType == 'system' && findFeature(currentUser.configs, 'leaders').value)) &&
+            {/*            {((user?.userType == 'leader') || (user?.userType == 'admin') || (currentUser?.userType == 'system' && findFeature(currentUser.configs, 'leaders').value)) &&
               <DropdownMenuItem onClick={() => {
                 setRecord({})
                 setModal('newLeader')
               }}>New Leader</DropdownMenuItem>
-            }
+            } */}
           </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => setModal('devices')}
-            >Configurations</DropdownMenuItem>
-          </DropdownMenuGroup>
-
+          {(user.userType == 'system' || user.userType == 'admin') &&
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => setModal('devices')}
+                >Configurations</DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
+          }
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
             Log out

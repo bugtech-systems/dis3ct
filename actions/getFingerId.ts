@@ -23,19 +23,16 @@ const getFingerId = async (userId): Promise<any> => {
             id = finger.biometricId
             exist = true
         } else {
-            console.log(oldFinger, 'OLDS')
             id = oldFinger.length + 1;
             // let newFinger = await Fingerprints.create({
             //     user_id: userId,
             //     biometricId: id
             // })
-            console.log('NEW FINGER', oldFinger)
             exist = false
 
         }
 
 
-        console.log(finger, 'FINGER', id)
 
 
 

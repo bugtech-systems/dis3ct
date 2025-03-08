@@ -1,6 +1,7 @@
 import { parse } from 'node-html-parser';
 import { parseDocument } from "htmlparser2";
 import { DomUtils } from "htmlparser2";
+import axios from 'axios';
 
 // export function convertRichTextToPlain(content: string): string {
 //   // Create a temporary DOM element to parse HTML
@@ -365,4 +366,35 @@ export function extractJsonFromText(text) {
 
 export function formatVoterSms({ name, address, barangay, municipality, province, region, precinct }) {
   return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\n\nChange starts with us!\nSupport Team Pag BaBag'o. \nTogether, we can build a better future!`;
+}
+
+
+export const handleNewMessage = async ({ message, sender, system, isFlash = false }: { message?: string; sender?: string; isFlash?: boolean; system?: string; }) => {
+
+  let apiUrl = `http://localhost:3000/api/tasks`
+
+
+  let resp = await axios.post(apiUrl, {
+    status: 'Todo',
+    priority: 'Medium',
+    category: 'Sms',
+    title: 'Send Message',
+    taskObject: JSON.stringify({
+      // ...preset,
+      isFlash,
+      phone: sender,
+      system: system,
+      message: message
+
+    })
+  }) as any;
+
+  if (resp.success) {
+    console.log('SUCCESS 200')
+    return true
+  } else {
+    return false
+  }
+
+
 }

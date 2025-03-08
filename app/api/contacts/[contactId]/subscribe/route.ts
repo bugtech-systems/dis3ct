@@ -43,7 +43,6 @@ export const POST = async (
       { $set: { subscribed: true } }
     );
 
-    console.log(updatedContact, contact)
 
 
     if (!updatedContact.modifiedCount) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword, updateUser } from "@/services/userServices";
+import getTeams from "@/actions/getTeams";
 
 export async function POST(req: NextRequest) {
     const { action, userId, ...data } = await req.json();
@@ -26,3 +27,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+
+
+export const GET = async (req: NextRequest) => {
+    const { searchParams } = new URL(req.url);
+    const user = searchParams.get("userId") || "";
+
+    const result = await getTeams(user);
+
+
+
+    if (!result) {
+        return NextResponse.json(result, { status: 500 });
+    }
+    return NextResponse.json(result, { status: 200 });
+};

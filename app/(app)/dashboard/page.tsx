@@ -15,7 +15,7 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
 
 export default function DashboardPage() {
-  const { user, system } = useContact();
+  const { user, system, parentSystem } = useContact();
 
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
@@ -27,11 +27,10 @@ export default function DashboardPage() {
 
   // Memoized function to fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
-    if (!system || !user) return;
+    if (!parentSystem || !user) return;
 
     try {
-      const dashData = await getLeaderDashboard(system?._id);
-      console.log(dashData, 'DASHBOARD DATA')
+      const dashData = await getLeaderDashboard(parentSystem?._id);
       // Only update state if data actually changes
       setDashboardData((prevData) => {
         return JSON.stringify(prevData) !== JSON.stringify(dashData)
@@ -41,13 +40,13 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [system]);
+  }, [parentSystem]);
 
 
   // Fetch dashboard data when user changes
   useEffect(() => {
     fetchDashboardData();
-  }, [system, fetchDashboardData]);
+  }, [parentSystem, fetchDashboardData]);
 
 
   return (

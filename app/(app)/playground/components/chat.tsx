@@ -55,14 +55,12 @@ export function CardsChat({ messages }: ChatProps) {
       // .finally(() => setLoading(false));
 
       const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
-      console.log('response CONVO', response)
 
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
       }
 
       const data = await response.json();
-      console.log('RESP CONVO', data)
       /*     if (data && Array.isArray(data)) {
             setMessages(data); // Assuming `data.data` contains the conversations array
           } */
@@ -95,7 +93,6 @@ export function CardsChat({ messages }: ChatProps) {
 
     const response = await axios.delete(`/api/conversations/${message._id}`);
 
-    console.log('DELETE', response)
     if (response.status == 200) {
       if (ind > -1 && ind < newMessages.length) {
         newMessages.splice(ind, 1); // Removes 1 element at the specified index
@@ -108,7 +105,6 @@ export function CardsChat({ messages }: ChatProps) {
 
   const handleSave = async () => {
     let newMessages = [...(messages || [])] as any;
-    console.log(selectedMessage, 'INDD', convertQuillToPlainText(selectedMessage?.content))
 
     if (!selectedMessage?._id) return;
 

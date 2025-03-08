@@ -46,7 +46,6 @@ export function SendInviteForm() {
       const response = await axios.get(`/api/contacts/${modalId}`);
 
       if (response.data) {
-        console.log(response.data, 'copntt')
         setRecord(response.data)
 
       }

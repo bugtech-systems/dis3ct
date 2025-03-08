@@ -42,15 +42,17 @@ export const authOptions = {
           // }).catch(err => {
           //   console.log(err, 'ERR')
           // });
-
+          let otpMatch;
           const user = await User.findOne({ $or: [{ phone: username }, { username }] });
           if (!user) throw new Error("User not found");
           if (user.deletedAt) throw new Error("User is deactivated");
-
           const passwordMatch = await bcrypt.compare(password, user.password);
-          if (!passwordMatch) throw new Error("Invalid credentials");
-
-
+          if (user.otp) {
+            otpMatch = await bcrypt.compare(password, user?.otp);
+          }
+          if (!passwordMatch && !otpMatch) throw new Error("Invalid credentials");
+          user.otp = null;
+          user.save()
           if (user) {
             return {
               id: user._id,

@@ -314,9 +314,7 @@ export async function POST(req: NextRequest) {
                 });
 
                 if (allContacts.length > 0) {
-                    console.log('INSERTING MANY')
                     await Contact.insertMany(allContacts);
-                    console.log(`DONE INSERTING ${allContacts.length} records`)
 
                 }
 

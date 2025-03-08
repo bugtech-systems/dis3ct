@@ -8,7 +8,6 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     const body = await req.json();
     const result = await createPreset(body);
 
-    console.log(result, 'RESULT PRESRT')
 
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });
@@ -48,7 +47,6 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     }
 
 
-    console.log('GET PRESETS', searchParams)
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {

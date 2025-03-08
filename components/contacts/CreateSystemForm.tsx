@@ -103,7 +103,6 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
       });
     }
 
-    console.log(newConfs, 'NEW CONF')
     setFeatures(newConfs)
   }
 
@@ -421,39 +420,43 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
                     <Label htmlFor="pin">Password</Label>
                     <Input id="pin" placeholder="000000" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subscription">User Type</Label>
-                    <Select onValueChange={setUserType} value={userType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="leader">
-                          <span className="font-medium">Leader</span> -{" "}
-                          <span className="text-muted-foreground">
-                            Team Leader
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="system">
-                          <span className="font-medium">System</span> -{" "}
-                          <span className="text-muted-foreground">
-                            Parent System
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          <span className="font-medium">Pro</span> -{" "}
-                          <span className="text-muted-foreground">
-                            System Admin
-                          </span>
-                        </SelectItem>
+                  {(user?.userType == 'system' || user?.userType == 'admin') &&
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="subscription">User Type</Label>
+                        <Select onValueChange={setUserType} value={userType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a plan" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="leader">
+                              <span className="font-medium">Leader</span> -{" "}
+                              <span className="text-muted-foreground">
+                                Team Leader
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="system">
+                              <span className="font-medium">System</span> -{" "}
+                              <span className="text-muted-foreground">
+                                Parent System
+                              </span>
+                            </SelectItem>
+                            <SelectItem value="admin">
+                              <span className="font-medium">Pro</span> -{" "}
+                              <span className="text-muted-foreground">
+                                System Admin
+                              </span>
+                            </SelectItem>
 
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Port</Label>
-                    <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
-                  </div>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="mobile">Port</Label>
+                        <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
+                      </div>
+                    </>
+                  }
                 </div>
               </div>
             </TabsContent>

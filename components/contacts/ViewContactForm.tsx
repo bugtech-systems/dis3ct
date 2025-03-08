@@ -53,7 +53,6 @@ export function ViewContactForm() {
       const response = await axios.get(`/api/contacts/${modalId}`);
 
       if (response.data) {
-        console.log(response.data, 'copntt')
         setContact(response.data)
 
       }

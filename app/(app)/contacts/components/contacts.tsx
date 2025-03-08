@@ -9,7 +9,7 @@ import { mergeUniqueObjects } from "@/lib/helpers";
 import { SendInviteForm } from "@/components/contacts/SendInviteForm";
 
 export default function ContactsPage() {
-    const { system, contactTable, setContactTable, user } = useContact()
+    const { system, contactTable, setContactTable, user, parentSystem } = useContact()
     const { refreshId, setIsRefreshing, setRefreshId, isRefreshing } = useComponent();
     // const [contacts, setContacts] = useState([]);
     const [limit, setLimit] = useState(10000);
@@ -19,7 +19,7 @@ export default function ContactsPage() {
 
         try {
             setIsRefreshing(true)
-            const response = await fetch(`/api/contacts?system=${e._id}&userId=${user._id}&limit=${e?.limit ? e.limit : limit}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}`);
+            const response = await fetch(`/api/contacts?userId=${e._id}&limit=${e?.limit ? e.limit : e?.accessCodes ? limit : 0}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}${e?.accessCodes?.length ? `&brgyCode=${e?.accessCodes}` : ``}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch contacts")
             }
@@ -30,9 +30,9 @@ export default function ContactsPage() {
                 let { data, pagination } = resData;
                 setContactTable(data)
                 setLimit(pagination.total)
-                // return
                 // setIsRefreshing(false)
                 // setRefreshId(null)
+                // return 
             }
             // console.log(limit, pagination, 'LIM')
             // setPageSize(pagination.limit)
@@ -68,26 +68,26 @@ export default function ContactsPage() {
 
     useEffect(() => {
         const handleInit = async () => {
-            await fetchContacts({ ...system, limit: 10000 });
+            await fetchContacts({ ...parentSystem, limit: 10000 });
             setIsRefreshing(true)
             setRefreshId(Math.random())
 
 
         }
 
-        if (system?._id != currentSystem?._id) {
+        if (parentSystem?._id != currentSystem?._id) {
             setLimit(10000)
             setRefreshId(null)
-            setCurrentSystem(system)
+            setCurrentSystem(parentSystem)
             setContactTable([])
             handleInit()
         }
 
-    }, [system])
+    }, [parentSystem])
 
     useEffect(() => {
         if (currentSystem && refreshId) {
-            fetchContacts(system)
+            fetchContacts(parentSystem)
         }
     }, [refreshId, currentSystem])
 

@@ -11,7 +11,6 @@ export const startBiometricService = () => {
     console.log("🚀 Starting biometric service...");
     let filePath = path.join(process.cwd(), "app.py");
 
-    console.log("Running Python from:", filePath);
 
     biometricProcess = spawn("python", [filePath], {
         cwd: process.cwd(),

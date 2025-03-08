@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sanitizePhoneNumber } from "@/lib/helpers";
 
 export function LoginForm({ className, ...props }: any) {
   const [username, setUsername] = useState("");
@@ -17,6 +18,7 @@ export function LoginForm({ className, ...props }: any) {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,7 +28,7 @@ export function LoginForm({ className, ...props }: any) {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        username: username || phone,
+        username: username || sanitizePhoneNumber(phone),
         password,
       });
 
@@ -42,16 +44,21 @@ export function LoginForm({ className, ...props }: any) {
 
   const handleSendOtp = async () => {
     setError("");
+
     if (!phone) {
       setError("Phone number is required.");
       return;
     }
 
+
     try {
+      setLoading(true)
       await axios.post("/api/users", { action: "generate-otp", phone });
-      setStep(2);
+      setStep(3);
+      setLoading(false)
     } catch (error) {
       setError("Failed to send OTP. Please try again.");
+      setLoading(false)
     }
   };
 
@@ -63,18 +70,22 @@ export function LoginForm({ className, ...props }: any) {
     }
 
     try {
+      setLoading(true)
       const res = await signIn("credentials", {
         redirect: false,
-        phone,
-        otp,
+        username: phone,
+        password: otp,
       });
 
       if (res?.error) {
+        setLoading(false)
         setError("Invalid OTP. Please try again.");
       } else {
+        setLoading(false)
         router.push("/");
       }
     } catch (error) {
+      setLoading(false)
       setError("An error occurred during verification.");
     }
   };
@@ -82,10 +93,10 @@ export function LoginForm({ className, ...props }: any) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col gap-6">
-        <h1 className="text-xl font-bold text-center">Welcome</h1>
+        <h1 className="text-xl font-bold text-center">Welcome Maretext</h1>
         {step === 1 && (
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <Label>Username or Phone</Label>
+            <Label>Username</Label>
             <Input
               type="text"
               placeholder="Enter username or phone"
@@ -105,10 +116,9 @@ export function LoginForm({ className, ...props }: any) {
 
             <div className="flex gap-2">
               <Button type="submit" className="w-full">Login</Button>
-              <Button variant="outline" onClick={() => setStep(3)} className="w-full">Forgot Password</Button>
+              <Button variant="outline" onClick={() => setStep(2)} className="w-full">Login with OTP</Button>
             </div>
 
-            <Button variant="ghost" onClick={() => setStep(2)} className="w-full">Login with OTP</Button>
           </form>
         )}
 
@@ -122,9 +132,10 @@ export function LoginForm({ className, ...props }: any) {
               onChange={(e) => setPhone(e.target.value)}
             />
             <div className="flex gap-2">
-              <Button onClick={handleSendOtp} className="w-full">Send OTP</Button>
+              <Button disabled={loading} onClick={handleSendOtp} className="w-full">Send OTP</Button>
               <Button variant="outline" onClick={() => setStep(1)} className="w-full">Go Back</Button>
             </div>
+            {/* <Button variant="ghost" onClick={() => setStep(2)} className="w-full">Login with OTP</Button> */}
           </div>
         )}
 
@@ -137,8 +148,15 @@ export function LoginForm({ className, ...props }: any) {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
             />
+            <Label>OTP Code</Label>
+            <Input
+              type="text"
+              placeholder="Enter otp number"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+            />
             <div className="flex gap-2">
-              <Button onClick={handleSendOtp} className="w-full">Send OTP</Button>
+              <Button disabled={loading} onClick={handleVerifyOtp} className="w-full">Login with OTP</Button>
               <Button variant="outline" onClick={() => setStep(1)} className="w-full">Go Back</Button>
             </div>
           </div>

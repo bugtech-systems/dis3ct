@@ -94,9 +94,6 @@ export function DataTableToolbar<TData>({
   });
 
 
-  console.log(user, 'USER TOOLBAR')
-
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -131,7 +128,7 @@ export function DataTableToolbar<TData>({
             options={citymunOptions}
           />
         )} */}
-        {((selectedMunicipality && table.getColumn("barangay")) && user.accessLevel != 'brgyCode') && (
+        {(selectedMunicipality && table.getColumn("barangay")) && (
           <DataTableFacetedFilter
             column={table.getColumn("barangay")}
             title="Barangay"

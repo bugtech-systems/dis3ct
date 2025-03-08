@@ -49,7 +49,6 @@ export async function createOrUpdateContact(data: any) {
             // Update the existing contact
             let refExist = existingContact?.uplines?.find(contact => String(contact) == String(data?.refNum))
 
-            console.log(refExist, data.refNum, 'REFFn', existingContact)
             let contactId = null
             if (!refExist && data.refNum) {
                 existingContact?.uplines?.push(data.refNum);
@@ -62,7 +61,6 @@ export async function createOrUpdateContact(data: any) {
             revalidatePath("/");
             return updatedContact;
         } else {
-            console.log('CREATE NEW', formattedData)
             // Create a new contact if not found
             let uplines = referrer?.uplines ? referrer?.uplines : []
             formattedData.uplines = [...uplines, referrer?._id];

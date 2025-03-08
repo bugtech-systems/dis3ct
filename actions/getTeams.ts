@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { sanitizeObject } from '@/lib/helpers';
 
-const getTeams = async (): Promise<any[]> => {
+const getTeams = async (id: any): Promise<any[]> => {
   try {
     const session = await getServerSession(authOptions) as any;
     if (!session || !session.user) {
@@ -19,7 +19,7 @@ const getTeams = async (): Promise<any[]> => {
 
     let query: any = {}; // Exclude the authenticated user
 
-    const user = await User.findById(userId).lean();
+    const user = await User.findById(id).lean();
 
 
     if (!user) return [];
@@ -27,16 +27,22 @@ const getTeams = async (): Promise<any[]> => {
     switch (user.userType) {
       case 'admin':
         query.deletedAt = null;
+        // query.refNum = user._id;
         break;
       case 'system':
-        query.parent = userId;
+        query.refNum = user._id;
+        query.parent = user._id;
         break;
       case 'leader':
-        query.refNum = userId;
+        query.refNum = user._id;
+        query.parent = user.parent;
         break;
       default:
         return []; // Return empty if userType doesn't match
     }
+
+
+
 
     const teams = await User.find(query).populate([{
       path: 'parent',
@@ -44,7 +50,7 @@ const getTeams = async (): Promise<any[]> => {
     }, {
       path: 'contact',
       options: { strictPopulate: false } // Allows missing `parNum` without errors
-    }]).select('name phone userType configs username accessCode accessLevel').lean();
+    }]).select('name phone userType configs username accessCode accessCodes accessLevel').lean();
 
     return sanitizeObject(teams);
   } catch (err) {

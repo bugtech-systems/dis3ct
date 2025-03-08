@@ -16,8 +16,8 @@ from datetime import datetime
 sys.dont_write_bytecode = True
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "fingerprintDB"
+MONGO_URI = "mongodb+srv://alayon:Jkkulf5AvWjN4JGm@cluster0.ljfau.mongodb.net/"
+DB_NAME = "alayon-next"
 COLLECTION_NAME = "fingerprints"
 COLLECTION_CONTACT = "contacts"
 COLLECTION_COUNTERS = "counters"
@@ -66,7 +66,7 @@ def load_templates():
         try:
             reg_temp, _ = zkfp2.DBMerge(*[bytes.fromhex(t) for t in templates])
             zkfp2.DBAdd(fid, reg_temp)
-            zkfp2.DBDel(fid, reg_temp)
+            # zkfp2.DBDel(fid, reg_temp)
 
         except Exception as e:
             logger.error(f"Error loading fingerprint {fid}: {e}")

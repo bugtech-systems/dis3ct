@@ -112,11 +112,11 @@ export function NavMain() {
 
   return (
     <SidebarMenu>
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isActive = pathname === item.url;
 
         return (
-          <SidebarMenuItem key={item.title}>
+          <SidebarMenuItem key={index}>
             <SidebarMenuButton asChild isActive={isActive}>
               <a href={item.url}>
                 <item.icon />

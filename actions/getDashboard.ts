@@ -16,12 +16,24 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       throw new Error("User not found");
     }
 
+    let brgyCode = user.accessCodes;
+
+    let brgys = brgyCode ? brgyCode.map(brgy => {
+      return { brgyCode: { $regex: brgy, $options: "i" }, parNum: user.parent }
+    }) : []
+
+
+
     let options: any = { deletedAt: null };
     if (user.userType == "system") {
       options.parNum = user.parent;
     } else if (user.userType == 'leader') {
       options[user.accessLevel] = user.accessCode;
+    }
 
+
+    if (brgys.length) {
+      options.$or = brgys;
     }
 
 

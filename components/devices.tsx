@@ -16,21 +16,22 @@ import { useComponent } from "./providers/ComponentContext";
 import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
 import { findFeature } from "@/lib/helpers";
+import { connectSocket, getSocket } from "@/lib/socket";
 
-const socket = io("http://localhost:5000", {
-  autoConnect: false
-});
 
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
   const { system, user } = useContact()
   const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
   const [isConnected, setIsConnected] = React.useState(false);
+  let socket = getSocket()
 
   const handleInit = async () => {
     console.log("🔄 Initializing scanner...");
     try {
 
+      let socket = connectSocket();
+      setBiometricRunning(true)
 
 
 
@@ -38,14 +39,15 @@ export function DeviceForm() {
         method: "POST"
       });
 
-      socket.emit("init");
       setScannerStatus("Initializing...");
       setIsConnected(true)
 
       const data = await response.json();
       console.log(data, 'RESP INIT')
-      setScannerStatus("Connected!");
-      setBiometricRunning(true)
+
+
+      socket.emit('init')
+
     } catch (err) {
       setIsConnected(false)
     }
@@ -57,6 +59,7 @@ export function DeviceForm() {
     setIsConnected(false)
     setScannerStatus("Device Shutdown!");
     // socket.emit("shutdown")
+    socket?.emit('shutdown')
 
     const response = await fetch("/api/biometric/stop", {
       method: "POST"
@@ -66,6 +69,8 @@ export function DeviceForm() {
 
 
     console.log(data, 'RESP SHUTDOWN')
+    setBiometricRunning(false)
+
   };
 
 
@@ -101,7 +106,8 @@ export function DeviceForm() {
 
   React.useEffect(() => {
 
-    if (biometricRunning) {
+    if (biometricRunning && socket) {
+
       socket.on("connect", () => {
         console.log("✅ Socket connected!");
         setScannerStatus("Connected");
@@ -122,10 +128,11 @@ export function DeviceForm() {
     }
 
     return () => {
-      if (biometricRunning) {
+      if (biometricRunning && socket) {
 
         console.log("🚪 Cleaning up socket listeners...");
-        socket.off("disconnect")
+
+        socket.off("connect")
         socket.off("server_response");
         socket.off("status_response");
       }

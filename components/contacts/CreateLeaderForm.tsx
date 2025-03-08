@@ -60,10 +60,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
   const [municipalities, setMunicipalities] = React.useState([]);
   const [barangays, setBarangays] = React.useState([]);
 
-  const [selectedRegion, setSelectedRegion] = React.useState("");
-  const [selectedProvince, setSelectedProvince] = React.useState("");
   const [selectedMunicipality, setSelectedMunicipality] = React.useState("");
-  const [selectedBarangay, setSelectedBarangay] = React.useState(null);
+  const [selectedBarangay, setSelectedBarangay] = React.useState("");
 
 
 
@@ -74,9 +72,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
         let { regCode, provCode, citymunCode, brgyCode } = response.data;
         setAccessCode(data.accessCode)
         setAccessLevel(data.accessLevel)
-        setSelectedProvince(provCode)
-        setSelectedRegion(regCode)
         setSelectedMunicipality(citymunCode)
+        setSelectedBarangay(brgyCode)
       }
     }
   }
@@ -87,7 +84,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
     let newConfs = features;
 
 
-    console.log(config, 'CONF', findFeature(features, type))
     if (config.title == type) {
       newConfs = features.filter(conf => conf.title != type);
 
@@ -102,7 +98,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
       });
     }
 
-    console.log(newConfs, 'NEW CONF')
     setFeatures(newConfs)
   }
 
@@ -119,21 +114,16 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
 
   const handleAccessLevel = (e) => prop => {
 
-
+    if (accessLevel == 'citymunCode' && e == 'city') {
+      setAccessCode(prop)
+    } else if (accessLevel == 'brgyCode' && e == 'brgy') {
+      setAccessCode(prop)
+    }
 
 
     if (e == 'city') {
       setSelectedMunicipality(prop)
-      if (accessLevel == 'citymunCode') {
-        setAccessCode(prop)
-      }
-
     } else if (e == 'brgy') {
-      if (accessLevel == 'citymunCode') {
-        setAccessCode(selectedMunicipality)
-      } else if (accessLevel == 'brgyCode') {
-        setAccessCode(prop)
-      }
       setSelectedBarangay(prop)
     }
   }
@@ -149,29 +139,17 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
   // // Fetch Barangays when Municipality changes
   React.useEffect(() => {
     // if (selectedProvince) {
-    if (selectedProvince) {
-      axios.get(`/api/location/municipalities/${selectedProvince}`).then((res) => {
-        let citymun = res.data.data.find(city => city.citymunCode == selectedMunicipality)
 
-        if (citymun) {
-          setMunicipalities([citymun]);
-        }
-        // setBarangays([]);
-        // setSelectedMunicipality(null)
-        // setSelectedBarangay(null)
-      });
-    } else {
-      axios.get(`/api/location/municipalities`).then((res) => {
-        setMunicipalities(res.data.data);
-        let citymun = res.data.data.find(city => city.citymunCode == selectedMunicipality)
-        if (citymun) {
-          setMunicipalities([citymun]);
-        }
-        // setBarangays([]);
-        // setSelectedMunicipality(null)
-        // setSelectedBarangay(null)
-      });
-    }
+    axios.get(`/api/location/municipalities`).then((res) => {
+      setMunicipalities(res.data.data);
+      let citymun = res.data.data.find(city => city.citymunCode == selectedMunicipality)
+      if (citymun) {
+        setMunicipalities([citymun]);
+      }
+      // setBarangays([]);
+      // setSelectedMunicipality(null)
+      // setSelectedBarangay(null)
+    });
   }, [accessLevel, selectedMunicipality]);
 
 
@@ -181,8 +159,9 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
       setName(contact?.name || "");
       setPhone(contact?.phone || "");
       setAccessCode(contact.accessCode || "");
+      setAccessLevel("brgyCode")
       setUserType(contact.userType || "leader")
-      setFeatures(system.configs || [])
+      setFeatures(system?.configs || [])
 
     }
 
@@ -197,7 +176,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
     // e.preventDefault();
 
     // Validation
-    if (!phone || !name) {
+    if (!phone || !name || !username || !password) {
       // toast({ title: "Error", description: "All fields are required!", status: "error" });
       // alert('Phone field is required!')
       // console.log('Phone field is required!')
@@ -220,6 +199,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
         refNum: user._id,
         parent: user.userType == 'system' ? user._id : system.parent,
         configs: features,
+        accessCodes: [selectedBarangay],
         port
       }).then((resp) => {
         return;
@@ -227,8 +207,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
 
       setPhone("")
       setName("")
-      setSelectedRegion("")
-      setSelectedProvince(null)
       setSelectedMunicipality("")
       setSelectedBarangay(null)
       // setSystem(null);
@@ -247,9 +225,6 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
 
     }
   };
-
-
-  console.log(system, 'crete')
 
 
   return (
@@ -392,7 +367,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
                 </div> */}
 
                 {/* Municipality Selection */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>City/Municipality</Label>
                   <Select onValueChange={setSelectedMunicipality} value={selectedMunicipality} disabled={!selectedProvince}>
                     <SelectTrigger>
@@ -406,10 +381,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Barangay Selection */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label>Barangay</Label>
                   <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
                     <SelectTrigger>
@@ -423,7 +398,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
               </div>
             </TabsContent>
             <TabsContent value="access" className="space-y-4">

@@ -23,7 +23,6 @@ export const POST = async (
 
 
     const userId = session.user.id;
-    console.log('SEARCH', searchParams.type)
 
     const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
 

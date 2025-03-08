@@ -24,6 +24,7 @@ import { useContact } from "./providers/ContactProvider"
 import { signOut } from "next-auth/react"
 import getAuth from "@/actions/getAuth";
 import getTeams from "@/actions/getTeams";
+import { useComponent } from "./providers/ComponentContext";
 
 
 
@@ -32,29 +33,35 @@ export function TeamSwitchers({
 }: {
   currentUser?: any
 }) {
-  const { data: session, status } = useSession();
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
-  const { setSystem, system, user, teams } = useContact();
-  // const [activeTeam, setActiveTeam] = React.useState<any>(null);
+  const { setSystem, system, user, setParentSystem } = useContact();
+  const { setRefreshId } = useComponent();
+  const [teams, setTeams] = React.useState<any>([]);
+  const [activeTeam, setActiveTeam] = React.useState<any>(null);
 
   const handleSystems = async (e: any) => {
-    // setActiveTeam(e)
-    setSystem(e)
-    if (e) {
-      localStorage.setItem('system', e._id)
-    } else {
-      localStorage.removeItem('system')
-    }
+    setActiveTeam(e)
+    // setTeams([])
+    // setSystem(e)
+    setParentSystem(e)
+    setRefreshId(Math.random())
+    // localStorage.setItem('system', e._id)
     // signOut({ callbackUrl: '/login' })
   }
 
 
-  const handleAuth = async () => {
-    let authUser = await getAuth();
-    if (authUser.userType == 'system' || authUser.userType == 'leader') {
-      handleSystems(authUser);
-    }
+  const handleGetSystems = async (authUser) => {
+    await axios.get(`/api/users?userId=${authUser?._id}`)
+      .then((response) => {
+        setTeams(response.data)
+
+      })
+      .catch((error) => {
+        console.log("Error fetching user data:", error);
+      })
+    // let teamData = await getTeams(authUser?._id);
+    // console.log(teamData, 'authUSER0', authUser)
   }
 
 
@@ -62,33 +69,27 @@ export function TeamSwitchers({
     // if(user)
 
     // Fetch user details from API if session exists
-
+    // handleGetSystems(system?._id)
     // handleAuth()
 
-    let parent = localStorage.getItem('system')
-    if (parent) {
-      let sys = teams?.find(team => team._id == parent);
-      if (sys) {
+    // handleGetSystems(user)
+    handleSystems(user);
+    return () => {
 
-        handleSystems(sys)
-      } else {
-        // localStorage.removeItem('system');
-        handleAuth()
-      }
-      return;
-    } else if (user && user.parent) {
-      let sys = teams?.find(team => (team._id == user.parent || team._id == user.parent?._id));
-      setSystem(sys)
-      // setActiveTeam(sys)
-      localStorage.setItem('system', sys?._id);
-      return;
-    } else {
-      handleAuth()
+      // setActiveTeam(null)
     }
-  }, [user, teams]);
+  }, [user, system]);
+
+  React.useEffect(() => {
+    if (activeTeam) {
+      handleGetSystems(activeTeam)
+    }
+
+  }, [activeTeam])
 
 
 
+  // console.log(teams, 'TEAMS')
   // React.useEffect(() => {
 
   //   if (currentUser) {
@@ -113,7 +114,7 @@ export function TeamSwitchers({
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
-            {(teams.length > 1 || user?.userType == 'admin') ?
+            {(teams.length >= 0) ?
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
@@ -124,9 +125,9 @@ export function TeamSwitchers({
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {system?.name}
+                      {activeTeam?.name}
                     </span>
-                    <span className="truncate text-xs">{system?.userType}</span>
+                    <span className="truncate text-xs">{activeTeam?.userType}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
@@ -141,9 +142,9 @@ export function TeamSwitchers({
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {system?.name}
+                    {activeTeam?.name}
                   </span>
-                  <span className="truncate text-xs">{system?.userType}</span>
+                  <span className="truncate text-xs">{activeTeam?.userType}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
               </SidebarMenuButton>
@@ -160,7 +161,7 @@ export function TeamSwitchers({
               </DropdownMenuLabel>
               {teams?.filter(team => (team?._id != user?._id)).map((team, index) => (
                 <DropdownMenuItem
-                  key={team?.name}
+                  key={team?._id}
                   onClick={() => handleSystems(team)}
                   className="gap-2 p-2"
                 >
@@ -171,7 +172,7 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
-              {(system && user?.userType == 'admin' && user?._id != system._id) &&
+              {(activeTeam && user?._id != activeTeam._id) &&
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

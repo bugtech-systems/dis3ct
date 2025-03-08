@@ -146,7 +146,6 @@ export const PATCH = async (
     const data = await req.json()
 
 
-    console.log(data, "DELETE")
 
     // const updatedContact = await Contact.findByIdAndUpdate(id,
     //   { $set: { deletedAt: new Date } }
