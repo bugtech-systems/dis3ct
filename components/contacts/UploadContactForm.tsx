@@ -57,7 +57,7 @@ function hasKeyWithKeywords(obj: any, keywords = ["name", "phone", "address"]) {
 
 export function UploadContactForm() {
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { user, system } = useContact();
+  const { user, system, parentSystem } = useContact();
   const { setRefreshId } = useComponent()
   // State for form fields
   const [open, setOpen] = React.useState(false);
@@ -102,10 +102,10 @@ export function UploadContactForm() {
                  newJson.push({ ...row, name: row.Name, address: row.Address, precinct: row.Precinct, idNum: row.No, marker: row.Type, })
                }) */
 
-        let sysId = system?._id ? system?._id : user?._id
+        let sysId = parentSystem?.parent ? parentSystem?.parent?._id : parentSystem?._id
 
         // await createBulkContact(newJson);
-        await axios.post(`/api/contacts/bulk/upload`, { rows: jsonData, refNum: sysId, parNum: system?._id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
+        await axios.post(`/api/contacts/bulk/upload`, { rows: jsonData, refNum: sysId, parNum: parentSystem?.parent?._id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
           // setBarangays(res.data.data);
           setRefreshId(Math.random())
           return toast.success('Upload Success')
@@ -301,8 +301,8 @@ export function UploadContactForm() {
 
       const formData = new FormData();
       formData.append("file", zipFile);
-      formData.append("parNum", system?._id);
-      formData.append("refNum", system?._id);
+      formData.append("parNum", parentSystem?._id);
+      formData.append("refNum", parentSystem?._id);
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
       formData.append("provCode", selectedProvince ? selectedProvince : user.provCode);
       formData.append("citymunCode", selectedMunicipality ? selectedMunicipality : user.citymunCode);
@@ -346,7 +346,7 @@ export function UploadContactForm() {
       let zFile = zpFile ? zpFile : zipFile;
       const formData = new FormData();
       formData.append("file", zFile);
-      formData.append("parNum", system?.id);
+      formData.append("parNum", parentSystem?.id);
       formData.append("refNum", user?._id);
       formData.append("regCode", selectedRegion ? selectedRegion : user.regCode);
       formData.append("provCode", selectedProvince ? selectedProvince : user.provCode);
@@ -434,7 +434,7 @@ export function UploadContactForm() {
   }, [open, system])
 
 
-
+  console.log(parentSystem, 'par')
 
 
   return (
@@ -466,7 +466,7 @@ export function UploadContactForm() {
                 <div className="min-h-[300px] space-y-4 py-2 pb-4">
                   <div className="space-y-2">
                     <Label>Barangay</Label>
-                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!accessCode}>
+                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Barangay" />
                       </SelectTrigger>
