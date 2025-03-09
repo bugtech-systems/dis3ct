@@ -47,13 +47,16 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
      [],
    ); */
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-    phone: true,
+    phone: false,
+    subscrip: false,
     province: false,
     citymun: false,
     barangay: false,
     address: true, // Hide address column by default.
     region: false,
     activePreset: false,
+    subscribed: false,
+    school: false,
     keyStr: false,
   });
 

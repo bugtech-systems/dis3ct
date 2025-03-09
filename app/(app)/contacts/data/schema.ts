@@ -38,6 +38,7 @@ export const contactSchema = z.object({
   tag: z.string().optional().nullable(),
   precinct: z.string().optional().nullable(),
   marker: z.string().optional().nullable(),
+  school: z.string().optional().nullable(),
   idNum: z.number().optional().nullable(),
   biometric: z.string().optional().nullable(),
   keyStr: z.string().optional().nullable()

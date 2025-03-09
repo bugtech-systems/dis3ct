@@ -364,14 +364,14 @@ export function extractJsonFromText(text) {
 }
 
 
-export function formatVoterSms({ name, address, barangay, municipality, province, region, precinct }) {
-  return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\n\nChange starts with us!\nSupport Team Pag BaBag'o. \nTogether, we can build a better future!`;
+export function formatVoterSms({ name, address, barangay, municipality, province, region, precinct, school }) {
+  return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\nSchool: ${school}\n\nChange starts with us!\nSupport Team Pag BaBag'o. \nTogether, we can build a better future!`;
 }
 
 
 export const handleNewMessage = async ({ message, sender, system, isFlash = false }: { message?: string; sender?: string; isFlash?: boolean; system?: string; }) => {
 
-  let apiUrl = `http://localhost:3000/api/tasks`
+  let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
 
 
   let resp = await axios.post(apiUrl, {

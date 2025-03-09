@@ -1,6 +1,7 @@
 "use server";
 
 import connectToDatabase from "@/lib/mongodb";
+import AuditLogs from "@/models/AuditLogs";
 import Contact from "@/models/Contact";
 import User from "@/models/User";
 
@@ -55,10 +56,10 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
 
     // Generate Chart Data
-    const overview = await Contact.find({ ...options }).sort({ createdAt: 1 }).select("createdAt").lean(); // ✅ Use .lean()
+    const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
 
     const groupedContacts = overview.reduce((acc: any, contact) => {
-      const month = new Date(contact.createdAt).toLocaleString("default", { month: "short" });
+      const month = new Date(contact.timestamp).toLocaleString("default", { month: "short" });
       acc[month] = (acc[month] || 0) + 1;
       return acc;
     }, {});
@@ -76,6 +77,9 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       newContacts.push({ ...contact, _id: contact._id.toString() })
     })
 
+
+
+    console.log(overview, 'OVERVIEW')
 
     return { teamReach, subscriptions, contacts, recentContacts: newContacts, overviewChartData }
   } catch (error) {

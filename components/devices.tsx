@@ -142,7 +142,6 @@ export function DeviceForm() {
 
 
 
-  console.log(biometricRunning, 'BIOME')
   return (
     <Dialog open={modal === "devices"} onOpenChange={(e) => setModal(e)}>
       <DialogContent>

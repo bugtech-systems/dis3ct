@@ -95,9 +95,9 @@ export function UserNav({ user }: { user: any }) {
 
   return (
     <>
-      <LeaderProfileForm profile={currentUser} open={open} setOpen={setOpen} />
-      <CreateLeaderFormDialog contact={record} type="leader" open={modal == 'newLeader'} setOpen={setModal} />
-      <DeviceForm />
+      {open && <LeaderProfileForm profile={currentUser} open={open} setOpen={setOpen} />}
+      {modal == 'newLeader' && <CreateLeaderFormDialog contact={record} type="leader" open={modal == 'newLeader'} setOpen={setModal} />}
+      {modal == 'devices' && <DeviceForm />}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">

@@ -73,24 +73,23 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
 
-  const handleLocation = async (data) => {
-    try {
+  // const handleLocation = async (data) => {
+  //   try {
 
-      if (data) {
-        let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
-        if (response?.data) {
-          let { regCode, provCode, citymunCode, brgyCode } = response.data;
-          // setSelectedRegion(regCode)
-          // setSelectedProvince(provCode)
-          setSelectedMunicipality(citymunCode)
-          setSelectedBarangay(brgyCode)
-        }
-      }
-    } catch (err) {
-      console.log(err, 'ERR')
-    }
-
-  }
+  //     if (data) {
+  //       let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
+  //       if (response?.data) {
+  //         let { regCode, provCode, citymunCode, brgyCode } = response.data;
+  //         // setSelectedRegion(regCode)
+  //         // setSelectedProvince(provCode)
+  //         setSelectedMunicipality(citymunCode)
+  //         setSelectedBarangay(brgyCode)
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.log(err, 'ERR')
+  //   }
+  // }
 
 
   // Fetch Regions on Component Mount
@@ -124,27 +123,23 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
     if (e == 'city') {
       setSelectedMunicipality(prop)
-      if (accessLevel == 'citymunCode') {
-        setAccessCode(prop)
-      }
+      setAccessCode(prop)
 
     } else if (e == 'brgy') {
-      if (accessLevel == 'citymunCode') {
-        setAccessCode(selectedMunicipality)
-      } else if (accessLevel == 'brgyCode') {
-        setAccessCode(prop)
-      }
       setSelectedBarangay(prop)
-      let code = accessCodes.find(cd => cd == prop);
-      if (code) {
-        let newCodes = accessCodes.filter(cd => cd != prop);
-        setAccessCodes(newCodes);
+
+      let code = barangays.find(cd => cd.brgyCode == prop);
+      let barExist = accessCodes.find(cd => cd == prop);
+      let newBars = [];
+      if (barExist) {
+        newBars = accessCodes.filter(cd => cd != prop)
       } else {
-        let newCodes = accessCodes;
-        newCodes.push(prop);
-        setAccessCodes(newCodes)
+        newBars = accessCodes;
+        newBars.push(prop);
       }
 
+      console.log(newBars)
+      setAccessCodes(newBars)
     }
   }
 
@@ -203,7 +198,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
     axios.get(`/api/location/municipalities`).then((res) => {
       setMunicipalities(res.data.data);
-      setBarangays([]);
+      // setBarangays([]);
     });
 
     // }
@@ -211,7 +206,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
 
-  }, [accessLevel, selectedProvince]);
+  }, [accessLevel]);
 
 
   React.useEffect(() => {
@@ -220,20 +215,21 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         setBarangays(res.data.data);
       });
     }
-  }, [accessLevel, selectedMunicipality]);
+  }, [selectedMunicipality]);
 
 
   React.useEffect(() => {
-    if (profile) {
+    if (profile && open) {
       setPhone(profile.phone)
       setUsername(profile.username || "")
       setName(profile.name || "")
       setAccessCode(profile.accessCode || "");
+      setSelectedMunicipality(profile.accessCode || "")
       setAccessLevel(profile.accessLevel || "brgyCode")
       setUserType(profile.userType || "leader")
       setFeatures(profile?.configs || [])
       setAccessCodes(profile.accessCodes || [])
-      handleLocation(profile)
+      // handleLocation(profile)
 
       // axios.get(`/api/contacts/save/system/${contact.phone}`).then((res) => {
       //   setParentSystem(res.data);
@@ -249,7 +245,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
       setFeatures([])
       setUserType("system")
       setSelectedRegion("")
-      setSelectedProvince("")
+      // setSelectedProvince("")
       setSelectedMunicipality("")
       setSelectedBarangay("")
       setPort("");
@@ -294,7 +290,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
                 <div className="space-y-2">
                   <Label htmlFor="userLevel">Access Level</Label>
-                  <Select onValueChange={setAccessLevel} value={accessLevel} >
+                  <Select onValueChange={setAccessLevel} value={accessLevel} disabled={user.userType != 'admin'}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a level" />
                     </SelectTrigger>
@@ -328,7 +324,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                 </div>
                 <div className="space-y-2">
                   <Label>City/Municipality</Label>
-                  <Select onValueChange={handleAccessLevel('city')} value={selectedMunicipality} disabled={!accessLevel}>
+                  <Select onValueChange={handleAccessLevel('city')} value={selectedMunicipality} disabled={user.userType != 'admin'}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Municipality" />
                     </SelectTrigger>
@@ -443,7 +439,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                     <Label htmlFor="pin">Password</Label>
                     <Input id="pin" placeholder="000000" value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
-                  {(user?.userType == 'system' || user?.userType == 'admin') &&
+                  {(user?.userType == 'admin') &&
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="subscription">User Type</Label>

@@ -8,6 +8,7 @@ import {
 } from "@/services/taskServices";
 import { v4 as uuidv4 } from "uuid";
 import { isParsableObject } from "@/lib/helpers";
+import { logAction } from "@/services/auditLogsService";
 
 // Get all tasks or a single task by ID
 export const GET = async (req: NextRequest) => {
@@ -44,10 +45,13 @@ export const POST = async (req: NextRequest) => {
       taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
     };
 
+
     const result = await createTask(newObject);
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });
     }
+
+    logAction('', 'Task Created', `${newObject.taskId} - ${newObject.taskObject}`)
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {

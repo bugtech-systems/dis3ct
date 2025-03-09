@@ -10,7 +10,7 @@ import { SendInviteForm } from "@/components/contacts/SendInviteForm";
 
 export default function ContactsPage() {
     const { system, contactTable, setContactTable, user, parentSystem } = useContact()
-    const { refreshId, setIsRefreshing, setRefreshId, isRefreshing } = useComponent();
+    const { refreshId, setIsRefreshing, setRefreshId, modal } = useComponent();
     // const [contacts, setContacts] = useState([]);
     const [limit, setLimit] = useState(10000);
     const [currentSystem, setCurrentSystem] = useState<any>([]);
@@ -19,6 +19,12 @@ export default function ContactsPage() {
 
         try {
             setIsRefreshing(true)
+            if (!e?._id) {
+                setRefreshId(null)
+                setIsRefreshing(false)
+                return
+            }
+
             const response = await fetch(`/api/contacts?userId=${e._id}&limit=${e?.limit ? e.limit : e?.accessCodes ? limit : 0}${e ? `&level=${e.accessLevel}&code=${e.accessCode}` : ''}${e?.accessCodes?.length ? `&brgyCode=${e?.accessCodes}` : `&brgyCode=${[e?.accessCode]}`}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch contacts")
@@ -29,7 +35,9 @@ export default function ContactsPage() {
             if (resData) {
                 let { data, pagination } = resData;
                 setContactTable(data)
-                setLimit(pagination.total)
+                if (pagination.total) {
+                    setLimit(pagination.total)
+                }
                 // setIsRefreshing(false)
                 // setRefreshId(null)
                 // return 
@@ -68,7 +76,7 @@ export default function ContactsPage() {
 
     useEffect(() => {
         const handleInit = async () => {
-            await fetchContacts({ ...parentSystem, limit: 10000 });
+            await fetchContacts({ ...parentSystem, limit: 1000 });
             setIsRefreshing(true)
             setRefreshId(Math.random())
 
@@ -76,7 +84,7 @@ export default function ContactsPage() {
         }
 
         if (parentSystem?._id != currentSystem?._id) {
-            setLimit(10000)
+            setLimit(1000)
             setRefreshId(null)
             setCurrentSystem(parentSystem)
             setContactTable([])
@@ -89,13 +97,13 @@ export default function ContactsPage() {
         if (currentSystem && refreshId) {
             fetchContacts(parentSystem)
         }
-    }, [refreshId, currentSystem])
+    }, [refreshId])
 
 
     return (
         <>
 
-            <SendInviteForm />
+            {modal == 'sendInvite' && <SendInviteForm />}
             <div className="flex-1 space-y-4 p-3">
                 {/* <DataTable data={tasks} columns={columns} /> */}
 

@@ -20,7 +20,7 @@ export const GET = async (req: NextRequest) => {
         const contact = await User.findById(userId).populate({
             path: 'parNum',
             options: { strictPopulate: false } // Allows missing `parNum` without errors
-        }).select('name phone userType configs username accessCode accessLevel');
+        }).select('name phone userType configs username accessCode accessCodes accessLevel');
 
         if (!contact) {
             return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });

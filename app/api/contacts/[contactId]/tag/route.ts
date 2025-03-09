@@ -6,6 +6,7 @@ import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 import User from "@/models/User";
+import { logAction } from "@/services/auditLogsService";
 
 export const POST = async (
   req: NextRequest,
@@ -16,6 +17,8 @@ export const POST = async (
     if (!session || !session.user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
+    const userId = session.user.id;
 
     await dbConnect()
 
@@ -36,7 +39,8 @@ export const POST = async (
       return NextResponse.json({ message: 'Record not found' }, { status: 401 });
     }
 
-
+    let action = 'Tag Record';
+    let isTag = false;
     let newTags = updatedContact?.tags as any[];
 
 
@@ -49,10 +53,12 @@ export const POST = async (
       newTags = newTags.filter(tag => String(tag.user) != String(authUser._id));
 
       if (tagExist.tagType != type) {
+
         newTags.push({
           tagType: type,
           user: authUser?._id
         })
+        isTag = true;
       }
 
 
@@ -64,12 +70,18 @@ export const POST = async (
         tagType: type,
         user: authUser?._id
       })
+      isTag = true;
     }
 
 
     updatedContact.tags = newTags;
 
     await updatedContact?.save()
+
+
+
+    logAction(userId, action, `${isTag ? 'Tagged' : 'Untagged'} ${updatedContact.name} record as ${type}.`)
+
 
     return NextResponse.json({ ...sanitizeObject(updatedContact), tag: type }, { status: 200 });
   } catch (err) {

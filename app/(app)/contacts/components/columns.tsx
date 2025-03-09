@@ -135,6 +135,28 @@ export const columns: ColumnDef<Contact>[] = [
     enableColumnFilter: true,
   },
   {
+    accessorKey: "school",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="School" />
+    ),
+    cell: ({ row }) => {
+      // const label = labels.find((label) => label.value === row.original.label)
+
+      return (
+        <div className="flex space-x-2">
+          {/*        {label && <Badge variant="outline">{label.label}</Badge>}
+          <span className="max-w-[500px] truncate font-medium"> */}
+          {row.getValue("school")}
+          {/* </span> */}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
+  },
+  {
     accessorKey: "region",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Region" />
@@ -212,82 +234,6 @@ export const columns: ColumnDef<Contact>[] = [
     },
     enableColumnFilter: true,
   },
-  // {
-  //   accessorKey: "regCode",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Reg Code" />
-  //   ),
-  //   cell: ({ row }) => {
-
-  //     return (
-  //       <div className="flex space-x-2">
-  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-  //         <span className="max-w-[500px] truncate font-medium">
-  //           {row.getValue("regCode")}
-  //         </span>
-  //       </div>
-  //     )
-  //   },
-  //   enableSorting: false,
-  //   enableHiding: false
-  // },
-  // {
-  //   accessorKey: "provCode",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Prov Code" />
-  //   ),
-  //   cell: ({ row }) => {
-
-  //     return (
-  //       <div className="flex space-x-2">
-  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-  //         <span className="max-w-[500px] truncate font-medium">
-  //           {row.getValue("provCode")}
-  //         </span>
-  //       </div>
-  //     )
-  //   },
-  //   enableSorting: false,
-  //   enableHiding: false
-  // },
-  // {
-  //   accessorKey: "citymunCode",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="City Code" />
-  //   ),
-  //   cell: ({ row }) => {
-
-  //     return (
-  //       <div className="flex space-x-2">
-  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-  //         <span className="max-w-[500px] truncate font-medium">
-  //           {row.getValue("citymunCode")}
-  //         </span>
-  //       </div>
-  //     )
-  //   },
-  //   enableSorting: false,
-  //   enableHiding: false
-  // },
-  // {
-  //   accessorKey: "brgyCode",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Barangay Code" />
-  //   ),
-  //   cell: ({ row }) => {
-
-  //     return (
-  //       <div className="flex space-x-2">
-  //         {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
-  //         <span className="max-w-[500px] truncate font-medium">
-  //           {row.getValue("brgyCode")}
-  //         </span>
-  //       </div>
-  //     )
-  //   },
-  //   enableSorting: false,
-  //   enableHiding: false
-  // },
   {
     accessorKey: "subscribed",
     header: ({ column }) => (

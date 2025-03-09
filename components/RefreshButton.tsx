@@ -35,7 +35,7 @@ export default function RefreshButton() {
           }`}
         style={{ animationDuration: "0.5s" }}
       />
-      <span className="hidden sm:inline">Refresh</span>
+      <span className="hidden sm:inline">Reload</span>
     </Button>
 
   );

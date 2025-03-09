@@ -132,7 +132,7 @@ export async function GET(req: NextRequest) {
 
 
     let brgys = brgyCode ? brgyCode.split(',').map(brgy => {
-      return { brgyCode: { $regex: brgy, $options: "i" }, parNum: parent._id }
+      return { brgyCode: brgy, parNum: parent._id }
     }) : (code && level) ? [] : []
 
     // Apply user-level filtering
@@ -141,11 +141,6 @@ export async function GET(req: NextRequest) {
 
 
 
-    if (parent.userType === "admin") {
-      // Admin sees all contacts
-    } else if (user.userType === "system") {
-      query.parNum = parent._id;
-    }
 
     if (brgys.length) {
       query.$or = brgys;
@@ -172,7 +167,7 @@ export async function GET(req: NextRequest) {
          query.parNum = parent?._id;
        } */
 
-
+    console.log(query, 'QUERY')
 
     // Fetch contacts with pagination
     contacts = await Contact.find(query)
@@ -191,7 +186,7 @@ export async function GET(req: NextRequest) {
       let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
       let tags = allTags.filter(tag => String(tag.user) == String(userId));
       let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, phone: contact.phone, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
+      return { _id: contact._id, name: contact.name, school: contact.school, phone: contact.phone, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
     })
 
     // Get total contact count for pagination

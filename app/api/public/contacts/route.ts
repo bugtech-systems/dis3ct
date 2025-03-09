@@ -1,15 +1,29 @@
 import { formatVoterSms, sanitizePhoneNumber } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
+import { getServerSession } from "next-auth";
 import Contact from '@/models/Contact';
 import Mobile from "@/models/Mobile";
 import axios from "axios";
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+import { logAction } from "@/services/auditLogsService";
+import { authOptions } from "@/lib/authOptions";
 
-let apiUrl = `http://localhost:3000/api/tasks`
+let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
 
 export const POST = async (req: NextRequest) => {
   try {
+
+    const session = await getServerSession(authOptions) as any;
+    // console.log(session, 'SESS')
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
+
+
 
     const data = await req.json();
 
@@ -53,6 +67,7 @@ export const POST = async (req: NextRequest) => {
             name: record.name,
             address: record.address,
             precinct: record.precinct,
+            school: record.school,
             barangay,
             municipality: citymun,
             province,
@@ -72,7 +87,7 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-
+    logAction(userId, 'Send Invite', `Sending Invite to ${record.name} with Phone # ${phone} `)
 
     console.log(record, 'RECORD')
     return NextResponse.json({ message: 'Invite Sent!' }, { status: 201 });

@@ -21,7 +21,7 @@ import { Switch } from "./ui/switch";
 import { useComponent } from "./providers/ComponentContext";
 
 export function SidebarOptInForm({ record }: { record: any }) {
-  const { system } = useContact()
+  const { user } = useContact()
   const { setModal } = useComponent()
   const [mobile, setMobile] = useState("");
   const [isFlash, setIsFlash] = useState(false);
@@ -55,7 +55,7 @@ export function SidebarOptInForm({ record }: { record: any }) {
     setLoading(true);
 
     try {
-      let parent = record.parNum;
+      let parent = user.parent;
 
       const response = await axios.post("/api/public/contacts", { phone: mobile, recordId: record._id, system: parent.phone, isFlash });
 
@@ -76,7 +76,7 @@ export function SidebarOptInForm({ record }: { record: any }) {
   };
 
 
-  console.log(record, 'RECORR')
+  console.log(record, user, 'RECORR')
 
   return (
     <form onSubmit={handleSubmit}>

@@ -6,6 +6,7 @@ import { checkContactId, sanitizePhoneNumber } from "@/lib/helpers";
 import dbConnect from "@/lib/mongodb";
 import { authOptions } from "@/lib/authOptions";
 import User from "@/models/User";
+import { logAction } from "@/services/auditLogsService";
 
 const isAuthorized = async (userId: string, contactId: string) => {
   await dbConnect();
@@ -48,6 +49,8 @@ export const POST = async (
     if (!updatedContact.modifiedCount) {
       return new NextResponse("Contact not found or unchanged", { status: 404 });
     }
+
+    logAction(userId, 'Subscribed', `New Subscription.  ${contactId}. triggered by ${contact.name}.`)
 
     return NextResponse.json(updatedContact, { status: 200 });
   } catch (err) {

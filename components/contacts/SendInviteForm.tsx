@@ -26,42 +26,12 @@ import { SidebarOptInForm } from "../sidebar-opt-in-form";
 import { useComponent } from "../providers/ComponentContext";
 
 export function SendInviteForm() {
-  const { modal, setModal, modalId } = useComponent();
-  const [record, setRecord] = React.useState(null)
+  const { modal, setModal, record } = useComponent();
 
 
 
 
   // 📌 Handle Form Submission
-  const handleGetContact = async () => {
-    // e.preventDefault();
-
-
-    try {
-
-
-
-
-
-      const response = await axios.get(`/api/contacts/${modalId}`);
-
-      if (response.data) {
-        setRecord(response.data)
-
-      }
-
-    } catch (error: any) {
-      console.log(error, 'ERROR')
-    }
-  };
-
-
-  React.useEffect(() => {
-    if (modalId) {
-      handleGetContact()
-    }
-
-  }, [modalId])
 
 
 

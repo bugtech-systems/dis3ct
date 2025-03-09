@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword, updateUser } from "@/services/userServices";
 import getTeams from "@/actions/getTeams";
+import { logAction } from "@/services/auditLogsService";
 
 export async function POST(req: NextRequest) {
     const { action, userId, ...data } = await req.json();
+
+    logAction(userId, action, `User Actions.`)
 
     try {
         switch (action) {

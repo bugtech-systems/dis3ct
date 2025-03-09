@@ -64,13 +64,14 @@ export function UploadContactForm() {
   const [zipFile, setZipFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [jsonData, setJsonData] = React.useState<any>([]);
+  const [schoolData, setSchoolData] = React.useState<any>([]);
   const [abnormalFiles, setAbnormalFiles] = React.useState<any>([])
   const [validFiles, setValidFiles] = React.useState<any>([])
   const [activeTab, setActiveTab] = React.useState('basic');
   const [accessCode, setAccessCode] = React.useState(null);
   const [replaceStr, setReplaceStr] = React.useState("")
   const [removeStr, setRemoveStr] = React.useState(".pdf")
-
+  const [pdfFile, setPdfFile] = React.useState(null)
   // State for dynamic location selections
   const [barangays, setBarangays] = React.useState([]);
   const [municipalities, setMunicipalities] = React.useState([]);
@@ -205,6 +206,87 @@ export function UploadContactForm() {
 
     }
   };
+
+  const handleUploadSchoolFile = async () => {
+    if (!schoolData.length) {
+      alert('No Data Available')
+      return;
+    }
+
+    setLoading(true);
+
+
+    try {
+
+      console.log(schoolData, 'SCHOOL DT')
+
+      const response = await axios.post("/api/contacts/save/school", schoolData);
+
+      const data = await response.data;
+      setLoading(false);
+
+
+      console.log(data, 'RESP')
+      return toast.success(data.message)
+
+    } catch (error) {
+      console.error("Upload PDF failed", error);
+      setLoading(false);
+      return toast.success("Upload PDF failed")
+
+
+
+    }
+
+  }
+
+  const handleSchoolFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files[0]) {
+      alert("Please select a file");
+      return;
+    }
+
+    setLoading(true);
+
+
+    try {
+      setPdfFile(event.target.files[0])
+      const formData = new FormData();
+      formData.append("file", event.target.files[0]);
+
+
+
+      const response = await fetch("/api/contacts/bulk/school", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setLoading(false);
+      setSchoolData(data);
+
+
+
+      // await createBulkContact(newJson);
+      // await axios.post(`/api/contacts/bulk/upload`, { rows: newJson, refNum: user?._id, parNum: system?.id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
+      //   // setBarangays(res.data.data);
+      //   return toast.success('Upload Success')
+      // });
+
+      // setOpen(false)
+      // router.refresh()
+
+      // return toast.success(data.message)
+    } catch (error) {
+      console.error("Upload PDF failed", error);
+      setLoading(false);
+      return toast.success("Upload PDF failed")
+
+
+
+    }
+
+  }
 
   const handleUploadZip = async () => {
     if (!zipFile) {
@@ -354,6 +436,7 @@ export function UploadContactForm() {
 
 
 
+
   return (
     <>
       <Button
@@ -459,11 +542,23 @@ export function UploadContactForm() {
                     </Select>
                   </div>
                   <div className="space-y-2 pb-4">
-                    <Label htmlFor="contact">File</Label>
-                    <Input id="contact" type="file"
-                      accept=".zip"
-                      onChange={handleFileChange}
-                    />
+                    <div className="flex">
+                      <div className="space-y-2 pb-4">
+                        <Label htmlFor="contact">File</Label>
+                        <Input id="contact" type="file"
+                          accept=".zip"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      <div className="space-y-2 pb-4">
+                        <Label htmlFor="school">School File</Label>
+                        <Input id="school" type="file"
+                          accept=".pdf"
+                          onChange={handleSchoolFileChange}
+                        />
+                      </div>
+                    </div>
+
                     <br />
                     <div className="flex space-x-5">
                       <div>
@@ -481,7 +576,6 @@ export function UploadContactForm() {
                         />
                       </div>
                     </div>
-
                     {/* <Button variant="outline" onClick={() => handleUploadZip()}>Upload</Button>&nbsp;&nbsp;&nbsp; */}
                     <Button variant="outline" disabled={!zipFile} onClick={() => handleNormalizeZip()}>Validate</Button>
                     <DropdownMenuSeparator />
@@ -525,6 +619,7 @@ export function UploadContactForm() {
             </Tabs>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => handleUploadSchoolFile()}>Upload</Button>
               {activeTab == 'zip' && <Button disabled={loading} onClick={() => handleUploadZip()}>Save</Button>}
               {activeTab == 'basic' && <Button disabled={loading} onClick={() => saveData()}>Save</Button>}
 

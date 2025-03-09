@@ -17,6 +17,8 @@ interface ComponentContextType {
     setIsRefreshing: (temp: any) => void;
     biometricRunning: boolean;
     setBiometricRunning: (temp: any) => void;
+    contacts: any;
+    setContacts: (temp: any) => void;
 
 }
 
@@ -29,6 +31,7 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
     const [refreshId, setRefreshId] = useState<any>(null);
     const [isRefreshing, setIsRefreshing] = useState<any>(false);
     const [biometricRunning, setBiometricRunning] = useState<any>(false);
+    const [contacts, setContacts] = useState<any>([]);
 
 
     const handleModal = (type: any, id: any) => {
@@ -50,7 +53,7 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <ComponentContext.Provider value={{ record, setRecord, biometricRunning, setBiometricRunning, isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
+        <ComponentContext.Provider value={{ contacts, setContacts, record, setRecord, biometricRunning, setBiometricRunning, isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
             {children}
         </ComponentContext.Provider>
     );

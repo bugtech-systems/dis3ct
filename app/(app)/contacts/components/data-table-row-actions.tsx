@@ -234,7 +234,10 @@ export function DataTableRowActions<TData>({
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => setModal('sendInvite', contact?._id)}
+                onClick={() => {
+                  setRecord(contact)
+                  setModal('sendInvite', contact?._id)
+                }}
               >
                 Send Invite
                 <DropdownMenuShortcut><MessageCircleDashedIcon size={18} /></DropdownMenuShortcut>
@@ -242,14 +245,19 @@ export function DataTableRowActions<TData>({
               <DropdownMenuSeparator />
             </>
           }
-          <DropdownMenuItem
-            onClick={() => {
-              setRecord(contact)
-              setModal('newLeader', contact?._id)
-            }}
-          >Set Leader</DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+          {(findFeature(parent?.configs, 'leaders')?.value || (user?.userType == 'admin')) &&
+            <>
+              <DropdownMenuItem
+                onClick={() => {
+                  setRecord(contact)
+                  setModal('newLeader', contact?._id)
+                }}
+              >Set Leader</DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
+
           {(user?.userType == 'admin') &&
             <>
 
