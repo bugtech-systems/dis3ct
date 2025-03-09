@@ -13,20 +13,20 @@ export const POST = async (req: NextRequest) => {
 
         await connectToDatabase();
 
-        const updates = await req.json();
-        console.log(updates, 'UPDATES')
-        if (!Array.isArray(updates)) {
+        const { data, parNum } = await req.json();
+        console.log(data, 'UPDATES')
+        if (!Array.isArray(data)) {
             return NextResponse.json({ error: 'Invalid payload format' }, { status: 405 });
         }
 
         const bulkOps = [];
 
-        updates.forEach(({ barangay, school, precincts }) => {
+        data.forEach(({ barangay, school, precincts }) => {
             if (!barangay || !school || !Array.isArray(precincts)) return;
 
             bulkOps.push({
                 updateMany: {
-                    filter: { precinct: { $in: precincts } },
+                    filter: { precinct: { $in: precincts }, parNum },
                     update: { $set: { school } },
                 },
             });

@@ -220,7 +220,7 @@ export function UploadContactForm() {
 
       console.log(schoolData, 'SCHOOL DT')
 
-      const response = await axios.post("/api/contacts/save/school", schoolData);
+      const response = await axios.post("/api/contacts/save/school", { data: schoolData, parNum: parentSystem?.parent?._id });
 
       const data = await response.data;
       setLoading(false);
