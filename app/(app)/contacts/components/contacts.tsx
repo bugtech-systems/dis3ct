@@ -77,9 +77,10 @@ export default function ContactsPage() {
     useEffect(() => {
         const handleInit = async () => {
             await fetchContacts({ ...parentSystem, limit: 1000 });
-            setIsRefreshing(true)
-            setRefreshId(Math.random())
-
+            if (user.userType != 'admin') {
+                setIsRefreshing(true)
+                setRefreshId(Math.random())
+            }
 
         }
 
