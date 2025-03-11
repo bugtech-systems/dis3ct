@@ -9,12 +9,12 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
-  useReactTable,
   getFilteredRowModel,
   getFacetedRowModel,
-  getFacetedUniqueValues
+  getFacetedUniqueValues,
+  useReactTable,
 } from "@tanstack/react-table";
-
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -26,95 +26,95 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { useContact } from "@/components/providers/ContactProvider";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { useComponent } from "@/components/providers/ComponentContext";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[]; // All data is preloaded
 }
 
-export default function CardsDataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
-  const { user, system } = useContact();
+export default function CardsDataTable<TData, TValue>({ columns }: DataTableProps<TData, TValue>) {
+  const { user, parentSystem, contactTable, setContactTable } = useContact();
+  const { setIsRefreshing, refreshId } = useComponent();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pageIndex, setPageIndex] = React.useState(0);
-  const [pageSize, setPageSize] = React.useState(10); // Default 10 rows per page
+  const [pageSize, setPageSize] = React.useState(10);
   const [search, setSearch] = React.useState("");
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [rowSelection, setRowSelection] = React.useState({});
-  /*  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-     [],
-   ); */
+  const [filters, setFilters] = React.useState({});
+  const [totalPages, setTotalPages] = React.useState(0);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
     phone: false,
     subscrip: false,
     province: false,
     citymun: false,
     barangay: false,
-    address: true, // Hide address column by default.
+    address: true,
     region: false,
     activePreset: false,
     subscribed: false,
     school: false,
     keyStr: false,
+    brgyCode: false,
+    citymunCode: false
   });
 
-  // const debouncedSearch = useDebounce(search, 500);
 
-  // Filter data based on search input
-  // const filteredData = React.useMemo(() => {
-  //   if (!debouncedSearch) return data;
-  //   return data.filter((item: any) =>
-  //     Object.values(item).some((value) =>
-  //       String(value).toLowerCase().includes(debouncedSearch.toLowerCase())
-  //     )
-  //   );
-  // }, [debouncedSearch, data]);
 
   const table = useReactTable({
-    data,
+    data: contactTable,
     columns,
-    state: {
-      sorting,
-      columnVisibility,
-      rowSelection,
-
-      // columnFilters,
-    },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
+    state: { sorting, columnVisibility, pagination: { pageIndex, pageSize } },
     onSortingChange: setSorting,
-    // onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    manualPagination: true, //turn off client-side pagination
+    // onPaginationChange: ({ }) => {
+    //   // console.log(updater)
+    //   setPageIndex(pageIndex);
+    //   setPageSize(pageSize);
+    // },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    // onPaginationChange: (e) => console.log(e, 'pagination')
-    /*   getCoreRowModel: getCoreRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      onSortingChange: setSorting,
-      onColumnVisibilityChange: setColumnVisibility,
-      onRowSelectionChange: setRowSelection,
-      getFilteredRowModel: getFilteredRowModel(), // ✅ REQUIRED for filtering
-      enableRowSelection: true,
-      state: {
-        sorting,
-        columnVisibility,
-        rowSelection,
-        pagination: { pageIndex, pageSize },
-      }, */
-  }, [data]);
+  });
 
+  React.useEffect(() => {
+    setIsRefreshing(true)
+    const fetchData = async () => {
+      try {
+        const params = {
+          userId: parentSystem ? parentSystem?._id : user?._id,
+          page: pageIndex + 1,
+          limit: pageSize,
+          search,
+          ...(filters?.tags ? { tags: filters?.tags.join(',') } : {}),
+          ...(filters?.brgyCode ? { brgyCode: filters?.brgyCode.join(',') } : {}),
+          ...(filters?.precincts ? { precincts: filters?.precincts.join(',') } : {}),
 
+        };
 
+        const response = await axios.get("/api/contacts", { params });
+        setContactTable(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+        setIsRefreshing(false)
+
+      } catch (error) {
+        setIsRefreshing(false)
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    if (parentSystem) {
+      fetchData();
+    }
+
+  }, [parentSystem, pageIndex, pageSize, search, filters, refreshId]);
+
+  console.log(pageIndex, filters)
   return (
     <div className="space-y-4">
-      <DataTableToolbar selectedRow={rowSelection} table={table} />
+      <DataTableToolbar setFilters={setFilters} setSearch={setSearch} table={table} search={search} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -147,7 +147,7 @@ export default function CardsDataTable<TData, TValue>({ columns, data }: DataTab
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} totalPages={totalPages} setPageSize={setPageSize} setPageIndex={setPageIndex} />
     </div>
   );
 }

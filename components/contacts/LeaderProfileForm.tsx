@@ -255,7 +255,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
   // console.log(selectedProvince, municipalities, 'PROV', system, user)
-
+  console.log(profile, user, 'USER')
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -270,9 +270,11 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
             <TabsList className="flex justify-center">
               <TabsTrigger value="basic">System Details</TabsTrigger>
               {/* <TabsTrigger value="area">Area</TabsTrigger> */}
-              <TabsTrigger value="access" >
-                Access
-              </TabsTrigger>
+              {((user._id == profile._id) || user.userType == 'admin') &&
+                <TabsTrigger value="access" >
+                  Access
+                </TabsTrigger>
+              }
               {user?.userType == 'admin' &&
                 <TabsTrigger value="features">Features</TabsTrigger>
               }

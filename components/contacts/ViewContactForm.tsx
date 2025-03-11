@@ -114,6 +114,10 @@ export function ViewContactForm() {
                   <Label htmlFor="address">Precinct</Label>
                   <Input id="address" placeholder="Real St. Tacloban City" value={contact?.precinct} />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="school">School</Label>
+                  <Input id="school" placeholder="Real St. Tacloban City" value={contact?.school} />
+                </div>
               </div>
             </TabsContent>
             <TabsContent value="area" className="space-y-4">

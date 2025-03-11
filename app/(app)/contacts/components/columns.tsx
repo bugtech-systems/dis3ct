@@ -235,6 +235,52 @@ export const columns: ColumnDef<Contact>[] = [
     enableColumnFilter: true,
   },
   {
+    accessorKey: "citymunCode",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="City/Municipality" />
+    ),
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex space-x-2">
+          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("citymunCode")}
+          </span>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "brgyCode",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Barangay" />
+    ),
+    cell: ({ row }) => {
+
+      return (
+        <div className="flex space-x-2">
+          {/* {       label && <Badge variant="outline">{label.label}</Badge>} */}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("brgyCode")}
+          </span>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "subscribed",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Subscribed" />
@@ -259,10 +305,14 @@ export const columns: ColumnDef<Contact>[] = [
       const tag = row.getValue("tag");
       return (
         <div className="flex space-x-2">
-          <Badge variant="outline" className={`${tag == 'confirm' ? 'bg-green-400' : tag == 'declined' ? 'bg-red-300' : 'bg-inherit'} font-medium`}>{String(tag ? tag : 'Unknown').toUpperCase()}</Badge>
+          <Badge variant="outline" className={`${tag == 'confirm' ? 'bg-green-400' : tag == 'declined' ? 'bg-red-300' : 'bg-inherit'} font-medium`}>{String(tag ? tag : 'unknown').toUpperCase()}</Badge>
         </div>
       )
     },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "activePreset",
@@ -281,15 +331,15 @@ export const columns: ColumnDef<Contact>[] = [
     enableSorting: false,
     enableHiding: false
   },
-  {
-    accessorKey: "keyStr",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Key String" />
-    ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("keyStr")}</div>,
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   accessorKey: "keyStr",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Key String" />
+  //   ),
+  //   cell: ({ row }) => <div className="w-[80px]">{row.getValue("keyStr")}</div>,
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,

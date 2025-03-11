@@ -74,31 +74,31 @@ export default function ContactsPage() {
     // }, [debouncedSearch, pageSize, pageIndex, system, user, table?.getColumn("brgyCode")?.getFilterValue(), table?.getColumn("citymunCode")?.getFilterValue()]);
 
 
-    useEffect(() => {
-        const handleInit = async () => {
-            await fetchContacts({ ...parentSystem, limit: 1000 });
-            if (user.userType != 'admin') {
-                setIsRefreshing(true)
-                setRefreshId(Math.random())
-            }
+    // useEffect(() => {
+    //     const handleInit = async () => {
+    //         await fetchContacts({ ...parentSystem, limit: 1000 });
+    //         if (user.userType != 'admin') {
+    //             setIsRefreshing(true)
+    //             setRefreshId(Math.random())
+    //         }
 
-        }
+    //     }
 
-        if (parentSystem?._id != currentSystem?._id) {
-            setLimit(1000)
-            setRefreshId(null)
-            setCurrentSystem(parentSystem)
-            setContactTable([])
-            handleInit()
-        }
+    //     if (parentSystem?._id != currentSystem?._id) {
+    //         setLimit(1000)
+    //         setRefreshId(null)
+    //         setCurrentSystem(parentSystem)
+    //         setContactTable([])
+    //         handleInit()
+    //     }
 
-    }, [parentSystem])
+    // }, [parentSystem])
 
-    useEffect(() => {
-        if (currentSystem && refreshId) {
-            fetchContacts(parentSystem)
-        }
-    }, [refreshId])
+    // useEffect(() => {
+    //     if (currentSystem && refreshId) {
+    //         fetchContacts(parentSystem)
+    //     }
+    // }, [refreshId])
 
 
     return (

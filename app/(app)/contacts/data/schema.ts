@@ -41,6 +41,7 @@ export const contactSchema = z.object({
   school: z.string().optional().nullable(),
   idNum: z.number().optional().nullable(),
   biometric: z.string().optional().nullable(),
+  recordType: z.string().optional().nullable(),
   keyStr: z.string().optional().nullable()
 
 })

@@ -11,7 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -30,10 +36,12 @@ import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider"
 import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm"
 import { AreaLocationForm } from "@/components/contacts/AreaLocationForm"
+import { findFeature } from "@/lib/helpers"
+
+let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
 
 
-
-export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
+export function DataTableToolbarActions<TData>({ rows = [], table }: { table: any; rows: any }) {
   // const contact = contactSchema.parse(row.original);
   const { user, parentSystem } = useContact()
   const [showContactDialog, setShowContactDialog] = useState(false);
@@ -102,10 +110,31 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
 
 
 
+  const handleTag = async (type) => {
+
+    try {
+      const response = await axios.post(`/api/contacts/bulk/tag`, { type, system: user._id, contactIds: rows.map(a => { return a._id }) });
+      if (response.data) {
+        toast.success('Tagged Successfully!')
+        router.refresh();
+        table.toggleAllPageRowsSelected(false)
+
+
+      } else {
+        toast.error("Failed. Please try again.")
+      }
+    } catch (error: any) {
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred.")
+
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    }
+  };
 
 
 
 
+  console.log(rows, 'ROWS')
 
   return (
     <>
@@ -149,8 +178,22 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[180px]">
 
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup value={rows[0]?.tag} onValueChange={handleTag}>
+                {tagsLabel.map((label) => (
+                  <DropdownMenuRadioItem key={label?.value} value={label?.value}>
+                    {label?.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
 
-          {(user?.userType == 'admin' || user?.subscription == 'pro') &&
+
+          {((user?.userType == 'system' || user?.userType == 'admin') && findFeature(user.configs, 'sms').value) &&
             <>
               <DropdownMenuItem
                 onClick={() => setShowContactDialog(true)}
@@ -159,26 +202,35 @@ export function DataTableToolbarActions<TData>({ rows = [] }: { rows: any }) {
                 <DropdownMenuShortcut><MessageSquarePlusIcon size={18} /></DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+
+
             </>
           }
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => handleSubscribed()}
-          >
-            Subscribe
-            <DropdownMenuShortcut><Bell size={18} /></DropdownMenuShortcut>
+          {user?.userType == 'admin' &&
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleSubscribed()}
+              >
+                Subscribe
+                <DropdownMenuShortcut><Bell size={18} /></DropdownMenuShortcut>
 
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => handleUnsubscribed()}
-          >
-            Unsubscribe
-            <DropdownMenuShortcut><BellOff size={18} /></DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleUnsubscribed()}
+              >
+                Unsubscribe
+                <DropdownMenuShortcut><BellOff size={18} /></DropdownMenuShortcut>
 
-          </DropdownMenuItem>
+              </DropdownMenuItem>
+            </>
+          }
 
-          {(user.userLevel == 'system' || user.userLevel == 'admin') &&
+
+
+
+          {(user.userType == 'admin') &&
             <><DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setShowAreaDialog(true)}

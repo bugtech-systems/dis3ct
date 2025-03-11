@@ -95,104 +95,113 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "100", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
     const search = searchParams.get("search") || "";
-    // const system = searchParams.get("system");
     const brgyCode = searchParams.get("brgyCode");
-    const code = searchParams.get("code");
-    const level = searchParams.get("level");
-    const withPhone = searchParams.get("phone");
+    const tags = searchParams.get("tags");
+    const precincts = searchParams.get("precincts");
+
+    const phoneFilter = searchParams.get("phone");
     const userId = searchParams.get("userId");
 
+    const skip = (page - 1) * limit; // Correct pagination logic
 
-
-    // let citis = citymunCode ? citymunCode.split(',').map(city => {
-    //   return { citymunCode: { $regex: city, $options: "i" } }
-    // }) : []
-
-
-    const skip = limit - 10000;
     // Fetch user to determine access level
     let user = await User.findById(userId);
-
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    let parent = await User.findById(user.userType == 'system' ? user._id : user.parent);
-    // let contact = await User.findById(userId);
-
-    let contacts = [];
-
+    let parent = await User.findById(user.userType === "system" ? user._id : user.parent);
     if (!parent) {
       parent = user;
-      // return NextResponse.json({ error: "System not found" }, { status: 404 });
     }
 
+    // Base query
+    let query: any = { deletedAt: null, parNum: parent._id };
 
-    let brgys = brgyCode ? brgyCode.split(',').map(brgy => {
-      return { brgyCode: brgy, parNum: parent._id }
-    }) : (code && level) ? [] : []
-
-    // Apply user-level filtering
-    let query: any = { deletedAt: null };
-
-
-
-
-
-    if (brgys.length) {
-      query.$or = brgys;
+    // Filter by barangay code if provided
+    if (brgyCode) {
+      query.brgyCode = { $in: brgyCode.split(",") };
     }
 
-    if (withPhone) {
-      query.phone = { $exists: true, $ne: '' }
+    if (precincts) {
+      query.precinct = { $in: precincts.split(",") };
     }
 
+    if (tags) {
+      const tagList = tags.split(",");
+
+      if (tagList.includes("unknown")) {
+        // If "Unknown" is requested, return records without a `tags` field or an empty `tags` array
+        query.$or = [
+          { tags: { $exists: false } },
+          { tags: { $size: 0 } }
+        ];
+      } else {
+        // Otherwise, filter by specific tagTypes
+        query.tags = { $elemMatch: user.userType != 'leader' ? { tagType: { $in: tagList } } : { tagType: { $in: tagList }, user: user._id } };
+      }
+    }
+
+    // Include only contacts with a phone number if requested
+    if (phoneFilter) {
+      query.phone = { $exists: true, $ne: "" };
+    }
+
+    // Search functionality
     if (search) {
-      query.$and = [{
-        $or: [
-          { name: { $regex: search, $options: "i" } },
-          { phone: { $regex: search, $options: "i" } },
-          { address: { $regex: search, $options: "i" } },
-          { username: { $regex: search, $options: "i" } },
-          { precinct: { $regex: search, $options: "i" } },
-          { marker: { $regex: search, $options: "i" } },
-        ]
-      }, { $or: brgys }, { parNum: parent?._id }];
+      const searchLower = search.trim().toLowerCase();
+      query.$or = [
+        { name: { $regex: searchLower, $options: "i" } },
+        { phone: { $regex: searchLower, $options: "i" } },
+        { address: { $regex: searchLower, $options: "i" } },
+        { username: { $regex: searchLower, $options: "i" } },
+        { precinct: { $regex: searchLower, $options: "i" } },
+        { marker: { $regex: searchLower, $options: "i" } },
+      ];
     }
-
-    /*    if (system) {
-         query.parNum = parent?._id;
-       } */
-
-    console.log(query, 'QUERY')
 
     // Fetch contacts with pagination
-    contacts = await Contact.find(query)
-      // .skip(skip > 0 ? skip : 0)
+    const contacts = await Contact.find(query)
+      .skip(skip)
       .limit(limit)
       .sort({ name: 1 })
       .lean();
 
 
-    // Process and enrich contacts with region, province, city, and barangay names
+
+    // Process and enrich contacts
     const newContacts = contacts.map((contact: any) => {
-      let allTags = contact.tags ? contact.tags : [];
-      let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
-      let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact.citymunCode)?.citymunDesc;
-      let province = provinces.find((province: any) => province.provCode == contact.provCode)?.provDesc;
-      let region = regions.find((region: any) => region.regCode == contact.regCode)?.regDesc;
-      let tags = allTags.filter(tag => String(tag.user) == String(userId));
-      let keyStr = objectToString({ name: contact.name, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region })
-      return { _id: contact._id, name: contact.name, school: contact.school, phone: contact.phone, address: contact.address, marker: contact.marker, precinct: contact.precinct, barangay, citymun, province, region, subscribed: contact.subscribed, tag: tags[0]?.tagType, keyStr }
-    })
+      const barangay = barangays.find((b) => b.brgyCode === contact.brgyCode)?.brgyDesc;
+      const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;
+      const province = provinces.find((p) => p.provCode === contact.provCode)?.provDesc;
+      const region = regions.find((r) => r.regCode === contact.regCode)?.regDesc;
+      const tagContact = contact?.tags ? user.userType != 'leader' ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => a.user == user._id).sort((a, b) => b.timestamp - a.timestamp) : []
+
+      return {
+        _id: contact._id,
+        name: contact.name,
+        phone: contact.phone,
+        address: contact.address,
+        marker: contact.marker,
+        precinct: contact.precinct,
+        brgyCode: contact.brgyCode,
+        citymunCode: contact.citymunCode,
+        barangay,
+        citymun,
+        province,
+        region,
+        recordType: contact.recordType,
+        school: contact.school,
+        // tags: contact?.tags,
+        tag: tagContact.length ? tagContact[0].tagType : 'unknown',
+        subscribed: contact.subscribed,
+      };
+    });
 
     // Get total contact count for pagination
     const totalContacts = await Contact.countDocuments(query);
-
-
 
     return NextResponse.json(
       {
@@ -211,7 +220,3 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
-
-
-
-

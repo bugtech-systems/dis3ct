@@ -76,6 +76,18 @@ export function SidebarOptInForm({ record }: { record: any }) {
   };
 
 
+  useEffect(() => {
+
+    if (record) {
+      setMobile(record?.phone)
+    } else {
+
+    }
+
+
+  }, [record])
+
+
   console.log(record, user, 'RECORR')
 
   return (
@@ -102,13 +114,14 @@ export function SidebarOptInForm({ record }: { record: any }) {
             <Switch id="flash-message" checked={isFlash} onCheckedChange={setIsFlash} /> Flash Message
           </Label>
         </div>
+        <br />
         <Button
           type="submit"
           className="w-full bg-sidebar-primary text-sidebar-primary-foreground shadow-none"
           size="sm"
           disabled={loading}
         >
-          {loading ? "Sending..." : "Send Invite"}
+          {loading ? "Sending..." : record?.phone ? "Resend Invite" : "Send Invite"}
         </Button>
       </CardContent>
     </form>

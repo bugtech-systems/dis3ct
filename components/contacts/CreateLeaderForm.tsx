@@ -43,7 +43,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
   type: any;
 }) {
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { user, system } = useContact();
+  const { user, system, parentSystem } = useContact();
   // State for form fields
   const [phone, setPhone] = React.useState("");
   const [name, setName] = React.useState("");
@@ -188,7 +188,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
     try {
       await axios.post("/api/users", {
         action: "register",
-        userId: contact?.id,
+        contact: contact?._id,
         phone: sanitizePhoneNumber(phone),
         name,
         username,
@@ -197,7 +197,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
         userType,
         password,
         refNum: user._id,
-        parent: user.userType == 'system' ? user._id : system.parent,
+        parent: user.userType == 'system' ? user._id : parentSystem.parent,
         configs: features,
         accessCodes: [selectedBarangay],
         port

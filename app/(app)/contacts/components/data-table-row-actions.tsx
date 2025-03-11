@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { ListRestartIcon, MessageCircleDashedIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { ListRestartIcon, MessageCircle, MessageCircleDashedIcon, MessageCircleIcon, MessageSquareIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -44,17 +44,19 @@ let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided',
 
 
 interface DataTableRowActionsProps<TData> {
-  row: Row<TData>
+  row: Row<TData>;
+  table: any;
 }
 
 export function DataTableRowActions<TData>({
   row,
+  table
 }: DataTableRowActionsProps<TData>) {
   const contact = contactSchema.parse(row.original);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
   const { setModal, setRecord, setRefreshId } = useComponent();
-  const { user, system, setContactTable, contactTable, parentSystem } = useContact();
+  const { user, system, setContactTable, contactTable } = useContact();
 
 
   const handleDelete = async () => {
@@ -126,8 +128,9 @@ export function DataTableRowActions<TData>({
       if (response.data) {
         let newArr = replaceObjectInArray(contactTable, response.data);
         // router.refresh();
-        // setRefreshId(Math.random())
+
         setContactTable(replaceObjectInArray(contactTable, response.data))
+        setRefreshId(Math.random())
 
         toast.success(`Label Updated Successfully!`)
       } else {
@@ -142,6 +145,8 @@ export function DataTableRowActions<TData>({
   }
 
   let parent = user.parent;
+
+  console.log(contact, 'CONTACT')
 
   return (
     <>
@@ -240,13 +245,13 @@ export function DataTableRowActions<TData>({
                 }}
               >
                 Send Invite
-                <DropdownMenuShortcut><MessageCircleDashedIcon size={18} /></DropdownMenuShortcut>
+                <DropdownMenuShortcut><MessageSquareIcon color={contact.phone ? 'green' : 'gray'} size={18} className="text-red" /></DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           }
 
-          {(findFeature(parent?.configs, 'leaders')?.value || (user?.userType == 'admin')) &&
+          {(((findFeature(parent?.configs, 'leaders')?.value || (user?.userType == 'admin')) && contact.recordType != 'leader')) &&
             <>
               <DropdownMenuItem
                 onClick={() => {

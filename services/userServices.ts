@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import User from "@/models/User";
 import connectDB from "@/lib/mongodb";
-import crypto from "crypto";
 import System from "@/models/System";
 import { handleNewMessage, internationalizePhoneNumber, sanitizePhoneNumber } from "@/lib/helpers";
+import Contact from "@/models/Contact";
 
 export const
     registerUser = async (userData: any) => {
@@ -31,6 +31,20 @@ export const
                 description: userData.name
             })
         }
+
+
+
+        if (newUser && userData.contact) {
+            let contact = await Contact.findById(userData?.contact);
+            if (contact) {
+                contact.recordType = 'leader';
+            }
+            contact?.save()
+        }
+
+
+
+
 
         await newUser.save();
         return { message: "User registered successfully" };

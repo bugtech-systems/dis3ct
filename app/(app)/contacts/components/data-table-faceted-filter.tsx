@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Column } from "@tanstack/react-table";
@@ -29,15 +31,28 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: any;
     icon?: React.ComponentType<{ className?: string }>;
   }[];
+  onFilterChange?: (values: any[]) => void;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  onFilterChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
+
+  const handleSelect = (value: any) => {
+    if (selectedValues.has(value)) {
+      selectedValues.delete(value);
+    } else {
+      selectedValues.add(value);
+    }
+    const filterValues = Array.from(selectedValues);
+    column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    onFilterChange?.(filterValues);
+  };
 
   return (
     <Popover>
@@ -86,29 +101,16 @@ export function DataTableFacetedFilter<TData, TValue>({
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option, index) => {
+              {options.map((option) => {
                 const isSelected = selectedValues.has(option.value);
                 return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => {
-                      if (isSelected) {
-                        selectedValues.delete(option.value);
-                      } else {
-                        selectedValues.add(option.value);
-                      }
-                      const filterValues = Array.from(selectedValues);
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined,
-                      );
-                    }}
-                  >
+                  <CommandItem key={option.value} onSelect={() => handleSelect(option.value)}>
                     <div
                       className={cn(
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                         isSelected
                           ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible",
+                          : "opacity-50 [&_svg]:invisible"
                       )}
                     >
                       <CheckIcon className={cn("h-4 w-4")} />
@@ -116,12 +118,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                     {option.icon && (
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
-                    {/* <span>{`${index + 1}. ${option.label}`}</span> */}
-
                     <span className="text-xs">{option.label}</span>
-                    {facets?.get(option.value) && (
+                    {option?.count && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
+                        {option?.count}
                       </span>
                     )}
                   </CommandItem>
@@ -133,7 +133,10 @@ export function DataTableFacetedFilter<TData, TValue>({
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => {
+                      column?.setFilterValue(undefined);
+                      onFilterChange?.([]);
+                    }}
                     className="justify-center text-center"
                   >
                     Clear filters
