@@ -52,7 +52,6 @@ export function DataTableToolbar<TData>({
   useEffect(() => {
     if ((parentSystem && parentSystem.parent)) {
       let parId = parentSystem?.parent?._id ? parentSystem?.parent?._id : parentSystem?.parent;
-      console.log(parentSystem?.parent, 'PARENT')
       axios.get(`/api/contacts/filters?parNum=${parId}`).then((res) => {
         if (res.data) {
           // setFilters(res.data);
@@ -82,7 +81,6 @@ export function DataTableToolbar<TData>({
   if (selectedValues) {
     selectedValues?.forEach(a => {
       let barangay = barangayOptions.find(ab => ab.value == a);
-      console.log(barangay, 'BAR')
       if (barangay?.precincts) {
         barangay?.precincts.forEach(ab => {
           precinctsOption.push(ab)
@@ -102,8 +100,6 @@ export function DataTableToolbar<TData>({
     }
   })
 
-  console.log(filterOptions, 'FILTER', selectedValues, precinctsOption)
-
 
   return (
     <div className="flex items-center justify-between">
@@ -121,7 +117,6 @@ export function DataTableToolbar<TData>({
             title="Barangay"
             options={barangayOptions}
             onFilterChange={(values) => {
-              console.log(values, 'VALUES')
               setFilters((old) => { return { ...old, brgyCode: values } })
               // table.getColumn("tag")?.setFilterValue(values.length ? values : undefined)
             }}
@@ -135,7 +130,6 @@ export function DataTableToolbar<TData>({
             title="Precincts"
             options={precinctsOption}
             onFilterChange={(values) => {
-              console.log(values, 'VALUES')
               setFilters((old) => { return { ...old, precincts: values } })
               // table.getColumn("tag")?.setFilterValue(values.length ? values : undefined)
             }}
@@ -148,7 +142,6 @@ export function DataTableToolbar<TData>({
             title="Label"
             options={tagsOptions}
             onFilterChange={(values) => {
-              console.log(values, 'VALUES')
               setFilters((old) => { return { ...old, tags: values } })
               // table.getColumn("tag")?.setFilterValue(values.length ? values : undefined)
             }}

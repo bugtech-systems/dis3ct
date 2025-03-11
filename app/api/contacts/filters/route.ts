@@ -70,22 +70,59 @@ export async function GET(req) {
     // Count occurrences of each tag type, ensuring only the latest tag is considered
     const tagResults = await Contact.aggregate([
       { $match: matchQuery },
+
+      // Add a field to identify if tags array is empty
       {
-        $project: {
-          latestTag: {
-            $arrayElemAt: [
-              { $sortArray: { input: "$tags", sortBy: { timestamp: -1 } } }, 0
-            ]
-          }
+        $addFields: {
+          hasTags: { $gt: [{ $size: "$tags" }, 0] } // true if tags exist, false otherwise
         }
       },
+
+      // Separate contacts with tags and without tags
       {
-        $group: {
-          _id: { $ifNull: ["$latestTag.tagType", "unknown"] },
-          count: { $sum: 1 }
+        $facet: {
+          withTags: [
+            { $match: { hasTags: true } }, // Only contacts that have tags
+            { $unwind: "$tags" }, // ✅ Flatten tags array
+            { $sort: { "tags.timestamp": -1 } }, // ✅ Sort by latest timestamp
+            {
+              $group: {
+                _id: "$_id",
+                latestTag: { $first: "$tags" } // ✅ Get the latest tag per contact
+              }
+            },
+            {
+              $group: {
+                _id: "$latestTag.tagType",
+                count: { $sum: 1 }
+              }
+            }
+          ],
+          withoutTags: [
+            { $match: { hasTags: false } }, // Only contacts with no tags
+            {
+              $group: {
+                _id: "unknown",
+                count: { $sum: 1 }
+              }
+            }
+          ]
         }
-      }
-    ]);
+      },
+
+      // Merge results
+      {
+        $project: {
+          tags: { $concatArrays: ["$withTags", "$withoutTags"] } // Merge both groups
+        }
+      },
+
+      { $unwind: "$tags" }, // Flatten final array
+
+      { $replaceRoot: { newRoot: "$tags" } }, // Convert structure back to array
+      { $sort: { _id: 1 } } // Optional: Sort alphabetically
+    ]).allowDiskUse(true);
+
 
     filters.tags = tagResults
       .map(({ _id, count }) => ({

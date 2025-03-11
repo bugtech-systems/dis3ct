@@ -146,7 +146,6 @@ export function DataTableRowActions<TData>({
 
   let parent = user.parent;
 
-  console.log(contact, 'CONTACT')
 
   return (
     <>
