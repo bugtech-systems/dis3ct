@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/authOptions";
 import { sanitizeObject } from '@/lib/helpers';
 import User from '@/models/User';
 
-const getAuth = async (): Promise<any> => {
+const getAuth = async (id?: any): Promise<any> => {
   try {
     const session = await getServerSession(authOptions) as any;
 
@@ -18,7 +18,7 @@ const getAuth = async (): Promise<any> => {
     await connectToDatabase();
 
     // Ensure `parNum` is populated only if it exists
-    const user = await User.findById(userId).populate([{
+    const user = await User.findById(id || userId).populate([{
       path: 'parent',
       options: { strictPopulate: false } // Allows missing `parNum` without errors
     }]).select('name phone userType configs username accessCode accessCodes accessLevel');

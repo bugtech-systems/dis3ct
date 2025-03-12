@@ -36,7 +36,6 @@ export function TeamSwitchers({
   const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
   const { isMobile } = useSidebar()
   const { setSystem, system, user, setParentSystem } = useContact();
-  const { setRefreshId } = useComponent();
   const [teams, setTeams] = React.useState<any>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
 
@@ -46,7 +45,10 @@ export function TeamSwitchers({
     // setSystem(e)
     setParentSystem(e)
     // setRefreshId(Math.random())
-    // localStorage.setItem('system', e._id)
+    if (e) {
+      console.log('seet')
+      localStorage.setItem('system', e?._id)
+    }
     // signOut({ callbackUrl: '/login' })
   }
 
@@ -73,7 +75,7 @@ export function TeamSwitchers({
     // handleAuth()
 
     // handleGetSystems(user)
-    handleSystems(user);
+    handleSystems(system);
     return () => {
 
       // setActiveTeam(null)

@@ -41,8 +41,8 @@ export default function PlaygroundPage() {
     const [instruction, setInstruction] = useState('');
     const [isTask, setIsTask] = useState(false);
     const { presets, selectedContact, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset } = usePlayground();
-    const { user, system } = useContact();
-
+    const { user, system, parentSystem } = useContact();
+    const parent = (parentSystem && parentSystem?.parent?._id) ? parentSystem.parent : parentSystem
 
     // const handleAddMessage = async (message: any) => {
 
@@ -58,7 +58,7 @@ export default function PlaygroundPage() {
 
             // .finally(() => setLoading(false));
 
-            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}${system?.phone ? `&system=${system.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?.value}` : ''}&status=pending`); // Update the endpoint URL if necessary
+            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}${parent?.phone ? `&system=${parent.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?.value}` : ''}&status=pending`); // Update the endpoint URL if necessary
 
             if (!response.ok) {
                 throw new Error("Failed to fetch conversations");
@@ -110,7 +110,7 @@ export default function PlaygroundPage() {
                         dataObject: {
                             modelName: preset?.modelName ?? preset?.aiModel,
                             sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
-                            system: system.phone,
+                            system: parent.phone,
                             message: userMessage,
                             ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {})
                             /* instruction */
@@ -255,17 +255,17 @@ export default function PlaygroundPage() {
 
     useEffect(() => {
 
-        if (system) {
+        if (parentSystem) {
             getConversations();
         }
 
-        if (system && (!selectedContact && !selectedPreset)) {
+        if (parentSystem && (!selectedContact && !selectedPreset)) {
             setMessages([])
             getConversations()
         }
 
 
-    }, [selectedContact, system])
+    }, [selectedContact, parentSystem])
 
 
 

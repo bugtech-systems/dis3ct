@@ -79,8 +79,6 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
 
 
-    console.log(overview, 'OVERVIEW')
-
     return { teamReach, subscriptions, contacts, recentContacts: newContacts, overviewChartData }
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);

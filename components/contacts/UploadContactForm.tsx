@@ -466,7 +466,7 @@ export function UploadContactForm() {
                 <div className="min-h-[300px] space-y-4 py-2 pb-4">
                   <div className="space-y-2">
                     <Label>Barangay</Label>
-                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={!selectedMunicipality}>
+                    <Select onValueChange={setSelectedBarangay} value={selectedBarangay} disabled={user.userType != 'admin'}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Barangay" />
                       </SelectTrigger>

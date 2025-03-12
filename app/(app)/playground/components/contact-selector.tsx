@@ -36,16 +36,30 @@ interface ContactSelectorProps extends PopoverProps {
 }
 
 export function ContactSelector() {
-  const { system } = useContact()
+  const { system, parentSystem } = useContact()
   const { selectedContact, setSelectedContact } = usePlayground()
   const [open, setOpen] = React.useState(false)
   const [contacts, setContacts] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const parent = (parentSystem && parentSystem?.parent?._id) ? parentSystem.parent : parentSystem
+
+  function removeDuplicates(arr) {
+    const uniquePhones = new Map();
+
+    return arr.filter(item => {
+      if (!uniquePhones.has(item.phone)) {
+        uniquePhones.set(item.phone, true);
+        return true;
+      }
+      return false;
+    });
+  }
+
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch(`/api/contacts?system=${system?._id}&phone=true`)
+      const response = await fetch(`/api/contacts?userId=${parent?._id}&phone=true`)
       if (!response.ok) {
         throw new Error("Failed to fetch contacts")
       }
@@ -53,7 +67,9 @@ export function ContactSelector() {
 
       if (dataRes) {
         let { data } = dataRes;
-        setContacts(data) // Assuming API returns { success: true, data: [...] }
+        let newContacts = removeDuplicates(data);
+        console.log(newContacts, 'cont')
+        setContacts(newContacts) // Assuming API returns { success: true, data: [...] }
       }
     } catch (err: any) {
       console.log(err)
@@ -67,12 +83,12 @@ export function ContactSelector() {
   // Fetch contacts from the API
   React.useEffect(() => {
 
-    if (system) {
+    if (parent) {
       fetchContacts()
     }
-  }, [system])
+  }, [parent])
 
-  console.log(system, 'play system')
+  console.log(parent, 'play system')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

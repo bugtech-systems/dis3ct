@@ -37,13 +37,15 @@ export function UserNav({ user }: { user: any }) {
     // setActiveTeam(e)
     setSystem(e)
     setParentSystem(e)
-    if (e) {
-      localStorage.setItem('system', e._id)
-    } else {
-      localStorage.removeItem('system')
-    }
+    // if (e) {
+    //   localStorage.setItem('system', e._id)
+    // } else {
+    //   localStorage.removeItem('system')
+    // }
     // signOut({ callbackUrl: '/login' })
   }
+
+
 
 
 
@@ -56,8 +58,10 @@ export function UserNav({ user }: { user: any }) {
 
     if (authUser) {
       setUser(authUser);
-      if (authUser?.parent?._id == parent) {
-        handleSystems(authUser.parent);
+      if (parent) {
+        let authParent = await getAuth(parent);
+
+        handleSystems(authParent);
         // setParentSystem(authUser.parent)
         return;
       } else if (authUser.userType == 'system' || authUser.userType == 'admin' || authUser.userType == 'leader') {

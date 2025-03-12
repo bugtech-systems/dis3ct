@@ -73,23 +73,17 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
 
-  // const handleLocation = async (data) => {
-  //   try {
+  const handleAccessTypes = (e) => {
 
-  //     if (data) {
-  //       let response = await axios.get(`/api/location/access?code=${data?.accessCode}&level=${data?.accessLevel}`);
-  //       if (response?.data) {
-  //         let { regCode, provCode, citymunCode, brgyCode } = response.data;
-  //         // setSelectedRegion(regCode)
-  //         // setSelectedProvince(provCode)
-  //         setSelectedMunicipality(citymunCode)
-  //         setSelectedBarangay(brgyCode)
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.log(err, 'ERR')
-  //   }
-  // }
+    console.log(e, 'EE')
+    setAccessLevel(e)
+    if (e == 'citymunCode') {
+      setAccessCodes(barangays.map(a => a.brgyCode))
+
+    } else {
+      setAccessCodes([selectedBarangay])
+    }
+  }
 
 
   // Fetch Regions on Component Mount
@@ -255,7 +249,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
   // console.log(selectedProvince, municipalities, 'PROV', system, user)
-  console.log(profile, user, 'USER')
+  console.log(profile, user, 'USER', accessCodes)
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -292,7 +286,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
                 <div className="space-y-2">
                   <Label htmlFor="userLevel">Access Level</Label>
-                  <Select onValueChange={setAccessLevel} value={accessLevel} disabled={user.userType != 'admin'}>
+                  <Select onValueChange={handleAccessTypes} value={accessLevel} disabled={user.userType != 'admin'}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a level" />
                     </SelectTrigger>

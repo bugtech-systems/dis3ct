@@ -6,7 +6,13 @@ import AdmZip from "adm-zip";
 import axios from 'axios';
 import Contact from '@/models/Contact';
 
-
+function removeLastObject(arr) {
+    if (!Array.isArray(arr) || arr.length === 0) {
+        return [];
+    }
+    arr.pop(); // Removes and returns the last object
+    return arr;
+}
 
 function getLegendDescriptions(value) {
     const legends = {
@@ -205,8 +211,16 @@ export async function POST(req: NextRequest) {
                                     rowData.address = item.text;
                                     inc = 'address';
                                 } else if (inc == 'address') {
-                                    rowData.name = item.text;
-                                    inc = 'name';
+
+                                    if (String(item.text).split(',')[1]) {
+                                        rowData.name = item.text;
+                                        inc = 'name';
+                                        records.push({ ...rowData, ...area, precinct });
+                                    } else {
+                                        rowData.address = rowData.address + ' ' + item.text;
+                                    }
+
+
                                 } else if ((inc == 'name' && isNaN(Number(item.text)))) {
                                     if (String(item.text).length < 4) {
                                         rowData.marker = getLegendDescriptions(item.text);
@@ -216,10 +230,12 @@ export async function POST(req: NextRequest) {
                                         rowData.name = item.text;
                                     }
 
-                                } else if (((inc == 'name' || inc == 'marker') && (Number(activeNo) + 1) == Number(item.text))) {
+                                } else if ((inc == 'name' || inc == 'marker') && (Number(activeNo) + 1) == Number(item.text)) {
                                     activeNo = item.text;
-                                    inc = 'number'
+                                    inc = 'number';
 
+                                    const result = removeLastObject(records);
+                                    records = result;
                                     records.push({ ...rowData, ...area, precinct });
                                     rowData = {
                                         number: item.text,
@@ -227,7 +243,6 @@ export async function POST(req: NextRequest) {
                                         address: null,
                                         marker: null
                                     }
-
                                 }
                             } else {
                                 rowData = {
