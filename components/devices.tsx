@@ -19,7 +19,7 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 
-let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'http://localhost:3005/api/task';
+let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'http://localhost:3005/api/tasks';
 console.log(process.env, 'PRR')
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
