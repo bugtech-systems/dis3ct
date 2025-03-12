@@ -17,11 +17,13 @@ import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
 import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
+import createTask from "@/actions/createTask";
 
-
+// let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://swc.sharewin.pro/api/tasks';
+console.log(process.env, 'PRR')
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
-  const { system, user } = useContact()
+  const { parentSystem, user } = useContact()
   const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
   const [isConnected, setIsConnected] = React.useState(false);
   let socket = getSocket()
@@ -80,12 +82,13 @@ export function DeviceForm() {
 
 
   const handleRestartGsm = async () => {
-    let apiUrl = '/api/tasks'
-    let systemResp = await axios.get(`/api/contacts/save/system/${system?.phone}`);
-    console.log(systemResp, 'SYSTEPR')
+    console.log(process, 'PRR')
+
+    let systemResp = await axios.get(`/api/contacts/save/system/${parentSystem?.phone}`);
+    console.log(systemResp, 'SYSTEPR', process.env)
     if (systemResp.data) {
 
-      await axios.post(apiUrl, {
+      await createTask({
         status: 'Todo',
         priority: 'Low',
         category: 'Background',
@@ -150,7 +153,7 @@ export function DeviceForm() {
           <DialogDescription>Configure Devices</DialogDescription>
         </DialogHeader>
         <br />
-        {(user?.userType == 'admin' || findFeature(system?.configs, 'biometric').value) &&
+        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'biometric').value) &&
           <>
             <p onClick={() => handleStatus()}>Biometric: {scannerStatus}</p>
             {isConnected ?
@@ -163,7 +166,7 @@ export function DeviceForm() {
             }
           </>
         }
-        {(user?.userType == 'admin' || findFeature(system?.configs, 'sms').value) &&
+        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
           <>
             <p >GSM Module</p>
             <Button onClick={handleRestartGsm} >

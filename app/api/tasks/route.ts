@@ -61,7 +61,6 @@ export const POST = async (req: NextRequest) => {
       taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
     };
 
-    console.log(newObject)
 
     const result = await createTask(newObject);
     if (!result.success) {
