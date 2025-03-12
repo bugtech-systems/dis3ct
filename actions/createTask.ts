@@ -4,7 +4,7 @@ import axios from 'axios';
 
 let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
 
-
+console.log(process.env, 'PRRS')
 const createTask = async (data): Promise<any[]> => {
 
     try {
