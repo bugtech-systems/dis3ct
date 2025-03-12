@@ -5,12 +5,12 @@ import axios from 'axios';
 let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
 
 console.log(process.env, 'PRRS')
-const createTask = async (data): Promise<any[]> => {
+const createTask = async (api_url, data): Promise<any[]> => {
 
     try {
 
 
-        let resp = await axios.post(apiUrl, data) as any;
+        let resp = await axios.post(api_url ? api_url : apiUrl, data) as any;
 
 
 

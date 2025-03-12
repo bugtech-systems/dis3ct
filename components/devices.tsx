@@ -19,7 +19,7 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 
-// let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://swc.sharewin.pro/api/tasks';
+let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'http://localhost:3005/api/task';
 console.log(process.env, 'PRR')
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
@@ -88,7 +88,7 @@ export function DeviceForm() {
     console.log(systemResp, 'SYSTEPR', process.env)
     if (systemResp.data) {
 
-      await createTask({
+      await createTask(apiUrl, {
         status: 'Todo',
         priority: 'Low',
         category: 'Background',
