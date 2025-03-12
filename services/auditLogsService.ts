@@ -4,7 +4,7 @@ import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
-export const logAction = async (userId: string, action: string, details?: any) => {
+export const logAction = async (userId?: string, action?: string, details?: any) => {
     await connectDB();
 
     const session = await getServerSession(authOptions) as any;
@@ -18,13 +18,15 @@ export const logAction = async (userId: string, action: string, details?: any) =
     let system;
 
     user = await User.findById(userId);
-    if (user) {
-        system = await User.findById(user._id);
+    console.log({ userId: user, action, details, system: user?.parent })
+
+    if (!user?.parent) {
+        system = await User.findById(user?.parent);
     }
+    console.log({ userId: user, action, details, system: user?.parent })
 
     try {
-
-        await AuditLog.create({ userId: user, action, details, system });
+        await AuditLog.create({ userId: user, action, details, system: user?.parent });
     } catch (error) {
         console.error("Error logging action:", error);
     }

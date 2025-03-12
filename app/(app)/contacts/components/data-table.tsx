@@ -28,6 +28,24 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { useComponent } from "@/components/providers/ComponentContext";
 
+
+// Debounce function
+function useDebounce(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = React.useState(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
 }
@@ -58,6 +76,8 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
   });
 
 
+  const debouncedSearch = useDebounce(search, 3000);
+
 
   const table = useReactTable({
     data: contactTable,
@@ -79,6 +99,10 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+
+
+
+
   React.useEffect(() => {
     setIsRefreshing(true)
     const fetchData = async () => {
@@ -87,7 +111,7 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
           userId: parentSystem ? parentSystem?._id : user?._id,
           page: pageIndex + 1,
           limit: pageSize,
-          search,
+          search: debouncedSearch,
           ...(filters?.tags ? { tags: filters?.tags.join(',') } : {}),
           ...(filters?.brgyCode ? { brgyCode: filters?.brgyCode.join(',') } : {}),
           ...(filters?.precincts ? { precincts: filters?.precincts.join(',') } : {}),
@@ -109,7 +133,7 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
       fetchData();
     }
 
-  }, [parentSystem, pageIndex, pageSize, search, filters, refreshId]);
+  }, [parentSystem, pageIndex, pageSize, debouncedSearch, filters, refreshId]);
 
   return (
     <div className="space-y-4">

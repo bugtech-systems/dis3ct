@@ -398,3 +398,21 @@ export const handleNewMessage = async ({ message, sender, system, isFlash = fals
 
 
 }
+
+export function updateOrPushObject(arr, newObj) {
+  if (!Array.isArray(arr) || typeof newObj !== "object" || newObj === null) return arr;
+
+  const index = arr.findIndex(obj =>
+    Object.keys(newObj).every(key => String(obj[key]) == String(newObj[key]))
+  );
+
+  if (index !== -1) {
+    // Replace the existing object
+    arr[index] = newObj;
+  } else {
+    // Push the new object if not found
+    arr.push(newObj);
+  }
+
+  return arr;
+}

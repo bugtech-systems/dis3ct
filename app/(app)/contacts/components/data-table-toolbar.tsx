@@ -87,7 +87,7 @@ export function DataTableToolbar<TData>({
         })
       }
 
-      return barangay.precincts
+      return barangay?.precincts
     })
   }
 

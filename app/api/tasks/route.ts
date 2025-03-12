@@ -9,7 +9,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { isParsableObject } from "@/lib/helpers";
 import { logAction } from "@/services/auditLogsService";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import User from "@/models/User";
 // Get all tasks or a single task by ID
 export const GET = async (req: NextRequest) => {
   try {
@@ -37,6 +39,20 @@ export const GET = async (req: NextRequest) => {
 // Create a new task
 export const POST = async (req: NextRequest) => {
   try {
+
+    const session = await getServerSession(authOptions) as any;
+    // console.log(session, 'SESS')
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      // return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+    const userId = session?.user?.id;
+    const user = await User.findById(userId)
+
+    // if (!user) {
+    //   return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    // }
+
     const body = await req.json();
 
     let newObject = {
@@ -45,13 +61,15 @@ export const POST = async (req: NextRequest) => {
       taskId: `TASK-${uuidv4().slice(0, 8).toUpperCase()}`,
     };
 
+    console.log(newObject)
 
     const result = await createTask(newObject);
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });
     }
 
-    logAction('', 'Task Created', `${newObject.taskId} - ${newObject.taskObject}`)
+
+    logAction(user?._id, 'Task Created', `${newObject.taskId} - ${newObject.taskObject}`)
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {

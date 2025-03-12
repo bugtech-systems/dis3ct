@@ -54,7 +54,10 @@ const ContactSchema = new Schema<IContact>(
     biometric: { type: Schema.Types.ObjectId, ref: 'Fingerprint' },
     subscribed: { type: Boolean, default: false },
     tags: [{
-      tagType: String, user: { type: Schema.Types.ObjectId, ref: 'User' },
+      tagType: { type: String, default: 'tag' },
+      user: { type: Schema.Types.ObjectId, ref: 'User' },
+      value: String,
+      isTrue: { type: Boolean, default: false },
       timestamp: { type: Date, default: Date.now },
     }],
     parNum: { type: Schema.Types.ObjectId, ref: 'User' },

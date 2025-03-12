@@ -10,6 +10,7 @@ import {
 import { useContact } from "./providers/ContactProvider";
 import axios from "axios";
 import { useCallback, useEffect } from "react";
+import { findFeature } from "@/lib/helpers";
 
 const navAdmin = [
   {
@@ -82,7 +83,7 @@ export function NavMain() {
 
 
   const pathname = usePathname();
-  let items = (user && user.userType == 'admin') ? navAdmin : (user && (user.userType == 'system' && user.subscription == 'pro')) ? navSystem : navNormal;
+  let items = (user && user.userType == 'admin') ? navAdmin : (user && user.userType == 'system' && findFeature(user.configs, 'ai')) ? navSystem : navNormal;
 
 
   // Fetch user data and set it in context

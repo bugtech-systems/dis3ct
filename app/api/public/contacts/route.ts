@@ -1,4 +1,4 @@
-import { formatVoterSms, sanitizePhoneNumber } from "@/lib/helpers";
+import { formatVoterSms, sanitizePhoneNumber, updateOrPushObject } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
 import { getServerSession } from "next-auth";
@@ -8,6 +8,7 @@ import axios from "axios";
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 import { logAction } from "@/services/auditLogsService";
 import { authOptions } from "@/lib/authOptions";
+import User from "@/models/User";
 
 let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
 
@@ -21,8 +22,12 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
+
+    await connectToDatabase();
+
     const userId = session.user.id;
 
+    let user = await User.findById(userId) as any;
 
 
     const data = await req.json();
@@ -39,12 +44,30 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    await connectToDatabase();
 
     let record = await Contact.findById(recordId) as any;
 
     if (record) {
-      record.phone = newPhone;
+
+
+      let mobile = await Mobile.findOne({ phone: newPhone, contact: record, user: userId }) as any;
+
+      if (!mobile) {
+        mobile = await Mobile.create({
+          phone,
+          contact: record,
+          user: userId
+        })
+
+
+
+
+      }
+
+      let newTags = updateOrPushObject(record?.tags, { value: newPhone, tagType: 'phone', user: user?._id })
+
+      console.log(newTags)
+      record['phone'] = newPhone;
       await record.save()
 
       let barangay = barangays.find((brgy: any) => brgy.brgyCode == record.brgyCode)?.brgyDesc;

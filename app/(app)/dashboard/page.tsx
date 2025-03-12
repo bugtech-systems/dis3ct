@@ -27,11 +27,14 @@ export default function DashboardPage() {
 
   // Memoized function to fetch dashboard data
   const fetchDashboardData = useCallback(async () => {
+    console.log(parentSystem, user, 'ss')
     if (!parentSystem || !user) return;
 
     try {
       const dashData = await getLeaderDashboard(parentSystem?._id);
       // Only update state if data actually changes
+
+      console.log(dashData, 'DASH')
       setDashboardData((prevData) => {
         return JSON.stringify(prevData) !== JSON.stringify(dashData)
           ? dashData
@@ -40,7 +43,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [parentSystem]);
+  }, [parentSystem, user]);
 
 
   // Fetch dashboard data when user changes

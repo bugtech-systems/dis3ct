@@ -26,9 +26,11 @@ import getAuth from "@/actions/getAuth";
 import getTeams from "@/actions/getTeams";
 import { DeviceForm } from "./devices";
 import { findFeature } from "@/lib/helpers";
+import { useRouter } from "next/navigation";
 
 export function UserNav({ user }: { user: any }) {
   const { modal, setModal, record } = useComponent();
+  const router = useRouter()
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { setUser, setSystem, system, setParentSystem, parentSystem } = useContact();
@@ -55,7 +57,7 @@ export function UserNav({ user }: { user: any }) {
     let parent = localStorage.getItem('system')
 
 
-
+    console.log(authUser, parent)
     if (authUser) {
       setUser(authUser);
       if (parent) {
@@ -68,7 +70,7 @@ export function UserNav({ user }: { user: any }) {
         handleSystems(authUser);
       }
     } else {
-      handleSystems(authUser);
+      router.push('/login')
     }
   }
 
@@ -79,7 +81,6 @@ export function UserNav({ user }: { user: any }) {
    }, [user]) */
   useEffect(() => {
     handleAuth()
-
 
     //     axios.get(`/api/contacts/save/${activeTeam?.user}`)
 

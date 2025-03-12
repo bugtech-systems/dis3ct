@@ -35,6 +35,7 @@ export function LoginForm({ className, ...props }: any) {
       if (res?.error) {
         setError(res.error);
       } else {
+        localStorage.clear()
         router.push("/");
       }
     } catch (error) {
@@ -82,6 +83,7 @@ export function LoginForm({ className, ...props }: any) {
         setError("Invalid OTP. Please try again.");
       } else {
         setLoading(false)
+        localStorage.clear()
         router.push("/");
       }
     } catch (error) {

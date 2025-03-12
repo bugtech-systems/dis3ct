@@ -146,7 +146,9 @@ export async function GET(req: NextRequest) {
 
     // Include only contacts with a phone number if requested
     if (phoneFilter) {
-      query.phone = { $exists: true, $ne: "" };
+      query['tags.tagType'] = 'phone';
+      query['tags.user'] = String(user._id);
+
     }
 
     // Search functionality
@@ -177,12 +179,16 @@ export async function GET(req: NextRequest) {
       const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;
       const province = provinces.find((p) => p.provCode === contact.provCode)?.provDesc;
       const region = regions.find((r) => r.regCode === contact.regCode)?.regDesc;
-      const tagContact = contact?.tags ? user.userType != 'leader' ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => a.user == user._id).sort((a, b) => b.timestamp - a.timestamp) : []
+      let tags = contact?.tags ? user.userType != 'leader' ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => String(a.user) == String(user._id)).sort((a, b) => b.timestamp - a.timestamp) : []
 
+      let tagContact = tags.filter(a => a.tagType == 'tag').sort((a, b) => b.timestamp - a.timestamp)
+      const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
+
+      console.log(tagPhone, tagContact, 'TAAG', user._id)
       return {
         _id: contact._id,
         name: contact.name,
-        phone: contact.phone,
+        phone: tagPhone,
         address: contact.address,
         marker: contact.marker,
         precinct: contact.precinct,
