@@ -54,11 +54,12 @@ export const POST = async (
     if (tagExist) {
       // if(tagExist)
 
-      if (tagExist.tagType != type) {
+      if (tagExist.value != type) {
 
         newTags.push({
-          tagType: type,
-          user: authUser?._id
+          tagType: 'tag',
+          user: authUser?._id,
+          value: type
         })
         isTag = true;
       }
@@ -69,7 +70,8 @@ export const POST = async (
     } else {
       newTags = newTags ? newTags : []
       newTags.push({
-        tagType: type,
+        tagType: 'tag',
+        value: type,
         user: authUser?._id
       })
       isTag = true;

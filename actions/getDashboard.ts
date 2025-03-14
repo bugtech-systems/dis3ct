@@ -20,23 +20,27 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     let brgyCode = user.accessCodes;
 
     let brgys = brgyCode ? brgyCode.map(brgy => {
-      return { brgyCode: { $regex: brgy, $options: "i" }, parNum: user.parent }
+      return {
+        brgyCode: brgy, parNum: user.parent
+      }
     }) : []
 
 
 
     let options: any = { deletedAt: null };
-    if (user.userType == "system") {
+    if (user.userType != "leader") {
       options.parNum = user.parent;
+
     } else if (user.userType == 'leader') {
       options.parNum = user.parent;
       // options[user.accessLevel] = user.accessCode;
+      if (brgys.length) {
+        options.$or = brgys;
+      }
     }
 
 
-    if (brgys.length) {
-      options.$or = brgys;
-    }
+
 
 
     // Aggregate Dashboard Data
@@ -44,7 +48,8 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       Contact.countDocuments({ ...options }),
       Contact.countDocuments({ subscribed: true, ...options }),
       Contact.countDocuments({
-        'tags.user': id,
+        ...options,
+        'tags.user': String(user._id),
       }),
       // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })
@@ -55,7 +60,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     ]);
 
 
-
+    console.log(user._id)
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
 

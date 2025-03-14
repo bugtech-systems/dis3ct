@@ -46,7 +46,7 @@ export const POST = async (req: NextRequest) => {
       newTags = newTags.filter(tag => String(tag.user) !== String(authUser._id));
 
       // Add new tag if it's different from the previous one
-      newTags.push({ tagType: type, user: authUser._id });
+      newTags.push({ tagType: 'tag', user: authUser._id, value: type });
       isTag = true;
 
       contact.tags = newTags;

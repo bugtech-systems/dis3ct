@@ -129,6 +129,7 @@ export async function GET(req: NextRequest) {
       query.precinct = { $in: precincts.split(",") };
     }
 
+
     if (tags) {
       const tagList = tags.split(",");
 
@@ -140,8 +141,10 @@ export async function GET(req: NextRequest) {
         ];
       } else {
         // Otherwise, filter by specific tagTypes
-        query.tags = { $elemMatch: user.userType != 'leader' ? { tagType: { $in: tagList } } : { tagType: { $in: tagList }, user: user._id } };
+        query.tags = { $elemMatch: user.userType != 'leader' ? { value: { $in: tagList } } : { value: { $in: tagList }, user: user._id, tagType: 'tag' } };
       }
+
+      console.log(tagList, 'TAGS')
     }
 
     // Include only contacts with a phone number if requested
@@ -184,7 +187,6 @@ export async function GET(req: NextRequest) {
       let tagContact = tags.filter(a => a.tagType == 'tag').sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
 
-      console.log(tagPhone, tagContact, 'TAAG', user._id)
       return {
         _id: contact._id,
         name: contact.name,
@@ -201,13 +203,15 @@ export async function GET(req: NextRequest) {
         recordType: contact.recordType,
         school: contact.school,
         // tags: contact?.tags,
-        tag: tagContact.length ? tagContact[0].tagType : 'unknown',
+        tag: tagContact.length ? tagContact[0].value : 'unknown',
         subscribed: contact.subscribed,
       };
     });
 
+
     // Get total contact count for pagination
     const totalContacts = await Contact.countDocuments(query);
+
 
     return NextResponse.json(
       {

@@ -93,7 +93,7 @@ export async function GET(req) {
             },
             {
               $group: {
-                _id: "$latestTag.tagType",
+                _id: "$latestTag.value",
                 count: { $sum: 1 }
               }
             }
