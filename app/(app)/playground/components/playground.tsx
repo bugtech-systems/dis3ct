@@ -36,6 +36,7 @@ import { ContactSelector } from "./contact-selector"
 import { Switch } from "@/components/ui/switch"
 import createTask from "@/actions/createTask"
 
+let nextUrl = process.env.ALAYON_NEXT || `https://sharewin.pro`
 
 export default function PlaygroundPage() {
     const [isLoading, setLoading] = useState(false);
@@ -104,7 +105,7 @@ export default function PlaygroundPage() {
                     category: 'Api',
                     title: 'Chat AI',
                     taskObject: JSON.stringify({
-                        url: `http://127.0.0.1:3000/api/presets/chat${selectedPreset.value ? `/${selectedPreset?.value}` : ''}`,
+                        url: `${nextUrl}/api/presets/chat${selectedPreset.value ? `/${selectedPreset?.value}` : ''}`,
                         method: 'post',
                         dataObject: {
                             modelName: preset?.modelName ?? preset?.aiModel,
