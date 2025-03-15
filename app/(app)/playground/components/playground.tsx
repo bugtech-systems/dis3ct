@@ -34,6 +34,7 @@ import { CardsChat } from "./chat"
 import { useContact } from "@/components/providers/ContactProvider"
 import { ContactSelector } from "./contact-selector"
 import { Switch } from "@/components/ui/switch"
+import createTask from "@/actions/createTask"
 
 
 export default function PlaygroundPage() {
@@ -90,22 +91,20 @@ export default function PlaygroundPage() {
 
             setUserMessage('')
 
-            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset._id}` : '/api/presets/chat'
+            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset.value}` : '/api/presets/chat'
             // let apiUrl = '/api/presets/chat'
 
             if (isTask) {
 
 
-                apiUrl = '/api/tasks'
-
-
-                await axios.post(apiUrl, {
+                // apiUrl = '/api/tasks'
+                await createTask(null, {
                     status: 'Todo',
                     priority: 'High',
                     category: 'Api',
                     title: 'Chat AI',
                     taskObject: JSON.stringify({
-                        url: `http://127.0.0.1:3000/api/presets/chat`,
+                        url: `http://127.0.0.1:3000/api/presets/chat${selectedPreset.value ? `/${selectedPreset?.value}` : ''}`,
                         method: 'post',
                         dataObject: {
                             modelName: preset?.modelName ?? preset?.aiModel,
@@ -117,6 +116,7 @@ export default function PlaygroundPage() {
                         }
                     })
                 })
+
 
             } else {
 

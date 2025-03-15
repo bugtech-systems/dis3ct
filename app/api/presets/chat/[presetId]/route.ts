@@ -247,7 +247,7 @@ export const POST = async (req: NextRequest,
     // const presetResult = await getPresetByValue(presetValue || contact?.activePreset || null);
 
     // Fetch the preset by presetId
-    const presetResult = await getPresetById(presetId);
+    const presetResult = await getPresetByValue(presetId);
 
 
     if (!presetResult.success || !presetResult.data) {

@@ -76,7 +76,7 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
   });
 
 
-  const debouncedSearch = useDebounce(search, 3000);
+  const debouncedSearch = useDebounce(search, 2000);
 
 
   const table = useReactTable({

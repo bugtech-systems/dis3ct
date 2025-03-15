@@ -21,7 +21,6 @@ export async function GET(req) {
 
     const filters = {};
 
-    console.log(parNum, "PRNUM");
 
     // Generate filters for municipalities, barangays, and schools
     for (const { desc, field, label, data } of filterFields) {
