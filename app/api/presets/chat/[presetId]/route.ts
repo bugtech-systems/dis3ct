@@ -24,7 +24,7 @@ const handleCall = async ({ phone, system }: { phone?: string; system?: string; 
     title: 'Call Contact',
     taskObject: JSON.stringify({
       // ...preset,
-      phone,
+      phone: sanitizePhoneNumber(phone),
       system: system,
     })
   }) as any;
@@ -49,7 +49,7 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
     taskObject: JSON.stringify({
       // ...preset,
       isFlash,
-      phone: sender,
+      phone: sanitizePhoneNumber(sender),
       system: system,
       message: message
 
@@ -93,8 +93,6 @@ async function processApiResponse(response: any) {
       }
 
 
-
-
       if (contentData.action?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
         console.log(contentData, 'CALL DATA', phone, sender)
         await handleCall({
@@ -105,7 +103,7 @@ async function processApiResponse(response: any) {
           if (contentData?.phone && textWithoutJson) {
             await handleNewMessage({
               sender: contentData?.phone,
-              message: textWithoutJson || contentData.message,
+              message: contentData.message || textWithoutJson,
               system,
               isFlash: true
             })
@@ -113,7 +111,7 @@ async function processApiResponse(response: any) {
           if (sender) {
             await handleNewMessage({
               sender,
-              message: contentData.message || textWithoutJson,
+              message: textWithoutJson || contentData.message,
               system,
               isFlash: true
             })
@@ -124,7 +122,7 @@ async function processApiResponse(response: any) {
       } else if (contentData.action?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
 
         await handleNewMessage({
-          sender,
+          sender: sender ? sender : contentData?.phone,
           message: contentData.message,
           system,
           isFlash: textWithoutJson ? true : false
@@ -132,7 +130,7 @@ async function processApiResponse(response: any) {
 
         if (textWithoutJson) {
           await handleNewMessage({
-            sender,
+            sender: sender ? sender : contentData?.phone,
             message: textWithoutJson,
             system,
             isFlash: true
@@ -226,7 +224,6 @@ export const POST = async (req: NextRequest,
     let systemContact = await getSystemByNumber(sanitizePhoneNumber(system));
     let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
 
-    console.log(systemContact, 'ssddd')
 
 
 
@@ -241,7 +238,6 @@ export const POST = async (req: NextRequest,
 
     }
 
-    console.log(systemParent, contact, 'ddd')
 
 
     // const presetResult = await getPresetByValue(presetValue || contact?.activePreset || null);
@@ -351,7 +347,7 @@ export const POST = async (req: NextRequest,
 
 
 
-    console.log(hotlines, 'HOTLINEs')
+    // console.log(hotlines, 'HOTLINEs')
 
 
 
@@ -381,7 +377,7 @@ export const POST = async (req: NextRequest,
 
 
 
-
+    console.log(recentConversations, 'RECENT', newConvos)
 
     // Create the prompt templates
     const finalTemperature = temperature ?? preset?.aiTemperature;
@@ -389,11 +385,12 @@ export const POST = async (req: NextRequest,
     const finalModelName = modelName ?? preset?.modelName;
     const finalMaxTokens = maxTokens ?? preset?.aiMaxLength;
     const systemBehavior = preset?.systemBehavior ? convertQuillToPlainText(preset?.systemBehavior) : null;
+    const limitedArray = hotlines.slice(0, 10);
 
 
-    let newSystem = systemBehavior + '\n\n' + `#### Hotline Details:\nBelow is an array of hotline contacts. Use this information to provide relevant responses when users ask for specific contacts, designations, or description.\n\n
+    let newSystem = systemBehavior + '\n\n' + `
     
-    ${formatHotlinesAsString(hotlines)}.\n\n
+    ${hotlines.length ? formatHotlinesAsString(limitedArray) : 'No Hotlines Available'}.\n\n
     
     #### Important Notes: \n - IF the user concern is not listed in the hotline details, response should be "Sorry, I cant't help you with that. Please contact the appropriate hotline."`
 
@@ -467,7 +464,7 @@ export const POST = async (req: NextRequest,
 
       await createConversation({
         ...(systemParent ? { system: systemParent?._id } : {}),
-        ...(contact ? { contact: contact?.id } : {}),
+        ...(contact ? { contact: contact?._id } : {}),
         preset: preset?._id,
         content: message,
         role: 'user'
@@ -475,7 +472,7 @@ export const POST = async (req: NextRequest,
 
       await createConversation({
         ...(systemParent ? { system: systemParent?._id } : {}),
-        ...(contact ? { contact: contact?.id } : {}),
+        ...(contact ? { contact: contact?._id } : {}),
         preset: preset?._id,
         content: response.message.content,
         role: 'assistant'
@@ -492,7 +489,7 @@ export const POST = async (req: NextRequest,
       })
     }
 
-    await processApiResponse({ ...newResponse, sender: contact?.phone, system: systemParent?.phone })
+    await processApiResponse({ ...newResponse, sender: sanitizePhoneNumber(contact?.phone), system: sanitizePhoneNumber(systemParent?.phone) })
 
 
 

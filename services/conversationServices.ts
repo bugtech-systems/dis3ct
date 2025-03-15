@@ -149,14 +149,13 @@ export const getAllConversations = async (option: any): Promise<{
 
     let newOptions = convertToAndCondition(option);
 
-    console.log('GET ALL CONVO', newOptions)
     const conversations = await Conversation.find(newOptions).populate([
       { path: "contact", select: "name phone" }, // Populate contact with specific fields
       { path: "system", select: "name phone" }, // Populate system with specific fields
       { path: "preset", select: "name value description" }, // Populate preset with specific fields
     ]).sort({ createdAt: 1 }).limit(100).lean();
 
-
+    console.log(conversations[0], 'convo')
     return { success: true, data: conversations };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch conversations" };

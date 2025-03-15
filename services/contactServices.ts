@@ -126,7 +126,7 @@ export const getContactByNumber = async (
 
     const systemData = await User.findOne({ phone: sanitizePhoneNumber(system) });
     if (systemData) {
-      options.parNum = systemData.id
+      options.parNum = systemData._id
     }
 
 

@@ -232,7 +232,7 @@ export function convertQuillToPlainText(quillContent: string): string {
 
 export function sanitizePhoneNumber(phoneNumber: any | null) {
   // Remove any non-numeric characters from the phone number
-  const sanitized = String(phoneNumber).replace(/\D/g, '');
+  const sanitized = String(phoneNumber).replace(/\D/g, '').replace(/[^\d+]/g, '');
 
   if (sanitized.length > 12) return null;
 
@@ -267,7 +267,10 @@ export function checkContactId(contactId: any) {
 export function internationalizePhoneNumber(phoneNumber: any) {
   // Remove any non-numeric characters from the phone number
   if (!phoneNumber) return null;
-  const sanitized = phoneNumber.replace(/\D/g, '');
+  const sanitized = phoneNumber.replace(/[^\d+]/g, '');
+
+
+
 
   if (sanitized.length > 12) throw Error('Invalid phone number format');
 
