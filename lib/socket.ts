@@ -21,7 +21,7 @@ let socket: Socket | null = null;
 export const connectSocket = () => {
     if (!socket) {
         socket = io(SOCKET_SERVER_URL, {
-            // autoConnect: false,
+            autoConnect: true,
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,

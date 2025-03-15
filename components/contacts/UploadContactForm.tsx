@@ -218,7 +218,6 @@ export function UploadContactForm() {
 
     try {
 
-      console.log(schoolData, 'SCHOOL DT')
 
       const response = await axios.post("/api/contacts/save/school", { data: schoolData, parNum: parentSystem?.parent?._id });
 
@@ -226,7 +225,6 @@ export function UploadContactForm() {
       setLoading(false);
 
 
-      console.log(data, 'RESP')
       return toast.success(data.message)
 
     } catch (error) {
@@ -434,7 +432,6 @@ export function UploadContactForm() {
   }, [open, system])
 
 
-  console.log(parentSystem, 'par')
 
 
   return (

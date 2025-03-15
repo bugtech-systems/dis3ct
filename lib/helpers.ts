@@ -338,6 +338,19 @@ export function findFeature(confs, type) {
 }
 
 
+export function findObject(confs, type, key = "title") {
+  let configs: any[] = confs ? confs : [];
+
+  let config = configs.find(conf => conf[key] == type);
+
+  if (config) {
+    return config
+  } else {
+    return { [key]: type }
+  }
+
+}
+
 export function replaceObjectInArray(existingArray, newObject, key = "_id") {
   return existingArray.map(item => item[key] === newObject[key] ? { ...item, ...newObject } : item);
 }

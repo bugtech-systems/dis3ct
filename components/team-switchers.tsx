@@ -46,7 +46,6 @@ export function TeamSwitchers({
     setParentSystem(e)
     // setRefreshId(Math.random())
     if (e) {
-      console.log('seet')
       localStorage.setItem('system', e?._id)
     }
     // signOut({ callbackUrl: '/login' })

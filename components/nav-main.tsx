@@ -83,8 +83,7 @@ export function NavMain() {
 
 
   const pathname = usePathname();
-  let items = (user && user.userType == 'admin') ? navAdmin : (user && user.userType == 'system' && findFeature(user.configs, 'ai')) ? navSystem : navNormal;
-
+  let items = (user && user?.userType == 'admin') ? navAdmin : (user && user?.userType == 'system' && findFeature(user?.configs, 'ai')?.value) ? navSystem : navNormal;
 
   // Fetch user data and set it in context
   const handleGetUser = useCallback(async () => {

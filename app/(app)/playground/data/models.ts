@@ -30,6 +30,12 @@ export const models: Model<ModelType>[] = [
     description: "DeepSeek’s first-generation reasoning models, achieving performance comparable to OpenAI-o1 across math, code, and reasoning tasks",
     type: "Deepseek"
   },
+  {
+    id: "alayon_hotline",
+    name: "alayon_hotline",
+    description: "Alayon Emergency Hotline AI",
+    type: "Ollama"
+  },
 
 
 ]

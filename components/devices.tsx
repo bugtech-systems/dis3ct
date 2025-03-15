@@ -19,19 +19,20 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 
-console.log(process.env, 'PRR')
+let socket = getSocket()
+
+
 export function DeviceForm() {
   const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
   const { parentSystem, user } = useContact()
   const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
   const [isConnected, setIsConnected] = React.useState(false);
-  let socket = getSocket()
 
   const handleInit = async () => {
     console.log("🔄 Initializing scanner...");
     try {
 
-      let socket = connectSocket();
+      socket = connectSocket();
       setBiometricRunning(true)
 
 
@@ -81,11 +82,9 @@ export function DeviceForm() {
 
 
   const handleRestartGsm = async () => {
-    console.log(process, 'PRR')
     let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://swc.sharewin.pro/api/tasks';
 
     let systemResp = await axios.get(`/api/contacts/save/system/${parentSystem?.phone}`);
-    console.log(systemResp, 'SYSTEPR', process.env)
     if (systemResp.data) {
 
       await createTask(apiUrl, {
@@ -108,22 +107,32 @@ export function DeviceForm() {
 
 
   React.useEffect(() => {
+    console.log(modal == 'devices', socket, 'SOCKET')
+    socket = getSocket()
 
-    if (biometricRunning && socket) {
+    if (modal == 'devices') {
 
-      socket.on("connect", () => {
+      if (socket?.connected) {
+        setScannerStatus("Connected");
+        setIsConnected(true);
+        setBiometricRunning(true)
+
+      }
+      console.log(socket?.connected, 'con')
+      socket?.on("connect", () => {
         console.log("✅ Socket connected!");
         setScannerStatus("Connected");
         setIsConnected(true);
       });
 
-      socket.on("server_response", (data) => {
+
+      socket?.on("server_response", (data) => {
         console.log("📡 Server Response:", data.message);
         setScannerStatus(data.message);
         // setScannerStatus("Connected");
       });
 
-      socket.on("status_response", (data) => {
+      socket?.on("status_response", (data) => {
         console.log("📡 Server Response:", data);
         // setScannerStatus(data.message);
         // setScannerStatus("Connected");
@@ -131,17 +140,17 @@ export function DeviceForm() {
     }
 
     return () => {
-      if (biometricRunning && socket) {
+      if (modal == 'devices') {
 
         console.log("🚪 Cleaning up socket listeners...");
+        socket?.off("connect")
+        socket?.off("server_response");
+        socket?.off("status_response");
 
-        socket.off("connect")
-        socket.off("server_response");
-        socket.off("status_response");
       }
 
     };
-  }, [biometricRunning]);
+  }, [socket, modal]);
 
 
 
@@ -157,10 +166,10 @@ export function DeviceForm() {
           <>
             <p onClick={() => handleStatus()}>Biometric: {scannerStatus}</p>
             {isConnected ?
-              <Button onClick={handleShutdown} >
+              <Button onClick={() => handleShutdown()} >
                 Stop Device
               </Button> :
-              <Button onClick={handleInit} >
+              <Button onClick={() => handleInit()} >
                 Start Device
               </Button>
             }
@@ -169,7 +178,7 @@ export function DeviceForm() {
         {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
           <>
             <p >GSM Module</p>
-            <Button onClick={handleRestartGsm} >
+            <Button onClick={() => handleRestartGsm()} >
               Restart Device
             </Button>
           </>

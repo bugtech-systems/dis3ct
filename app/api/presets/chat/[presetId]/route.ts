@@ -1,3 +1,4 @@
+import getHotlines from '@/actions/getHotlines';
 import { cleanJsonObject, convertQuillToPlainText, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
 import { getContactByNumber, getSystemByNumber, optInContact, optOutContact, setContactPreset, updateContact, updateContactByNumber } from '@/services/contactServices';
 import { createConversation, getAllConversations, getContactConversations, updateAllPendingConversationsToClose } from '@/services/conversationServices';
@@ -8,9 +9,12 @@ import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 import Ollama from 'ollama';
 
+
+let apiUrl = process.env.TASK_URL || `http://localhost:3000/api/tasks`
+
+
 const handleCall = async ({ phone, system }: { phone?: string; system?: string; }) => {
 
-  let apiUrl = `http://localhost:3000/api/tasks`
 
 
   let resp = await axios.post(apiUrl, {
@@ -122,8 +126,19 @@ async function processApiResponse(response: any) {
         await handleNewMessage({
           sender,
           message: contentData.message,
-          system
+          system,
+          isFlash: textWithoutJson ? true : false
         })
+
+        if (textWithoutJson) {
+          await handleNewMessage({
+            sender,
+            message: textWithoutJson,
+            system,
+            isFlash: true
+          })
+        }
+
       }
 
       if (contentData.action?.includes("API")) {
@@ -168,6 +183,16 @@ async function processApiResponse(response: any) {
     console.log(err, "ERROR CONTENT DTA")
   }
 
+}
+
+
+function formatHotlinesAsString(hotlines) {
+  return hotlines.map(hotline =>
+    `📞 ${hotline.name}\n` +
+    `   - Phone: ${hotline.phone}\n` +
+    `   - Designation: ${hotline.designation}\n` +
+    `   - Description: ${hotline.description}`
+  ).join("\n\n");
 }
 
 export const POST = async (req: NextRequest,
@@ -322,11 +347,11 @@ export const POST = async (req: NextRequest,
 
 
 
+    let hotlines = await getHotlines()
 
 
 
-
-
+    console.log(hotlines, 'HOTLINEs')
 
 
 
@@ -366,7 +391,11 @@ export const POST = async (req: NextRequest,
     const systemBehavior = preset?.systemBehavior ? convertQuillToPlainText(preset?.systemBehavior) : null;
 
 
-
+    let newSystem = systemBehavior + '\n\n' + `#### Hotline Details:\nBelow is an array of hotline contacts. Use this information to provide relevant responses when users ask for specific contacts, designations, or description.\n\n
+    
+    ${formatHotlinesAsString(hotlines)}.\n\n
+    
+    #### Important Notes: \n - IF the user concern is not listed in the hotline details, response should be "Sorry, I cant't help you with that. Please contact the appropriate hotline."`
 
 
     if (contact) {
@@ -375,6 +404,11 @@ export const POST = async (req: NextRequest,
       } else {
         setContactPreset(contact?.phone, 'alayon_help');
       }
+
+
+
+
+      console.log(newSystem, 'NEW SYSTEM')
 
 
 
@@ -401,11 +435,12 @@ export const POST = async (req: NextRequest,
     }
 
 
+
     const response = await Ollama.chat({
-      model: finalModelName ?? "llama3.2",
+      model: finalModelName ?? "llama3.1",
       messages: [
 
-        ...(systemBehavior ? [{ role: 'system', content: systemBehavior }] : []),
+        ...(systemBehavior ? [{ role: 'system', content: newSystem }] : []),
         // ...sampleConversations,
         ...recentConversations,
         // ...(preset?.value == 'alayon_water' ? sampleConversations : []),
@@ -416,7 +451,7 @@ export const POST = async (req: NextRequest,
     });
 
 
-
+    console.log(finalModelName ?? "llama3.1", 'MODEL')
 
 
     let newResponse = {

@@ -57,6 +57,8 @@ const ContactSchema = new Schema<IContact>(
       tagType: { type: String, default: 'tag' },
       user: { type: Schema.Types.ObjectId, ref: 'User' },
       value: String,
+      note: String,
+      title: String,
       isTrue: { type: Boolean, default: false },
       timestamp: { type: Date, default: Date.now },
     }],

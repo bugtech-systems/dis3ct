@@ -57,7 +57,6 @@ export function UserNav({ user }: { user: any }) {
     let parent = localStorage.getItem('system')
 
 
-    console.log(authUser, parent)
     if (authUser) {
       setUser(authUser);
       if (parent) {

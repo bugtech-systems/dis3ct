@@ -13,7 +13,7 @@ export const POST = async (
   try {
     await dbConnect();
     const session = await getServerSession(authOptions) as any;
-    const { searchParams } = new URL(req.url) as any;
+    // const { searchParams } = new URL(req.url) as any;
 
     // Check if user is authenticated
     if (!session || !session.user) {
@@ -24,7 +24,7 @@ export const POST = async (
 
     const userId = session.user.id;
 
-    const { phone, name, address, brgyCode, regCode, provCode, citymunCode, userLevel, system } = await req.json();
+    const data = await req.json();
 
 
 
@@ -37,78 +37,28 @@ export const POST = async (
     // }
 
     // Validate required fields
-    const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
+    // const parentData = await Contact.findOne({ phone: sanitizePhoneNumber(system) });
 
     // if (!parentData && referrer.userLevel != 'admin') {
     //   return NextResponse.json({ error: "System contact not found." }, { status: 400 });
     // }
 
+    const newContact = await Contact.findByIdAndUpdate(id, {
+      ...data,
+      phone: sanitizePhoneNumber(data.phone)
+    }, {
+      new: true,
+      runValidators: true,
+    });
+
 
     // Check if contact already exists
-    let existingContact = await Contact.findById(id);
 
-    if (existingContact) {
-      // Update existing contact
-      existingContact.phone = sanitizePhoneNumber(phone);
-      existingContact.name = name;
-      existingContact.address = address;
-      existingContact.brgyCode = brgyCode;
-      existingContact.regCode = regCode;
-      existingContact.provCode = provCode;
-      existingContact.citymunCode = citymunCode;
-      // existingContact.userLevel = userLevel;      // existingContact.refNum = referrer.id; // Update referrer
-      // existingContact.uplines = existingContact.uplines ? [...existingContact.uplines, referrer.id] : []; // Maintain unique uplines
+    return NextResponse.json(
+      { message: "Contact saved successfully", contact: newContact },
+      { status: 201 }
+    );
 
-      await existingContact.save();
-
-      return NextResponse.json(
-        { message: "Contact updated successfully", contact: existingContact },
-        { status: 200 }
-      );
-    } else {
-      // Create new contact
-
-      const referrer = await Contact.findOne({
-        phone: sanitizePhoneNumber(session.user.phone),
-        deletedAt: null
-      });
-
-      if (!referrer) {
-        return NextResponse.json({ error: "Referrer contact not found." }, { status: 400 });
-      }
-
-
-
-      await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
-        console.log('Mobile Error')
-      });
-
-
-
-
-      const newContact = new Contact({
-        phone: sanitizePhoneNumber(phone),
-        // mobile: newMobile,
-        name,
-        address,
-        ...(brgyCode ? { brgyCode } : { brgyCode: referrer.brgyCode }),
-        ...(citymunCode ? { citymunCode } : { citymunCode: referrer.citymunCode }),
-        ...(provCode ? { provCode } : { provCode: referrer.provCode }),
-        ...(brgyCode ? { brgyCode } : { brgyCode: referrer.brgyCode }),
-        parNum: parentData?.id,
-        refNum: referrer.id, // Assign current user's ID as refNum
-        uplines: referrer.uplines ? [...referrer.uplines, referrer.id] : [], // Add referrer's ID to uplines array
-        userLevel: userLevel, // Default user level
-      });
-
-      newContact.parNum = userLevel == 'system' ? newContact.id : referrer.parNum
-      await newContact.save();
-
-      return NextResponse.json(
-        { message: "Contact saved successfully", contact: newContact },
-        { status: 201 }
-      );
-    }
   } catch (error) {
     console.error("Error saving contact:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

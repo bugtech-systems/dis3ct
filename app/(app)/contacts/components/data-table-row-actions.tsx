@@ -146,7 +146,6 @@ export function DataTableRowActions<TData>({
 
   let parent = user.parent;
 
-
   return (
     <>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -261,6 +260,20 @@ export function DataTableRowActions<TData>({
               <DropdownMenuSeparator />
             </>
           }
+
+          {((findFeature(parent?.configs, 'hotline')?.value || user?.userType == 'admin')) &&
+            <>
+              <DropdownMenuItem
+                onClick={() => {
+                  console.log(contact)
+                  setRecord(contact)
+                  setModal('setHotline', contact?._id)
+                }}
+              >Set hotline</DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
+
 
           {(user?.userType == 'admin') &&
             <>

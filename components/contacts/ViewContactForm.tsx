@@ -98,10 +98,12 @@ export function ViewContactForm() {
                   <Label htmlFor="name">Contact Name</Label>
                   <Input id="name" placeholder="John Doe" value={contact?.name} />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="mobile">Mobile Number</Label>
-                  <Input id="mobile" placeholder="09123123123" value={contact?.phone} />
-                </div>
+                {contact?.phone &&
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Mobile Number</Label>
+                    <Input id="mobile" placeholder="09123123123" value={contact?.phone} />
+                  </div>
+                }
                 <div className="space-y-2">
                   <Label htmlFor="address">Address</Label>
                   <Input id="address" placeholder="Real St. Tacloban City" value={contact?.address} />
@@ -116,7 +118,7 @@ export function ViewContactForm() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="school">School</Label>
-                  <Input id="school" placeholder="Real St. Tacloban City" value={contact?.school} />
+                  <Input id="school" placeholder="Central School" value={contact?.school} />
                 </div>
               </div>
             </TabsContent>

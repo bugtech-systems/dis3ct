@@ -141,10 +141,9 @@ export async function GET(req: NextRequest) {
         ];
       } else {
         // Otherwise, filter by specific tagTypes
-        query.tags = { $elemMatch: user.userType != 'leader' ? { value: { $in: tagList } } : { value: { $in: tagList }, user: user._id, tagType: 'tag' } };
+        query.tags = { $elemMatch: (user.userType == 'system' || user.userType == 'admin') ? { value: { $in: tagList } } : { value: { $in: tagList }, user: user._id, tagType: 'tag' } };
       }
 
-      console.log(tagList, 'TAGS')
     }
 
     // Include only contacts with a phone number if requested
@@ -182,7 +181,7 @@ export async function GET(req: NextRequest) {
       const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;
       const province = provinces.find((p) => p.provCode === contact.provCode)?.provDesc;
       const region = regions.find((r) => r.regCode === contact.regCode)?.regDesc;
-      let tags = contact?.tags ? user.userType != 'leader' ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => String(a.user) == String(user._id)).sort((a, b) => b.timestamp - a.timestamp) : []
+      let tags = contact?.tags ? (user.userType == 'system' || user.userType == 'admin') ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => String(a.user) == String(user._id)).sort((a, b) => b.timestamp - a.timestamp) : []
 
       let tagContact = tags.filter(a => a.tagType == 'tag').sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
@@ -202,7 +201,7 @@ export async function GET(req: NextRequest) {
         region,
         recordType: contact.recordType,
         school: contact.school,
-        // tags: contact?.tags,
+        tags: tags,
         tag: tagContact.length ? tagContact[0].value : 'unknown',
         subscribed: contact.subscribed,
       };
