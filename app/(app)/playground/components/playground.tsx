@@ -36,7 +36,7 @@ import { ContactSelector } from "./contact-selector"
 import { Switch } from "@/components/ui/switch"
 import createTask from "@/actions/createTask"
 
-let nextUrl = process.env.ALAYON_NEXT || `https://sharewin.pro`
+let nextUrl = process.env.ALAYON_NEXT || `http://127.0.0.1:3000`
 
 export default function PlaygroundPage() {
     const [isLoading, setLoading] = useState(false);

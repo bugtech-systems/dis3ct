@@ -1,4 +1,4 @@
-import { getPresetById, updatePreset } from "@/services/presetServices";
+import { getPresetById, getPresetByValue, updatePreset } from "@/services/presetServices";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
@@ -15,10 +15,13 @@ export const GET = async (
 ): Promise<NextResponse> => {
   try {
     const { id } = params;
-    const result = await getPresetById(id);
+    let result = await getPresetById(id);
 
     if (!result.success) {
-      return NextResponse.json(result, { status: 404 });
+      result = await getPresetByValue(id)
+      if (!result.success) {
+        return NextResponse.json(result, { status: 404 });
+      }
     }
 
     return NextResponse.json(result, { status: 200 });
