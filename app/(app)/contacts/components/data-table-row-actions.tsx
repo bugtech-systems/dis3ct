@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { ListRestartIcon, MessageCircle, MessageCircleDashedIcon, MessageCircleIcon, MessageSquareIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { Fingerprint, ListRestartIcon, MessageCircle, MessageCircleDashedIcon, MessageCircleIcon, MessageSquareIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -213,10 +213,13 @@ export function DataTableRowActions<TData>({
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => setModal('scanner', contact?._id)}
+                onClick={() => {
+                  setRecord(contact)
+                  setModal('scanner', contact?._id)
+                }}
               >
                 Set Biometrics
-                <DropdownMenuShortcut><Clipboard size={18} /></DropdownMenuShortcut>
+                <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
 
               </DropdownMenuItem>
             </>
@@ -265,7 +268,6 @@ export function DataTableRowActions<TData>({
             <>
               <DropdownMenuItem
                 onClick={() => {
-                  console.log(contact)
                   setRecord(contact)
                   setModal('setHotline', contact?._id)
                 }}

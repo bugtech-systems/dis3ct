@@ -60,7 +60,6 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     ]);
 
 
-    console.log(user._id)
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
 

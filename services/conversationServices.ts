@@ -155,7 +155,6 @@ export const getAllConversations = async (option: any): Promise<{
       { path: "preset", select: "name value description" }, // Populate preset with specific fields
     ]).sort({ createdAt: 1 }).limit(100).lean();
 
-    console.log(conversations[0], 'convo')
     return { success: true, data: conversations };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch conversations" };
@@ -182,7 +181,6 @@ export const updateAllPendingConversationsToClose = async (sender: any, system: 
       system: systemContact.data?._id
     }
 
-    console.log('GET ALL CONVO', newOptions)
     await Conversation.updateMany({ ...newOptions, status: 'pending' }, { status: 'closed' }, {
       new: true,
       runValidators: true,

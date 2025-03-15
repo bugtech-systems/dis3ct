@@ -16,6 +16,7 @@ import getAuth from "@/actions/getAuth";
 import { ScannerForm } from "@/components/scanner";
 import { ComponentProvider } from "@/components/providers/ComponentContext";
 import { ViewContactForm } from "@/components/contacts/ViewContactForm";
+import ScannerButton from "@/components/ScannerButton";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -73,7 +74,7 @@ export default async function RootLayout({
               <div className="flex flex-grow items-end justify-end items-center mr-2 space-x-7">
                 <ScannerForm />
                 <ViewContactForm />
-
+                <ScannerButton />
                 {/* <CreateContactForm /> */}
                 <UserNav
                   user={newUser}

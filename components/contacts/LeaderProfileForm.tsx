@@ -75,7 +75,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
   const handleAccessTypes = (e) => {
 
-    console.log(e, 'EE')
     setAccessLevel(e)
     if (e == 'citymunCode') {
       setAccessCodes(barangays.map(a => a.brgyCode))
@@ -132,7 +131,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         newBars.push(prop);
       }
 
-      console.log(newBars)
       setAccessCodes(newBars)
     }
   }
@@ -249,7 +247,6 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
 
 
   // console.log(selectedProvince, municipalities, 'PROV', system, user)
-  console.log(profile, user, 'USER', accessCodes)
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>

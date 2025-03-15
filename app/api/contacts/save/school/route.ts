@@ -6,7 +6,6 @@ import connectToDatabase from '@/lib/mongodb';
 
 
 export const POST = async (req: NextRequest) => {
-    console.log('wewew')
     try {
 
 
@@ -14,7 +13,6 @@ export const POST = async (req: NextRequest) => {
         await connectToDatabase();
 
         const { data, parNum } = await req.json();
-        console.log(data, 'UPDATES')
         if (!Array.isArray(data)) {
             return NextResponse.json({ error: 'Invalid payload format' }, { status: 405 });
         }
@@ -38,8 +36,6 @@ export const POST = async (req: NextRequest) => {
 
 
         // let contacts = brgyData;
-        // console.log(contacts.length, 'LEN')
-
         return NextResponse.json({ message: 'Updated Successfully!' },
             { status: 200 }
         );

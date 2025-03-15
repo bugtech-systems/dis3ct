@@ -2,7 +2,6 @@ import axios from 'axios';
 
 let apiUrl = process.env.TASK_URL || `https://swc.sharewin.pro/api/tasks`
 
-console.log(process.env, 'PRRS')
 const createTask = async (api_url, data): Promise<any[]> => {
 
     try {
@@ -14,7 +13,6 @@ const createTask = async (api_url, data): Promise<any[]> => {
 
 
 
-        console.log(resp, 'RESP')
         return resp
     } catch (err) {
         console.log(err, 'ERR')

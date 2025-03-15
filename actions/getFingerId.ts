@@ -4,6 +4,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Fingerprints from '@/models/fingerprints';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { sanitizeObject } from '@/lib/helpers';
 
 const getFingerId = async (userId): Promise<any> => {
 
@@ -17,13 +18,13 @@ const getFingerId = async (userId): Promise<any> => {
         let id;
         let exist = false;
         let finger = await Fingerprints.findOne({ user_id: userId });
-        let oldFinger = await Fingerprints.find().sort({ biometricId: 1 });
+        let oldFinger = await Fingerprints.find().sort({ biometricId: -1 });
 
         if (finger) {
             id = finger.biometricId
             exist = true
         } else {
-            id = oldFinger.length + 1;
+            id = oldFinger[0] ? oldFinger[0].biometricId + 1 : oldFinger.length + 1;
             // let newFinger = await Fingerprints.create({
             //     user_id: userId,
             //     biometricId: id
@@ -36,7 +37,7 @@ const getFingerId = async (userId): Promise<any> => {
 
 
 
-        return { id, exist }
+        return { id, exist, finger: sanitizeObject(finger) }
     } catch (err) {
         console.log(err, "ERR")
         return null

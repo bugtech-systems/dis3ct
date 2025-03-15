@@ -22,7 +22,6 @@ export const POST = async (req: NextRequest) => {
 
     // Replace spaces in the file name with underscores
     const filename = file.name.replaceAll(" ", "_");
-    console.log(filename);
 
     try {
         // Write the file to the specified directory (public/assets) with the modified filename

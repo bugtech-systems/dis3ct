@@ -52,7 +52,6 @@ export function SetHotlineForm() {
     try {
 
       let newTags = updateOrPushObject(record.tags, { tagType: 'hotline', value: mobile, note: description, title: designation });
-      console.log(newTags, 'NEW TAGS', record.tags)
       const response = await axios.post(`/api/contacts/save/${record._id}`, {
         phone: mobile,
         tags: newTags,
@@ -76,7 +75,6 @@ export function SetHotlineForm() {
   React.useEffect(() => {
     if (record) {
       let hotlineTag = findObject(record.tags, 'hotline', 'tagType');
-      console.log(hotlineTag, 'HOTLINE TAG', record)
       setMobile(record.phone || hotlineTag?.value)
       setDesignation(hotlineTag?.title)
       setDescription(hotlineTag?.note)

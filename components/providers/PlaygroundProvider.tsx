@@ -88,7 +88,6 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
       }
 
       const data = await response.json();
-      console.log('RESP CONVO', data)
       if (data && Array.isArray(data)) {
         setMessages(data); // Assuming `data.data` contains the conversations array
       }

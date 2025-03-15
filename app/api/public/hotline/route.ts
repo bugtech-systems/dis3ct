@@ -26,7 +26,6 @@ export const POST = async (req: NextRequest) => {
         const aiResponse = await ollamaService.processEmergency(user_message, preset ? preset.systemBehavior : '', conversation_history || []);
 
 
-        console.log(aiResponse, 'AI RESPONSE')
         // Validate and structure the response
         if (!aiResponse?.tags || !aiResponse?.callerMessage || !aiResponse?.report) {
             return NextResponse.json({ error: 'Invalid AI response format.' }, { status: 500 });

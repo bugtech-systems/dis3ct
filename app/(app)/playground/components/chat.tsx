@@ -108,8 +108,6 @@ export function CardsChat({ messages }: ChatProps) {
 
     if (!selectedMessage?._id) return;
 
-
-    console.log(selectedMessage, 'MESSAGE SAVE')
     const response = await axios.patch(`/api/conversations/${selectedMessage._id}`, {
       content: convertQuillToPlainText(selectedMessage?.content),
       preset: selectedMessage?.preset
@@ -128,7 +126,6 @@ export function CardsChat({ messages }: ChatProps) {
 
 
 
-  console.log(selectedMessage, selectedMessage?.preset, 'SELECTED')
   return (
     <>
       <div
@@ -149,7 +146,6 @@ export function CardsChat({ messages }: ChatProps) {
             <div>
               <a onClick={() => handleDelete(index)}>Delete</a>&nbsp;&nbsp;
               <a onClick={() => {
-                console.log('CLICK', message, message?.preset?._id)
                 setOpen(true);
                 setSelectedMessage({ ...message, preset: message?.preset?._id, index });
               }}>Edit</a>

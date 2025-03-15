@@ -52,7 +52,6 @@ class OllamaService {
 
 
       const response = await this.callOllamaAPI(structuredPrompt, sampleConversations) as any;
-      console.log(response, 'CALL OLLAMA API')
       return JSON.parse(cleanToJson(response));
     } catch (error) {
       console.error('Error determining related preset:', error);
@@ -141,20 +140,7 @@ ${presetDescriptions}
     // console.log(sampleConversations, presetConvo, 'PRESET CONVO')
     try {
 
-      console.log({
-        model: this.model,
-        messages: [
-          //  ...newMessages,
-          // { role: 'system', content: `Chat Histrory: \n\n${presetConvo} ` },
-          ...sampleConversations,
-          { role: 'user', content: prompt }
-        ],
-        options: {
-          num_predict: this.options.max_tokens,
-          temperature: this.options.temperature,
-          top_p: this.options.top_p,
-        },
-      }, 'OLLAMA SERV')
+
       const response = await Ollama.chat({
         model: this.model,
         messages: [

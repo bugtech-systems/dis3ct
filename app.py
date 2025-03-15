@@ -16,8 +16,8 @@ from datetime import datetime
 sys.dont_write_bytecode = True
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "fingerprintDB"
+MONGO_URI = "mongodb+srv://alayon:Jkkulf5AvWjN4JGm@cluster0.ljfau.mongodb.net/"
+DB_NAME = "alayon-next"
 COLLECTION_NAME = "fingerprints"
 COLLECTION_CONTACT = "contacts"
 COLLECTION_COUNTERS = "counters"
@@ -254,6 +254,36 @@ def shutdown_scanner():
 
             return jsonify({"error": "Failed to shut down scanner."}), 500
  
+ 
+def delete_fingerprint(finger_id):
+    """Deletes a fingerprint by biometric ID from the scanner and MongoDB."""
+    global scanner_initialized
+
+    if not scanner_initialized:
+        logger.warning("⚠️ Scanner is not initialized.")
+        return jsonify({"error": "Scanner is not initialized."}), 400
+
+    try:
+        with scanner_lock:
+            # Delete from scanner database
+            zkfp2.DBDel(finger_id)
+            logger.info(f"🗑️ Deleted fingerprint {finger_id} from scanner database.")
+            
+            # Delete from MongoDB
+            result = fingerprint_collection.delete_one({"biometricId": finger_id})
+            
+            if result.deleted_count > 0:
+                logger.info(f"🗑️ Deleted fingerprint {finger_id} from MongoDB.")
+                return jsonify({"message": "Fingerprint deleted successfully."}), 200
+            else:
+                logger.warning(f"⚠️ Fingerprint {finger_id} not found in MongoDB.")
+                return jsonify({"error": "Fingerprint not found."}), 404
+    
+    except Exception as e:
+        logger.error(f"❌ Error deleting fingerprint: {e}")
+        return jsonify({"error": "Failed to delete fingerprint."}), 500
+ 
+ 
 
 @app.route('/init', methods=['POST'])
 def api_initialize_scanner():
@@ -269,10 +299,14 @@ def api_initialize_scanner():
     return jsonify({"error": "Failed to initialize scanner."}), 500
 
 
+
+
 @app.route('/shutdown', methods=['POST'])
 def api_shutdown_scanner():
     """API endpoint to shut down the scanner."""
     return shutdown_scanner()
+
+
 
 
 def listen_to_fingerprints():
@@ -389,6 +423,51 @@ def socket_status():
         emit("status_response", {"message": "Connected to WebSocket!", "connected": True})
     else:
         emit("status_response", {"message": "Connected to WebSocket!", "connected": False})
+
+def delete_fingerprint(finger_id):
+    """Deletes a fingerprint by biometric ID from the scanner and MongoDB."""
+    global scanner_initialized
+
+    if not scanner_initialized:
+        logger.warning("⚠️ Scanner is not initialized.")
+        return jsonify({"error": "Scanner is not initialized."}), 400
+
+    try:
+        with scanner_lock:
+            # Delete from scanner database
+            zkfp2.DBDel(finger_id)
+            logger.info(f"🗑️ Deleted fingerprint {finger_id} from scanner database.")
+            
+            # Delete from MongoDB
+            result = fingerprint_collection.delete_one({"biometricId": finger_id})
+            
+            if result.deleted_count > 0:
+                logger.info(f"🗑️ Deleted fingerprint {finger_id} from MongoDB.")
+                return jsonify({"message": "Fingerprint deleted successfully."}), 200
+            else:
+                logger.warning(f"⚠️ Fingerprint {finger_id} not found in MongoDB.")
+                return jsonify({"error": "Fingerprint not found."}), 404
+    
+    except Exception as e:
+        logger.error(f"❌ Error deleting fingerprint: {e}")
+        return jsonify({"error": "Failed to delete fingerprint."}), 500
+
+
+
+@socketio.on("delete_fingerprint")
+def socket_delete_fingerprint(data):
+    """WebSocket event to delete a fingerprint."""
+    finger_id = data.get("fingerPrintId")
+        
+    if finger_id is None:
+        emit("delete_error", {"error": "Fingerprint ID is required."})
+        return
+    
+    response, status_code = delete_fingerprint(finger_id)
+    if status_code == 200:
+        emit("fingerprint_deleted", {"message": "Fingerprint deleted successfully."})
+    else:
+        emit("delete_error", {"error": "Failed to delete fingerprint."})
 
 
 

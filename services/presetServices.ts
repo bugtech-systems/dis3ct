@@ -29,7 +29,6 @@ export const createPreset = async (
 
 
 
-    console.log(data, 'PRESET DATA')
 
 
     const existingSystem = await AiPreset.findOne(options);

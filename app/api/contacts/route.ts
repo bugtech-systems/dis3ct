@@ -199,6 +199,7 @@ export async function GET(req: NextRequest) {
         citymun,
         province,
         region,
+        biometric: contact.biometric,
         recordType: contact.recordType,
         school: contact.school,
         tags: tags,

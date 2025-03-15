@@ -29,7 +29,6 @@ function parseBarangayData(logs) {
         }
 
         if ((line.includes('NUMBER') && lines[i - 1].includes('PRECINCT')) || line.includes('SUBTOTAL')) {
-            // console.log(line, 'L', lines[i - 1], lines[i + 1])
             barangayDetected = true
             continue;
         }
@@ -165,7 +164,6 @@ export async function POST(req: NextRequest) {
 
                     row.push(item.text);
 
-                    // console.log(item.text)
 
                     /*       if (isPcvl) {
       
@@ -272,19 +270,15 @@ export async function POST(req: NextRequest) {
 
 
 
-        // console.log(rows, 'ITEM', table)
 
         let brgyData = await parseBarangayData(table);
-        // console.log(brgyData, 'BAR DATA')
         let contacts = Object.entries(brgyData).map(([key, value]: any) => {
-            // console.log(key, value)
             return { barangay: key, ...value }
         })
 
 
 
         // let contacts = brgyData;
-        // console.log(contacts.length, 'LEN')
 
         return NextResponse.json(
             contacts,

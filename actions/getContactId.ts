@@ -3,6 +3,7 @@
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
 import FingerPrint from '@/models/fingerprints';
+import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
@@ -24,7 +25,13 @@ const getContactId = async (id): Promise<any> => {
         if (finger) {
             let contact = await Contact.findById(finger.user_id).lean()
 
-            return sanitizeObject(contact)
+            let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact?.brgyCode)?.brgyDesc;
+            let citymun = municipalities.find((citymun: any) => citymun.citymunCode == contact?.citymunCode)?.citymunDesc;
+            let province = provinces.find((province: any) => province.provCode == contact?.provCode)?.provDesc;
+            let region = regions.find((region: any) => region.regCode == contact?.regCode)?.regDesc;
+
+
+            return sanitizeObject({ ...contact, barangay, citymun, province, region })
         } else {
             return null
         }

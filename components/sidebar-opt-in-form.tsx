@@ -88,7 +88,6 @@ export function SidebarOptInForm({ record }: { record: any }) {
   }, [record])
 
 
-  console.log(record, user, 'RECORR')
 
   return (
     <form onSubmit={handleSubmit}>

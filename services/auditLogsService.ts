@@ -18,12 +18,10 @@ export const logAction = async (userId?: string, action?: string, details?: any)
     let system;
 
     user = await User.findById(userId);
-    console.log({ userId: user, action, details, system: user?.parent })
 
     if (!user?.parent) {
         system = await User.findById(user?.parent);
     }
-    console.log({ userId: user, action, details, system: user?.parent })
 
     try {
         await AuditLog.create({ userId: user, action, details, system: user?.parent });

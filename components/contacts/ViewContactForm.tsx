@@ -36,41 +36,45 @@ import { useComponent } from "../providers/ComponentContext";
 import getContactId from "@/actions/getContactId";
 
 export function ViewContactForm() {
-  const { modal, setModal, modalId } = useComponent();
+  const { modal, setModal, modalId, record } = useComponent();
   const [contact, setContact] = React.useState(null)
 
 
-  const handleGetContact = async () => {
-    // e.preventDefault();
+  // const handleGetContact = async () => {
+  //   // e.preventDefault();
 
 
-    try {
+  //   try {
 
 
 
 
 
-      const response = await axios.get(`/api/contacts/${modalId}`);
+  //     const response = await axios.get(`/api/contacts/${modalId}`);
 
-      if (response.data) {
-        setContact(response.data)
+  //     if (response.data) {
+  //       setContact(response.data)
 
-      }
+  //     }
 
-    } catch (error: any) {
-      console.log(error, 'ERROR')
-    }
-  };
+  //   } catch (error: any) {
+  //     console.log(error, 'ERROR')
+  //   }
+  // };
 
-  React.useEffect(() => {
-    if (modalId) {
-      handleGetContact()
-    }
+  // React.useEffect(() => {
+  //   if (modalId) {
+  //     handleGetContact()
+  //   }
 
-  }, [modalId])
+  // }, [modalId])
 
   // State for form fields
+  React.useEffect(() => {
 
+    setContact(record)
+
+  }, [record])
 
 
 
@@ -95,7 +99,7 @@ export function ViewContactForm() {
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Contact Name</Label>
+                  <Label htmlFor="name">Record Name</Label>
                   <Input id="name" placeholder="John Doe" value={contact?.name} />
                 </div>
                 {contact?.phone &&

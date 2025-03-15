@@ -44,12 +44,10 @@ class HotlineService {
                 .map((convo: any) => `${convo.role}: ${convo.content}`)
                 .join('\n');
 
-            console.log(history, 'OLLAMA RESPONSE');
 
             const structuredPrompt = this.createPrompt(userPrompt, systemPrompt, history);
 
             const response = await this.callOllamaAPI(structuredPrompt, conversationHistory);
-            console.log(response, 'OLLAMA RESPONSE');
 
             return JSON.parse(cleanToJson(response));
         } catch (error) {
@@ -66,7 +64,6 @@ class HotlineService {
      */
     createPrompt(userPrompt: string, systemPrompt: string, history: string): string {
 
-        console.log(userPrompt, systemPrompt, history, 'HISTORY')
         return `
   ${systemPrompt}
   
@@ -112,7 +109,6 @@ class HotlineService {
             });
 
 
-            console.log(response, 'RESPP', convertQuillToPlainText(prompt))
 
             if (response && response.response) {
                 return response?.response;

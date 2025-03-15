@@ -66,7 +66,6 @@ export const POST = async (req: NextRequest) => {
 
       let newTags = updateOrPushObject(record?.tags, { value: newPhone, tagType: 'phone', user: user?._id })
 
-      console.log(newTags)
       record['phone'] = newPhone;
       await record.save()
 
