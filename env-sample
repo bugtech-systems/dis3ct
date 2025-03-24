@@ -1,0 +1,10 @@
+# NEXTAUTH_URL=https://sharewin.pro
+# MONGODB_URI=mongodb://localhost:27017/fingerprintDB
+EMAIL_SERVER=smtp.example.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@example.com
+EMAIL_PASS=your-email-password
+NEXTAUTH_SECRET=wildcrack@420
+ALAYON_NEXT=http://localhost:3000
+TASK_URL=https://sharewin.pro/api/tasks
+
