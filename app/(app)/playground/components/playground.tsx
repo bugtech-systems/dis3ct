@@ -17,7 +17,13 @@ import {
 } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import toast from "react-hot-toast";
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { MaxLengthSelector } from "./maxlength-selector"
 import { ModelSelector } from "./model-selector"
 import { PresetActions } from "./preset-actions"
@@ -35,12 +41,16 @@ import { useContact } from "@/components/providers/ContactProvider"
 import { ContactSelector } from "./contact-selector"
 import { Switch } from "@/components/ui/switch"
 import createTask from "@/actions/createTask"
+import { PresetShare } from "./preset-share"
 
 let nextUrl = process.env.ALAYON_NEXT || `http://127.0.0.1:3000`
+const statuses = ["pending", "default", "closed"]
 
 export default function PlaygroundPage() {
     const [isLoading, setLoading] = useState(false);
+    const [status, setStatus] = useState('pending');
     const [instruction, setInstruction] = useState('');
+    const [tab, setActiveTab] = useState('insert')
     const [isTask, setIsTask] = useState(false);
     const { presets, selectedContact, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset } = usePlayground();
     const { user, system, parentSystem } = useContact();
@@ -60,13 +70,14 @@ export default function PlaygroundPage() {
 
             // .finally(() => setLoading(false));
 
-            const response = await fetch(`/api/conversations?contact=${selectedContact ? selectedContact.phone : user.phone}${parent?.phone ? `&system=${parent.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?.value}` : ''}&status=pending`); // Update the endpoint URL if necessary
+            const response = await fetch(`/api/interactions?contact=${selectedContact ? selectedContact.phone : user.phone}${parent?.phone ? `&system=${parent.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?._id}` : ''}`); // Update the endpoint URL if necessary
 
             if (!response.ok) {
                 throw new Error("Failed to fetch conversations");
             }
 
             const data = await response.json();
+            console.log(data, 'INTERACTIONS')
             if (data && Array.isArray(data)) {
                 setMessages(data); // Assuming `data.data` contains the conversations array
             }
@@ -84,15 +95,15 @@ export default function PlaygroundPage() {
             setLoading(true)
             let newMessages = messages;
 
-            newMessages.push({
-                role: 'user',
-                content: userMessage
-            })
+            // newMessages.push({
+            //     role: 'user',
+            //     content: userMessage
+            // })
 
 
             setUserMessage('')
-
-            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset.value}` : '/api/presets/chat'
+            console.log(selectedPreset, 'SELECTED PRESET')
+            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
             // let apiUrl = '/api/presets/chat'
 
             if (isTask) {
@@ -105,7 +116,7 @@ export default function PlaygroundPage() {
                     category: 'Api',
                     title: 'Chat AI',
                     taskObject: JSON.stringify({
-                        url: `${nextUrl}/api/presets/chat${selectedPreset.value ? `/${selectedPreset?.value}` : ''}`,
+                        url: `${nextUrl}/api/presets/chat${selectedPreset?.value ? `/${selectedPreset?.value}` : ''}`,
                         method: 'post',
                         dataObject: {
                             modelName: preset?.modelName ?? preset?.aiModel,
@@ -121,30 +132,30 @@ export default function PlaygroundPage() {
 
             } else {
 
-
-                let resp = await axios.post(apiUrl, {
-                    ...preset,
-                    modelName: preset?.modelName ?? preset?.aiModel,
+                console.log(preset, 'PRESET')
+                let resp = await axios.post('/api/presets/chat', {
+                    preset: selectedPreset?.value,
+                    modelName: selectedPreset?.modelName ?? selectedPreset?.aiModel,
                     sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
                     system: system.phone,
                     message: userMessage,
                     ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),
-                    instruction
+                    instruction: selectedPreset?.instruction
                 });
 
 
-                if (resp.data.done) {
-                    newMessages.push({
-                        role: 'assistant',
-                        content: resp.data.message.content
-                    })
+                // if (resp.data.done) {
+                /*                   newMessages.push({
+                                      role: 'assistant',
+                                      content: resp.data.message.content
+                                  }) */
 
-                    // setMessages(newMessages)
-                    getConversations()
-                    /*        if(resp.data.preset){
-                            setSelectedPreset(resp.data.preset)
-                          }  */
-                }
+                // setMessages(newMessages)
+                getConversations()
+                /*        if(resp.data.preset){
+                        setSelectedPreset(resp.data.preset)
+                      }  */
+                // }
 
             }
 
@@ -216,15 +227,17 @@ export default function PlaygroundPage() {
 
 
     const handleSavePreset = async () => {
+        console.log(preset, 'PRESET')
         try {
-            if (selectedPreset && selectedPreset._id) {
-                let resp = await axios.patch(`/api/presets/${selectedPreset._id}`, {
-                    ...preset,
-                    systemBehavior: preset.systemBehavior,
-                    modelName: preset.modelName,
-                    aiTemperature: preset.temperature,
-                    aiTopP: preset.topP,
-                    aiMaxLength: preset.maxTokens
+            if (selectedPreset && selectedPreset?._id) {
+                let resp = await axios.patch(`/api/presets/${selectedPreset?._id}`, {
+                    // ...selectedPreset,
+                    systemBehavior: selectedPreset?.systemBehavior,
+                    modelName: selectedPreset?.modelName,
+                    aiTemperature: selectedPreset?.temperature,
+                    aiTopP: selectedPreset?.topP,
+                    aiMaxLength: selectedPreset?.maxTokens,
+                    instruction: selectedPreset?.instruction
                 });
                 if (resp.data) {
                     toast.success("Preset Updated");
@@ -232,12 +245,13 @@ export default function PlaygroundPage() {
 
             } else {
                 let resp = await axios.post(`/api/presets`, {
-                    ...preset,
-                    systemBehavior: preset.systemBehavior,
-                    modelName: preset.modelName,
-                    aiTemperature: preset.temperature,
-                    aiTopP: preset.topP,
-                    aiMaxLength: preset.maxTokens
+                    // ...selectedPreset,
+                    systemBehavior: selectedPreset?.systemBehavior,
+                    modelName: selectedPreset?.modelName,
+                    aiTemperature: selectedPreset?.temperature,
+                    aiTopP: selectedPreset?.topP,
+                    aiMaxLength: selectedPreset?.maxTokens,
+                    instruction: selectedPreset?.instruction
                 });
                 if (resp.data) {
                     toast.success("Preset Created");
@@ -272,6 +286,8 @@ export default function PlaygroundPage() {
 
 
 
+
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-3">
             <div className="h-full flex-col md:flex">
@@ -286,11 +302,12 @@ export default function PlaygroundPage() {
               <CodeViewer />
               <PresetShare />
             </div> */}
-                        <PresetActions />
+                        {/* <PresetActions  /> */}
+                        <PresetShare />
                     </div>
                 </div>
                 <Separator />
-                <Tabs defaultValue="complete" className="flex-1">
+                <Tabs defaultValue="insert" value={tab} onChange={(e) => console.log(e)} className="flex-1">
                     <div className="container h-full py-6">
                         <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
                             <div className="hidden flex-col space-y-4 sm:flex md:order-2">
@@ -309,7 +326,102 @@ export default function PlaygroundPage() {
                                         </HoverCardContent>
                                     </HoverCard>
                                     <TabsList className="grid grid-cols-3">
-                                        <TabsTrigger value="complete">
+
+                                        <TabsTrigger value="insert" disabled={!presets?.length} onClick={() => setActiveTab('insert')}>
+                                            <span className="sr-only">Insert</span>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="none"
+                                                className="h-5 w-5"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    clipRule="evenodd"
+                                                    d="M14.491 7.769a.888.888 0 0 1 .287.648.888.888 0 0 1-.287.648l-3.916 3.667a1.013 1.013 0 0 1-.692.268c-.26 0-.509-.097-.692-.268L5.275 9.065A.886.886 0 0 1 5 8.42a.889.889 0 0 1 .287-.64c.181-.17.427-.267.683-.269.257-.002.504.09.69.258L8.903 9.87V3.917c0-.243.103-.477.287-.649.183-.171.432-.268.692-.268.26 0 .509.097.692.268a.888.888 0 0 1 .287.649V9.87l2.245-2.102c.183-.172.432-.269.692-.269.26 0 .508.097.692.269Z"
+                                                    fill="currentColor"
+                                                ></path>
+                                                <rect
+                                                    x="4"
+                                                    y="15"
+                                                    width="3"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="8.5"
+                                                    y="15"
+                                                    width="3"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="13"
+                                                    y="15"
+                                                    width="3"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                            </svg>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="edit" onClick={() => setActiveTab('edit')}>
+                                            <span className="sr-only">Edit</span>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="none"
+                                                className="h-5 w-5"
+                                            >
+                                                <rect
+                                                    x="4"
+                                                    y="3"
+                                                    width="12"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="4"
+                                                    y="7"
+                                                    width="12"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="4"
+                                                    y="11"
+                                                    width="3"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="4"
+                                                    y="15"
+                                                    width="4"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <rect
+                                                    x="8.5"
+                                                    y="11"
+                                                    width="3"
+                                                    height="2"
+                                                    rx="1"
+                                                    fill="currentColor"
+                                                ></rect>
+                                                <path
+                                                    d="M17.154 11.346a1.182 1.182 0 0 0-1.671 0L11 15.829V17.5h1.671l4.483-4.483a1.182 1.182 0 0 0 0-1.671Z"
+                                                    fill="currentColor"
+                                                ></path>
+                                            </svg>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="complete" onClick={() => setActiveTab('complete')}>
                                             <span className="sr-only">Complete</span>
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -375,100 +487,6 @@ export default function PlaygroundPage() {
                                                 ></rect>
                                             </svg>
                                         </TabsTrigger>
-                                        <TabsTrigger value="insert" disabled={!presets?.length}>
-                                            <span className="sr-only">Insert</span>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="none"
-                                                className="h-5 w-5"
-                                            >
-                                                <path
-                                                    fillRule="evenodd"
-                                                    clipRule="evenodd"
-                                                    d="M14.491 7.769a.888.888 0 0 1 .287.648.888.888 0 0 1-.287.648l-3.916 3.667a1.013 1.013 0 0 1-.692.268c-.26 0-.509-.097-.692-.268L5.275 9.065A.886.886 0 0 1 5 8.42a.889.889 0 0 1 .287-.64c.181-.17.427-.267.683-.269.257-.002.504.09.69.258L8.903 9.87V3.917c0-.243.103-.477.287-.649.183-.171.432-.268.692-.268.26 0 .509.097.692.268a.888.888 0 0 1 .287.649V9.87l2.245-2.102c.183-.172.432-.269.692-.269.26 0 .508.097.692.269Z"
-                                                    fill="currentColor"
-                                                ></path>
-                                                <rect
-                                                    x="4"
-                                                    y="15"
-                                                    width="3"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="8.5"
-                                                    y="15"
-                                                    width="3"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="13"
-                                                    y="15"
-                                                    width="3"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                            </svg>
-                                        </TabsTrigger>
-                                        <TabsTrigger value="edit" disabled>
-                                            <span className="sr-only">Edit</span>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="none"
-                                                className="h-5 w-5"
-                                            >
-                                                <rect
-                                                    x="4"
-                                                    y="3"
-                                                    width="12"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="4"
-                                                    y="7"
-                                                    width="12"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="4"
-                                                    y="11"
-                                                    width="3"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="4"
-                                                    y="15"
-                                                    width="4"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <rect
-                                                    x="8.5"
-                                                    y="11"
-                                                    width="3"
-                                                    height="2"
-                                                    rx="1"
-                                                    fill="currentColor"
-                                                ></rect>
-                                                <path
-                                                    d="M17.154 11.346a1.182 1.182 0 0 0-1.671 0L11 15.829V17.5h1.671l4.483-4.483a1.182 1.182 0 0 0 0-1.671Z"
-                                                    fill="currentColor"
-                                                ></path>
-                                            </svg>
-                                        </TabsTrigger>
                                     </TabsList>
                                 </div>
                                 <ModelSelector types={types} models={models} />
@@ -481,14 +499,14 @@ export default function PlaygroundPage() {
                                     </Label>
                                 </div>
                             </div>
-                            <div className="lg:max-h-[600px] md:order-1">
+                            <div className="max-h-[300px] md:order-1">
                                 <TabsContent value="complete" className="mt-0 border-0 p-0">
-                                    <div className="flex h-full flex-col space-y-4">
-                                        <div className="flex h-full flex-col space-y-4">
+                                    <div className="flex max-h-[300px] flex-col space-y-4">
+                                        <div className="flex max-h-[300px] flex-col space-y-4">
                                             <RichEditor
                                                 placeholder="What is this content about?"
-                                                value={preset.systemBehavior}
-                                                onChange={e => setPreset({ ...preset, systemBehavior: e })}
+                                                value={selectedPreset?.systemBehavior}
+                                                onChange={e => setSelectedPreset({ ...selectedPreset, systemBehavior: e })}
                                             // {...field}
                                             />
 
@@ -507,14 +525,68 @@ export default function PlaygroundPage() {
                                 <TabsContent value="insert" className="mt-0 border-0 p-0">
                                     <div className="flex flex-col space-y-4  max-h-[600px]">
                                         <div className="grid h-full grid-rows-2 gap-6 lg:grid-cols-2 lg:grid-rows-1">
-                                            <Textarea
-                                                placeholder="We're writing to [inset]. Congrats from OpenAI!"
-                                                className=" lg:min-h-[600px] xl:min-h-[700px]"
-                                                value={userMessage}
-                                                onChange={(e) => setUserMessage(e.target.value)}
-                                            />
-                                            <div className="rounded-md border h-full overflow-scroll min-h-[300px] lg:max-h-[700px] lg:min-h-[500px] xl:min-h-[500px]">
-                                                <CardsChat messages={messages} setMessages={setMessages} />
+                                            <div className="flex flex-1 flex-col space-y-2">
+                                                <div className="flex flex-row items-center justify-between">
+                                                    <Label htmlFor="input">Input</Label>
+                                                    <div>
+                                                        <div className="space-y-2 pl-2 flex-grow">
+                                                            <Select onValueChange={(e) =>
+                                                                setStatus(e)
+                                                            } defaultValue={status} value={status}>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select a preset" />
+                                                                </SelectTrigger>
+                                                                {/*                                                             <SelectContent>
+                                                                    {statuses.map((preset: any, index: any) => {
+                                                                        return (
+                                                                            <SelectItem value={preset} key={index}>
+                                                                                <span className="font-medium">{String(preset).toUpperCase()}</span>
+                                                                            </SelectItem>
+                                                                        )
+                                                                    })
+                                                                    }
+                                                                </SelectContent> */}
+                                                            </Select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <Textarea
+                                                    placeholder="We're writing to [inset]. Congrats from OpenAI!"
+                                                    className="max-h-[300px lg:min-h-[600px] xl:min-h-[700px]"
+                                                    value={userMessage}
+                                                    onChange={(e) => setUserMessage(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="max-h-[300px] lg:max-h-[700px] lg:min-h-[500px] xl:min-h-[500px]">
+                                                <div className="h-full  flex flex-1 flex-col space-y-2">
+                                                    <div className="flex flex-row items-center justify-between">
+                                                        <div>
+                                                            <div className="space-y-2 pl-2 flex-grow">
+                                                                <Select onValueChange={(e) =>
+                                                                    setStatus(e)
+                                                                } defaultValue={status} value={status}>
+
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Select a preset" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {statuses.map((preset: any, index: any) => {
+                                                                            return (
+                                                                                <SelectItem value={preset} key={index}>
+                                                                                    <span className="font-medium">{String(preset).toUpperCase()}</span>
+                                                                                </SelectItem>
+                                                                            )
+                                                                        })
+                                                                        }
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="rounded-md border overflow-scroll  h-full max-h-[300px lg:min-h-[600px] xl:min-h-[700px] ">
+                                                        <CardsChat messages={messages?.filter(m => m.status == status)} setMessages={setMessages} />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center space-x-2">
@@ -531,11 +603,37 @@ export default function PlaygroundPage() {
                                         <div className="grid h-full gap-6 lg:grid-cols-2">
                                             <div className="flex flex-col space-y-4">
                                                 <div className="flex flex-1 flex-col space-y-2">
-                                                    <Label htmlFor="input">Input</Label>
+                                                    <div className="flex flex-row items-center justify-between">
+                                                        <Label htmlFor="input">Input</Label>
+                                                        <div>
+                                                            <div className="space-y-2 pl-2 flex-grow">
+                                                                <Select onValueChange={(e) =>
+                                                                    setStatus(e)
+                                                                } defaultValue={status} value={status}>
+
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Select a preset" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {statuses.map((preset: any, index: any) => {
+                                                                            return (
+                                                                                <SelectItem value={preset} key={index}>
+                                                                                    <span className="font-medium">{String(preset).toUpperCase()}</span>
+                                                                                </SelectItem>
+                                                                            )
+                                                                        })
+                                                                        }
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <Textarea
                                                         id="input"
                                                         placeholder="We is going to the market."
                                                         className="flex-1 lg:min-h-[580px]"
+                                                        value={userMessage}
+                                                        onChange={(e) => setUserMessage(e.target.value)}
                                                     />
                                                 </div>
                                                 <div className="flex flex-col space-y-2">
@@ -543,14 +641,21 @@ export default function PlaygroundPage() {
                                                     <Textarea
                                                         id="instructions"
                                                         placeholder="Fix the grammar."
+                                                        value={selectedPreset?.instruction || ""}
+                                                        onChange={(e) => setSelectedPreset({ ...selectedPreset, instruction: e.target.value })}
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]" />
+                                            <div className="rounded-md border  overflow-scroll max-h-[300px] lg:max-h-[700px] ">
+                                                <CardsChat messages={messages?.filter(m => m.status == status)} setMessages={setMessages} />
+                                            </div>
+                                            {/* <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]" /> */}
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <Button>Submit</Button>
-                                            <Button variant="secondary">
+                                            <Button disabled={isLoading} onClick={() => handleMessageSubmit()}> Submit</Button>
+                                            <Button variant="secondary"
+                                                disabled={isLoading} onClick={() => getConversations()}
+                                            >
                                                 <span className="sr-only">Show history</span>
                                                 <RotateCcw />
                                             </Button>
@@ -560,8 +665,8 @@ export default function PlaygroundPage() {
                             </div>
                         </div>
                     </div>
-                </Tabs>
-            </div>
-        </div>
+                </Tabs >
+            </div >
+        </div >
     )
 }

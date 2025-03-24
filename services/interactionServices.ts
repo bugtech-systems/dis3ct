@@ -1,6 +1,7 @@
 // services/interactionService.ts
 import Interaction, { IInteraction } from '@/models/Interaction';
 import dbConnect from "@/lib/mongodb";
+import { removeNullishValues } from '@/lib/helpers';
 
 /**
  * Create a new interaction.
@@ -8,12 +9,16 @@ import dbConnect from "@/lib/mongodb";
  * @returns {Promise<{ success: boolean; data?: IInteraction; error?: string }>}
  */
 export const createInteraction = async (
-    data: Partial<IInteraction>
+    data: any
 ): Promise<{ success: boolean; data?: IInteraction; error?: string }> => {
     try {
         await dbConnect();
         const newInteraction = new Interaction(data);
         const savedInteraction = await newInteraction.save();
+
+
+        console.log(data, 'CREATE INTERACTION')
+
         return { success: true, data: savedInteraction };
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to create interaction' };
@@ -46,19 +51,76 @@ export const updateFeedback = async (
     }
 };
 
+export const updateInteraction = async (
+    interactionId: string,
+    data: any
+): Promise<{ success: boolean; data?: IInteraction; error?: string }> => {
+    try {
+        await dbConnect();
+        console.log(data, 'DATA INTERACT')
+        const updatedInteraction = await Interaction.findByIdAndUpdate(
+            interactionId,
+            data,
+            { new: true }
+        );
+        if (!updatedInteraction) {
+            return { success: false, error: 'Interaction not found' };
+        }
+        return { success: true, data: updatedInteraction };
+    } catch (error: any) {
+        return { success: false, error: error.message || 'Failed to update feedback' };
+    }
+};
+
 /**
  * Retrieve all interactions for a specific user.
  * @param {string} userId - The ID of the user whose interactions to retrieve.
  * @returns {Promise<{ success: boolean; data?: IInteraction[]; error?: string }>}
  */
 export const getUserInteractions = async (
-    contact: string
+    options: any,
+    limit?: any,
+    sort?: any
 ): Promise<{ success: boolean; data?: IInteraction[]; error?: string }> => {
     try {
         await dbConnect();
-        const interactions = await Interaction.find({ contact });
+
+        let newOptions = removeNullishValues(options)
+        const interactions = await Interaction.find(newOptions).limit(limit || 100).sort(sort || { timestamp: 1 });
         return { success: true, data: interactions };
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to fetch interactions' };
+    }
+};
+
+
+export const getInteractionById = async (
+    id: string
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+        await dbConnect();
+        const conversation = await Interaction.findById(id);
+        if (!conversation) {
+            return { success: false, error: "Conversation not found" };
+        }
+        return { success: true, data: conversation };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to fetch conversation" };
+    }
+};
+
+
+export const deleteInteraction = async (
+    id: string
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+        await dbConnect();
+        const deletedConversation = await Interaction.findByIdAndDelete(id);
+        if (!deletedConversation) {
+            return { success: false, error: "Conversation not found" };
+        }
+        return { success: true, data: deletedConversation };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to delete conversation" };
     }
 };

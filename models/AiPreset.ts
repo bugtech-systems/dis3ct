@@ -8,6 +8,7 @@ export interface IAiPreset extends Document {
   sampleConversation?: mongoose.Types.ObjectId[]; // Array of references to Conversation
   contact?: mongoose.Types.ObjectId;
   modelName: string;
+  instruction: string;
   aiTemperature: number;
   aiMaxLength: number;
   aiTopP: number;
@@ -20,6 +21,7 @@ const AiPresetSchema: Schema = new mongoose.Schema(
     name: { type: String, required: true },
     value: { type: String, required: true },
     description: { type: String },
+    instruction: { type: String },
     systemBehavior: { type: String, required: true },
     contact: {
       type: mongoose.Schema.Types.ObjectId,

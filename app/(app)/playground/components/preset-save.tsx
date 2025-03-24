@@ -29,6 +29,7 @@ export function PresetSave() {
         throw new Error("Failed to fetch presets")
       }
       const data = await response.json()
+      console.log(data.data, 'PRESETS')
       setPresets(data.data) // Assuming API returns { success: true, data: [...] }
     } catch (err: any) {
       console.log(err, 'FETCH ERROR')
@@ -46,7 +47,7 @@ export function PresetSave() {
 
     try {
       if (selectedPreset && selectedPreset.id) {
-        let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...preset, system: system.phone });
+        let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...selectedPreset, system: system.phone });
 
 
         if (resp.data) {
@@ -77,6 +78,8 @@ export function PresetSave() {
       toast.error("Something went wrong!");
     }
   };
+
+
 
 
   return (

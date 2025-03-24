@@ -16,11 +16,9 @@ const getTeams = async (id: any): Promise<any[]> => {
     const userId = session.user.id;
     await connectToDatabase();
 
-
     let query: any = {}; // Exclude the authenticated user
 
     const user = await User.findById(id).lean();
-
 
     if (!user) return [];
 
@@ -40,9 +38,6 @@ const getTeams = async (id: any): Promise<any[]> => {
       default:
         return []; // Return empty if userType doesn't match
     }
-
-
-
 
     const teams = await User.find(query).populate([{
       path: 'parent',

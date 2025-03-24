@@ -29,7 +29,7 @@ export interface IContact extends Document {
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
   tags?: any[];
-  recordType: 'contact' | 'master_list' | 'hotline' | 'leader';
+  recordType: 'contact' | 'master_list' | 'hotline' | 'leader' | 'subscriber';
   coordinates: any;
   isDeleted: boolean;
 }
@@ -67,7 +67,7 @@ const ContactSchema = new Schema<IContact>(
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],
     recordType: {
       type: String,
-      enum: ['contact', 'master_list', 'hotline', 'leader'],
+      enum: ['contact', 'subscriber', 'master_list', 'hotline', 'leader'],
       default: 'contact',
     },
     coordinates: {

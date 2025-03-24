@@ -1,0 +1,8 @@
+{
+    "opt_in_request": "📢 **Welcome to Alayon Assistant, [name]!** Stay updated with voter services, emergency help & alerts. To subscribe, reply: **ALAYON YES**. To decline, reply: **ALAYON NO**.\n\n📍 Example: Text **ALAYON YES** to subscribe.",
+    "subscription_confirmation": "✅ **Hello [name], your subscription is confirmed!** You’ll now receive voter info, emergency hotlines & community updates. Your phone number: [phone]. You can unsubscribe anytime by replying **ALAYON STOP**.",
+    "help": "📌 **Alayon Services:**\n1️⃣ **ALAYON ASSIST** – Info & Help.\n2️⃣ **ALAYON PRECINCT** – Voter details.\n3️⃣ **ALAYON HOTLINE** – Emergency contacts.\n\n📍 Example: Text **ALAYON HOTLINE** to get emergency numbers.",
+    "request_name": "📌 To complete your profile, reply with your details: **LAST NAME, FIRST NAME, MIDDLE NAME, BARANGAY, MUNICIPALITY**.\n\n📍 Example: **ALAYON INFO Dela Cruz, Juan, Santos, Brgy 1, Tacloban City.**",
+    "opt_out_confirmation": "❌ You have unsubscribed from Alayon Assistant. To re-subscribe, reply **ALAYON YES**.",
+    "default": "⚠️ Sorry, we couldn't recognize your request. Try texting **ALAYON HELP** for available services."
+}

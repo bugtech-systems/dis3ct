@@ -8,7 +8,7 @@ export interface IConversation extends Document {
   status: "pending" | "active" | "closed";
   contact: mongoose.Types.ObjectId;
   system: mongoose.Types.ObjectId;
-  preset:  mongoose.Types.ObjectId;
+  preset: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,13 +20,13 @@ const ConversationSchema: Schema = new mongoose.Schema(
     position: { type: Number },
     preset: { type: Schema.Types.ObjectId, ref: 'AiPreset', required: false },
     content: { type: String, required: true },
-    status: { type: String, enum: ["pending", "active", "closed"], default: "pending" },
-    contact:  { type: Schema.Types.ObjectId, ref: 'Contact', required: false },
-    system:  { type: Schema.Types.ObjectId, ref: 'Contact', required: false },
+    status: { type: String, enum: ["pending", "active", "closed", "default"], default: "pending" },
+    contact: { type: Schema.Types.ObjectId, ref: 'Contact', required: false },
+    system: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
-);  
+);
 
 export default (mongoose.models.Conversation as Model<IConversation>) ||
   mongoose.model<IConversation>("Conversation", ConversationSchema);

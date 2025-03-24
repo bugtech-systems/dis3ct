@@ -4,14 +4,17 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IMobile extends Document {
   phone: string;
   validatedAt?: Date;
-  contacts: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
+  contact: Types.ObjectId; // Array of ObjectIds referencing Contact documents
+  subscribedAt?: Date;
+  system: Types.ObjectId; // Array of ObjectIds referencing Contact documents
 }
 
 const MobileSchema: Schema = new Schema({
   phone: { type: String, required: true, maxlength: 20 },
   validatedAt: { type: Date },
   contact: { type: Schema.Types.ObjectId, ref: 'Contact' }, // References to Contact documents
-  user: { type: Schema.Types.ObjectId, ref: 'User' }, // References to Contact documents
+  system: { type: Schema.Types.ObjectId, ref: 'User' }, // References to Contact documents,
+  subscribedAt: { type: Date },
 }, { timestamps: true });
 
 export default mongoose.models.Mobile || mongoose.model<IMobile>('Mobile', MobileSchema);

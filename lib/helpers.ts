@@ -2,6 +2,7 @@ import { parse } from 'node-html-parser';
 import { parseDocument } from "htmlparser2";
 import { DomUtils } from "htmlparser2";
 import axios from 'axios';
+import smsTemplates from '@/data/template.json'
 
 // export function convertRichTextToPlain(content: string): string {
 //   // Create a temporary DOM element to parse HTML
@@ -432,3 +433,34 @@ export function updateOrPushObject(arr, newObj) {
 
   return arr;
 }
+
+
+
+export function removeNullishValues(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value != null)
+  );
+}
+
+
+// Function to match user response to the correct SMS template
+export function getSMSTemplate(responseData, defaultTemplateKey = "default") {
+  // Ensure actions are an array
+  const actions = responseData.actions?.map(a => a.trim().toLowerCase()) || [];
+
+  // Find a matching template by action
+  let templateKey = actions.find(action => smsTemplates[action]) || defaultTemplateKey;
+
+  // Retrieve the template message (fallback to default if no match)
+  let message = smsTemplates[templateKey] || smsTemplates["default"];
+  console.log(message, "MESS")
+  // Replace placeholders with actual values, keeping brackets if value is missing
+  for (const key in responseData) {
+    const placeholder = `[${key}]`;
+    message = message.replace(new RegExp(placeholder, "g"), responseData[key] || `[${key}]`);
+  }
+
+  return message;
+}
+
+// Example Usage

@@ -87,7 +87,6 @@ export function ContactSelector() {
     }
   }, [parent])
 
-  console.log(parent, 'play system')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

@@ -261,7 +261,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
             <TabsList className="flex justify-center">
               <TabsTrigger value="basic">System Details</TabsTrigger>
               {/* <TabsTrigger value="area">Area</TabsTrigger> */}
-              {((user._id == profile._id) || user.userType == 'admin') &&
+              {((user?._id == profile?._id) || user?.userType == 'admin') &&
                 <TabsTrigger value="access" >
                   Access
                 </TabsTrigger>

@@ -1,4 +1,5 @@
 import { cleanJsonObject, cleanToJson, isParsableObject } from '@/lib/helpers';
+import AiPreset from '@/models/AiPreset';
 import Ollama from 'ollama';
 
 interface Preset {
@@ -168,7 +169,6 @@ ${presetDescriptions}
       throw error;
     }
   }
-
 
 }
 

@@ -5,21 +5,28 @@ import { createInteraction, updateFeedback, getUserInteractions } from '@/servic
 export const GET = async (req: NextRequest) => {
     try {
         const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
+        const contact = searchParams.get('contact');
+        const system = searchParams.get('system');
+        const preset = searchParams.get('preset');
+        const status = searchParams.get('status')
+        const limit = searchParams.get('limit');
+        const sort = searchParams.get('sort');
 
         // Validate userId parameter
-        if (!userId) {
+        if (!system) {
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Missing required parameter: userId',
+                    error: 'Missing required parameter: system',
                 },
                 { status: 400 }
             );
         }
 
+
+
         // Fetch interactions for the user
-        const result = await getUserInteractions(userId);
+        const result = await getUserInteractions({ preset, system, contact, status }, limit, sort);
 
         if (!result.success) {
             return NextResponse.json(
@@ -82,3 +89,5 @@ export const PUT = async (req: NextRequest) => {
         );
     }
 };
+
+

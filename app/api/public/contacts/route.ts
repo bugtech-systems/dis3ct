@@ -103,13 +103,10 @@ export const POST = async (req: NextRequest) => {
         console.log('SUCCESS 200')
       }
 
-
-
-
     }
 
 
-    logAction(userId, 'Send Invite', `Sending Invite to ${record.name} with Phone # ${phone} `)
+    logAction(userId, 'Send Invite', `Sending Invite to ${record?.name} with Phone # ${phone} `)
 
     console.log(record, 'RECORD')
     return NextResponse.json({ message: 'Invite Sent!' }, { status: 201 });

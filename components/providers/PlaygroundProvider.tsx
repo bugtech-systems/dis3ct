@@ -11,8 +11,8 @@ import { useContact } from "./ContactProvider";
 interface PlaygroundContextType {
   selectedContact: any;
   setSelectedContact: (contact: any) => void;
-  selectedPreset: IAiPreset | null;
-  setSelectedPreset: (preset: IAiPreset | null) => void;
+  selectedPreset: any | null;
+  setSelectedPreset: (preset: any | null) => void;
   preset: any;
   setPreset: (event: string) => void;
   userMessage: string;
@@ -81,7 +81,7 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
          .catch((error) => {
            console.error("Error fetching user data:", error);
          }) */
-      const response = await fetch(`/api/conversations?contact=${user.phone}&system=${system.phone}&preset=${selectedPreset?.value}`); // Update the endpoint URL if necessary
+      const response = await fetch(`/api/interactions?contact=${user.phone}&system=${system.phone}${selectedPreset?.value ? `&preset=${selectedPreset?._id}` : ''}`); // Update the endpoint URL if necessary
 
       if (!response.ok) {
         throw new Error("Failed to fetch conversations");
@@ -109,7 +109,8 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
         temperature: selectedPreset.aiTemperature,
         maxTokens: selectedPreset.aiMaxLength,
         topP: selectedPreset.aiTopP,
-        aiModel: selectedPreset.modelName
+        aiModel: selectedPreset.modelName,
+        instruction: selectedPreset.instruction
       })
       getConversations()
       axios.get(`/api/presets/chat/${selectedPreset._id}`)
