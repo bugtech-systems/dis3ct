@@ -79,6 +79,7 @@ export const POST = async (req: NextRequest) => {
         priority: 'Medium',
         category: 'Sms',
         title: 'Send Message',
+        system: system,
         taskObject: JSON.stringify({
           // ...preset,
 

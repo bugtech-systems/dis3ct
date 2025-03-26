@@ -17,7 +17,7 @@ interface TemperatureSelectorProps {
 }
 
 export function TemperatureSelector() {
-const { preset, setPreset} = usePlayground();
+  const { selectedPreset, setSelectedPreset } = usePlayground();
 
 
 
@@ -31,16 +31,16 @@ const { preset, setPreset} = usePlayground();
             <div className="flex items-center justify-between">
               <Label htmlFor="temperature">Temperature</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
-                {preset.temperature}
+                {selectedPreset?.temperature}
               </span>
             </div>
             <Slider
               id="temperature"
               max={1}
               // defaultValue={defaultValue}
-              value={[preset.temperature]}
+              value={[selectedPreset?.temperature]}
               step={0.1}
-              onValueChange={(e) => setPreset({...preset, temperature: e[0]})}
+              onValueChange={(e) => setSelectedPreset({ ...selectedPreset, temperature: e[0] })}
               className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
               aria-label="Temperature"
             />

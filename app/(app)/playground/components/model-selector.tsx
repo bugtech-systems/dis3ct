@@ -36,14 +36,12 @@ interface ModelSelectorProps extends PopoverProps {
 }
 
 export function ModelSelector({ models, types, ...props }: ModelSelectorProps) {
-  const { preset, setPreset, selectedPreset } = usePlayground();
+  const { selectedPreset, setSelectedPreset } = usePlayground();
   const [open, setOpen] = React.useState(false)
   const [selectedModel, setSelectedModel] = React.useState<Model>(models[0])
   const [peekedModel, setPeekedModel] = React.useState<Model>(models[0])
 
-  React.useEffect(() => {
-    setPreset({ ...preset, modelName: selectedModel.id })
-  }, [selectedModel])
+
 
   React.useEffect(() => {
     if (selectedPreset) {
@@ -113,7 +111,8 @@ export function ModelSelector({ models, types, ...props }: ModelSelectorProps) {
                           isSelected={selectedModel?.id === model.id}
                           onPeek={(model) => setPeekedModel(model)}
                           onSelect={() => {
-                            setSelectedModel(model)
+                            // setSelectedModel(model)
+                            setSelectedPreset({ ...selectedPreset, modelName: model.id })
                             setOpen(false)
                           }}
                         />

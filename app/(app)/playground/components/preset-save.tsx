@@ -17,7 +17,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 export function PresetSave() {
-  const { setPresets, selectedPreset, preset, setPreset } = usePlayground();
+  const { setPresets, selectedPreset, setSelectedPreset } = usePlayground();
   const { system } = useContact();
   const [open, setOpen] = useState(false)
 
@@ -39,12 +39,12 @@ export function PresetSave() {
 
 
   const handleChanges = (prop: any) => (event: any) => {
-    setPreset({ ...preset, [prop]: event.target.value })
+    setSelectedPreset({ ...selectedPreset, [prop]: event.target.value })
   }
 
   const handleSavePreset = async () => {
     // e.preventDefault()
-
+    console.log(selectedPreset, 'SELECTED')
     try {
       if (selectedPreset && selectedPreset.id) {
         let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...selectedPreset, system: system.phone });
@@ -56,8 +56,12 @@ export function PresetSave() {
 
       } else {
         let resp = await axios.post(`/api/presets`, {
-          ...preset,
-          system: system.phone
+          ...selectedPreset,
+          system: system.phone,
+          aiTemperature: selectedPreset?.temperature,
+          aiTopP: selectedPreset?.topP,
+          aiMaxLength: selectedPreset?.maxTokens,
+          instruction: selectedPreset?.instruction
           /*          systemBehavior,
                    modelName: selectedModel.id,
                    aiTemperature: temperature,
@@ -99,14 +103,14 @@ export function PresetSave() {
           <div className="grid gap-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" autoFocus
-              value={preset.name}
+              value={selectedPreset?.name}
               onChange={handleChanges('name')}
             />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Input id="description"
-              value={preset.description}
+              value={selectedPreset?.description}
               onChange={handleChanges('description')}
             />
           </div>

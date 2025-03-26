@@ -162,12 +162,12 @@ export const getContactMobile = async (
 ): Promise<{ success: boolean; data?: IMobile; error?: string }> => {
   try {
     await dbConnect();
-
+    console.log('GET MOB', number, system)
     let options = {
       phone: sanitizePhoneNumber(number)
     } as any;
 
-    const systemData = await User.findOne({ phone: sanitizePhoneNumber(system) });
+    const systemData = await User.findOne({ phone: sanitizePhoneNumber(system), userType: 'system' });
     if (systemData) {
       options.system = systemData._id
     }
@@ -244,33 +244,51 @@ export const optInContact = async (
 ): Promise<{ success: boolean; data?: IContact; error?: string }> => {
   try {
     await dbConnect();
-    let systemContact = await getSystemByNumber(sanitizePhoneNumber(system));
-    let contact = await getContactByNumber(number, system);
-    let mobile = await Mobile.findOne({ phone: sanitizePhoneNumber(number), system: systemContact.data?._id })
+    let systemContact;
+    let systemData = await getSystemByNumber(sanitizePhoneNumber(system));
+    let contact;
+    let contactData = await getContactByNumber(number, system);
 
 
 
 
-    if (!systemContact.success) {
-      return { success: false, error: "Failed to opt-in contact, system not found!" };
+    if (contactData.success) {
+      contact = contactData.data;
     }
 
 
+    if (!systemData.success) {
+      return { success: false, error: "Failed to opt-in contact, system not found!" };
+    } else {
+      systemContact = systemData.data;
+
+    }
+
+
+
+
     const updatedContact = await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number), parNum: systemContact.data?._id },
+      { phone: sanitizePhoneNumber(number), parNum: systemContact?._id },
       { subscribed: true },
       { new: true, runValidators: true }
     );
 
-    mobile.contact = contact?.data?._id;
-    mobile.subscribedAt = new Date;
-    await mobile.save()
 
-    console.log(mobile, 'MOBBB')
-    if (!updatedContact) {
-      return { success: false, error: "Contact not found" };
+    let mobile = await Mobile.findOne({
+      phone: sanitizePhoneNumber(number),
+      system: systemContact?._id
+    });
+
+
+    if (mobile) {
+      mobile.contact = contact?._id;
+      mobile.subscribedAt = new Date;
+      await mobile.save()
     }
-    return { success: true, data: updatedContact };
+
+    console.log(mobile, contact, systemContact, 'MOBBB')
+
+    return { success: true };
   } catch (error: any) {
     console.log(error, 'ERR')
     return { success: false, error: error.message || "Failed to opt-in contact" };
@@ -290,33 +308,49 @@ export const optOutContact = async (
     await dbConnect();
 
 
-    let systemContact = await getSystemByNumber(sanitizePhoneNumber(system));
-    let contact = await getContactByNumber(number, system);
-    let mobile = await Mobile.findOne({ phone: sanitizePhoneNumber(number), system: systemContact.data?._id }) as any;
+    let systemContact;
+    let systemData = await getSystemByNumber(sanitizePhoneNumber(system));
+    let contact;
+    let contactData = await getContactByNumber(number, system);
 
-    console.log(mobile, 'MOBB')
-    mobile['contact'] = contact?.data?._id;
-    mobile.subscribedAt = null;
-    await mobile.save()
 
-    if (!systemContact.success) {
-      return { success: false, error: "Failed to opt-out contact, system not found!" };
+
+
+    if (contactData.success) {
+      contact = contactData.data;
+    }
+
+
+    if (!systemData.success) {
+      return { success: false, error: "Failed to opt-in contact, system not found!" };
+    } else {
+      systemContact = systemData.data;
+
     }
 
 
 
-    const updatedContact = await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number), parNum: systemContact.data?._id },
+
+    await Contact.findOneAndUpdate(
+      { phone: sanitizePhoneNumber(number), parNum: systemContact?._id },
       { subscribed: false },
       { new: true, runValidators: true }
     );
-    if (!updatedContact) {
-      return { success: false, error: "Contact not found" };
+
+
+    let mobile = await Mobile.findOne({
+      phone: sanitizePhoneNumber(number),
+      system: systemContact?._id
+    });
+
+
+    if (mobile) {
+      mobile.subscribedAt = null;
+      await mobile.save()
     }
 
 
-
-    return { success: true, data: updatedContact };
+    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to opt-out contact" };
   }

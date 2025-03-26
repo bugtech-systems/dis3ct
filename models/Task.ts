@@ -23,6 +23,7 @@ export enum TaskCategory {
 
 export interface ITask extends Document {
   taskId: string;
+  system: string;
   title: string;
   category: TaskCategory;
   status: TaskStatus;
@@ -35,6 +36,7 @@ const TaskSchema: Schema = new Schema(
   {
     taskId: { type: String, required: true }, // Unique Task Identifier
     title: { type: String, required: true }, // Task Title
+    system: { type: String, required: false }, // Unique Task Identifier
     category: { type: String, enum: Object.values(TaskCategory), required: true }, // Task Category
     status: { type: String, enum: Object.values(TaskStatus), required: false, default: 'Todo' }, // Task Status
     priority: { type: String, enum: Object.values(TaskPriority), required: true }, // Task Priority

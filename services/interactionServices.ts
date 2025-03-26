@@ -13,7 +13,8 @@ export const createInteraction = async (
 ): Promise<{ success: boolean; data?: IInteraction; error?: string }> => {
     try {
         await dbConnect();
-        const newInteraction = new Interaction(data);
+
+        const newInteraction = new Interaction({ ...data, contact: data?.contact ? data?.contact : data.system });
         const savedInteraction = await newInteraction.save();
 
 

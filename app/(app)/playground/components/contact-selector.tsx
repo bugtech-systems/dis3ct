@@ -67,7 +67,8 @@ export function ContactSelector() {
 
       if (dataRes) {
         let { data } = dataRes;
-        let newContacts = removeDuplicates(data);
+        console.log(data, 'DATA')
+        let newContacts = removeDuplicates(data.filter((e: any) => e.phone));
         setContacts(newContacts) // Assuming API returns { success: true, data: [...] }
       }
     } catch (err: any) {
@@ -151,39 +152,4 @@ export function ContactSelector() {
   )
 }
 
-interface ContactItemProps {
-  model: Contact
-  isSelected: boolean
-  onSelect: () => void
-  onPeek: (model: Contact) => void
-}
 
-function ContactItem({ model, isSelected, onSelect, onPeek }: ContactItemProps) {
-  const ref = React.useRef<HTMLDivElement>(null)
-
-  useMutationObserver(ref, (mutations) => {
-    mutations.forEach((mutation) => {
-      if (
-        mutation.type === "attributes" &&
-        mutation.attributeName === "aria-selected" &&
-        ref.current?.getAttribute("aria-selected") === "true"
-      ) {
-        onPeek(model)
-      }
-    })
-  })
-
-  return (
-    <CommandItem
-      key={model.id}
-      onSelect={onSelect}
-      ref={ref}
-      className="data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
-    >
-      {model.name}
-      <Check
-        className={cn("ml-auto", isSelected ? "opacity-100" : "opacity-0")}
-      />
-    </CommandItem>
-  )
-}

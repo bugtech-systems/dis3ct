@@ -231,7 +231,7 @@ export function convertQuillToPlainText(quillContent: string): string {
 }
 
 
-export function sanitizePhoneNumber(phoneNumber: any | null) {
+export function sanitizePhoneNumber(phoneNumber: any) {
   // Remove any non-numeric characters from the phone number
   const sanitized = String(phoneNumber).replace(/\D/g, '').replace(/[^\d+]/g, '');
 
@@ -371,6 +371,7 @@ export function extractJsonFromText(text) {
 
   let jsonString = match[0];
   let remainingText = text.replace(jsonString, '').trim();
+  console.log(match, 'MTCH')
 
   try {
     let jsonObject = JSON.parse(jsonString);
@@ -396,6 +397,7 @@ export const handleNewMessage = async ({ message, sender, system, isFlash = fals
     priority: 'Medium',
     category: 'Sms',
     title: 'Send Message',
+    system: system,
     taskObject: JSON.stringify({
       // ...preset,
       isFlash,

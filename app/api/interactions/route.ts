@@ -24,9 +24,9 @@ export const GET = async (req: NextRequest) => {
         }
 
 
-
+        let owner = status == 'default' ? null : contact ? contact : null;
         // Fetch interactions for the user
-        const result = await getUserInteractions({ preset, system, contact, status }, limit, sort);
+        const result = await getUserInteractions({ preset, system, contact: owner, status }, limit, sort);
 
         if (!result.success) {
             return NextResponse.json(

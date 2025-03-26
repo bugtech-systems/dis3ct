@@ -4,9 +4,9 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IMobile extends Document {
   phone: string;
   validatedAt?: Date;
-  contact: Types.ObjectId; // Array of ObjectIds referencing Contact documents
+  contact?: Types.ObjectId; // Array of ObjectIds referencing Contact documents
   subscribedAt?: Date;
-  system: Types.ObjectId; // Array of ObjectIds referencing Contact documents
+  system?: Types.ObjectId; // Array of ObjectIds referencing Contact documents
 }
 
 const MobileSchema: Schema = new Schema({

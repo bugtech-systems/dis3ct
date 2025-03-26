@@ -191,7 +191,7 @@ export function DataTableToolbarActions<TData>({ rows = [], table }: { table: an
           </DropdownMenuSub>
 
 
-          {((user?.userType == 'system' || user?.userType == 'admin') && findFeature(user.configs, 'sms').value) &&
+          {((user?.userType == 'system' && findFeature(user.configs, 'sms').value) || user?.userType == 'admin') &&
             <>
               <DropdownMenuItem
                 onClick={() => setShowContactDialog(true)}

@@ -22,6 +22,7 @@ const handleCall = async ({ phone, system }: { phone?: string; system?: string; 
     priority: 'Medium',
     category: 'Call',
     title: 'Call Contact',
+    system: system,
     taskObject: JSON.stringify({
       // ...preset,
       phone: sanitizePhoneNumber(phone),
@@ -46,6 +47,7 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
     priority: 'Medium',
     category: 'Sms',
     title: 'Send Message',
+    system: system,
     taskObject: JSON.stringify({
       // ...preset,
       isFlash,

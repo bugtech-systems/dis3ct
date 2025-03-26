@@ -66,11 +66,28 @@ export default function PlaygroundPage() {
     const getConversations = async () => {
         try {
             setLoading(true)
-            // setMessages([]);
 
             // .finally(() => setLoading(false));
+            let stat = tab == 'insert' ? 'pending' : 'default';
+            const queryParams = {
+                contact: selectedContact?.phone || parent?.phone,
+                system: parent?.phone,
+                preset: selectedPreset?._id,
+                status: stat
+            };
 
-            const response = await fetch(`/api/interactions?contact=${selectedContact ? selectedContact.phone : user.phone}${parent?.phone ? `&system=${parent.phone}` : ''}${selectedPreset?.value ? `&preset=${selectedPreset?._id}` : ''}`); // Update the endpoint URL if necessary
+
+
+
+            const filteredParams = Object.fromEntries(
+                Object.entries(queryParams).filter(([_, value]) => value)
+            );
+
+            // Convert object to query string
+            const queryString = new URLSearchParams(filteredParams).toString();
+
+            // Fetch request with dynamic query parameters
+            const response = await fetch(`/api/interactions?${queryString}`);
 
             if (!response.ok) {
                 throw new Error("Failed to fetch conversations");
@@ -103,7 +120,7 @@ export default function PlaygroundPage() {
 
             setUserMessage('')
             console.log(selectedPreset, 'SELECTED PRESET')
-            let apiUrl = selectedPreset ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
+            let apiUrl = (selectedPreset && selectedPreset.value) ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
             // let apiUrl = '/api/presets/chat'
 
             if (isTask) {
@@ -115,14 +132,16 @@ export default function PlaygroundPage() {
                     priority: 'High',
                     category: 'Api',
                     title: 'Chat AI',
+                    system: parent.phone,
                     taskObject: JSON.stringify({
                         url: `${nextUrl}/api/presets/chat${selectedPreset?.value ? `/${selectedPreset?.value}` : ''}`,
                         method: 'post',
                         dataObject: {
                             modelName: preset?.modelName ?? preset?.aiModel,
-                            sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
+                            sender: selectedContact?.phone,
                             system: parent.phone,
                             message: userMessage,
+                            status,
                             ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {})
                             /* instruction */
                         }
@@ -133,25 +152,28 @@ export default function PlaygroundPage() {
             } else {
 
                 console.log(preset, 'PRESET')
-                let resp = await axios.post('/api/presets/chat', {
+                let resp = await axios.post(apiUrl, {
                     preset: selectedPreset?.value,
                     modelName: selectedPreset?.modelName ?? selectedPreset?.aiModel,
-                    sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
+                    sender: selectedContact?.phone,
                     system: system.phone,
                     message: userMessage,
+                    status,
                     ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),
                     instruction: selectedPreset?.instruction
                 });
 
 
-                // if (resp.data.done) {
-                /*                   newMessages.push({
-                                      role: 'assistant',
-                                      content: resp.data.message.content
-                                  }) */
+                if (resp.data) {
+                    newMessages.push({
+                        inputText: userMessage,
+                        responseText: resp.data
+                    })
+                    console.log(resp, 'RESP')
+                    setMessages(newMessages)
+                }
 
-                // setMessages(newMessages)
-                getConversations()
+                // getConversations()
                 /*        if(resp.data.preset){
                         setSelectedPreset(resp.data.preset)
                       }  */
@@ -195,7 +217,7 @@ export default function PlaygroundPage() {
             let resp = await axios.post(apiUrl, {
                 ...preset,
                 modelName: preset?.modelName ?? preset?.aiModel,
-                sender: selectedContact?.phone ? selectedContact?.phone : user.phone,
+                sender: selectedContact?.phone,
                 system: system.phone,
                 message: lastUserMessage.content,
                 instruction
@@ -227,7 +249,23 @@ export default function PlaygroundPage() {
 
 
     const handleSavePreset = async () => {
-        console.log(preset, 'PRESET')
+        console.log(preset, 'PRESET', {
+            // ...selectedPreset,
+            systemBehavior: selectedPreset?.systemBehavior,
+            modelName: selectedPreset?.modelName,
+            aiTemperature: selectedPreset?.temperature,
+            aiTopP: selectedPreset?.topP,
+            aiMaxLength: selectedPreset?.maxTokens,
+            instruction: selectedPreset?.instruction
+        }, {
+            // ...selectedPreset,
+            systemBehavior: selectedPreset?.systemBehavior,
+            modelName: selectedPreset?.modelName,
+            aiTemperature: selectedPreset?.temperature,
+            aiTopP: selectedPreset?.topP,
+            aiMaxLength: selectedPreset?.maxTokens,
+            instruction: selectedPreset?.instruction
+        })
         try {
             if (selectedPreset && selectedPreset?._id) {
                 let resp = await axios.patch(`/api/presets/${selectedPreset?._id}`, {
@@ -270,23 +308,21 @@ export default function PlaygroundPage() {
 
     useEffect(() => {
 
+
+
         if (parentSystem) {
+            setMessages([])
             getConversations();
         }
 
-        if (parentSystem && (!selectedContact && !selectedPreset)) {
-            setMessages([])
-            getConversations()
-        }
 
-
-    }, [selectedContact, parentSystem])
+    }, [selectedContact, parentSystem, tab])
 
 
 
 
 
-
+    console.log(tab, 'TAB', selectedPreset)
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-3">
@@ -526,30 +562,7 @@ export default function PlaygroundPage() {
                                     <div className="flex flex-col space-y-4  max-h-[600px]">
                                         <div className="grid h-full grid-rows-2 gap-6 lg:grid-cols-2 lg:grid-rows-1">
                                             <div className="flex flex-1 flex-col space-y-2">
-                                                <div className="flex flex-row items-center justify-between">
-                                                    <Label htmlFor="input">Input</Label>
-                                                    <div>
-                                                        <div className="space-y-2 pl-2 flex-grow">
-                                                            <Select onValueChange={(e) =>
-                                                                setStatus(e)
-                                                            } defaultValue={status} value={status}>
-                                                                <SelectTrigger>
-                                                                    <SelectValue placeholder="Select a preset" />
-                                                                </SelectTrigger>
-                                                                {/*                                                             <SelectContent>
-                                                                    {statuses.map((preset: any, index: any) => {
-                                                                        return (
-                                                                            <SelectItem value={preset} key={index}>
-                                                                                <span className="font-medium">{String(preset).toUpperCase()}</span>
-                                                                            </SelectItem>
-                                                                        )
-                                                                    })
-                                                                    }
-                                                                </SelectContent> */}
-                                                            </Select>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                                 <Textarea
                                                     placeholder="We're writing to [inset]. Congrats from OpenAI!"
                                                     className="max-h-[300px lg:min-h-[600px] xl:min-h-[700px]"
@@ -559,32 +572,9 @@ export default function PlaygroundPage() {
                                             </div>
                                             <div className="max-h-[300px] lg:max-h-[700px] lg:min-h-[500px] xl:min-h-[500px]">
                                                 <div className="h-full  flex flex-1 flex-col space-y-2">
-                                                    <div className="flex flex-row items-center justify-between">
-                                                        <div>
-                                                            <div className="space-y-2 pl-2 flex-grow">
-                                                                <Select onValueChange={(e) =>
-                                                                    setStatus(e)
-                                                                } defaultValue={status} value={status}>
 
-                                                                    <SelectTrigger>
-                                                                        <SelectValue placeholder="Select a preset" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {statuses.map((preset: any, index: any) => {
-                                                                            return (
-                                                                                <SelectItem value={preset} key={index}>
-                                                                                    <span className="font-medium">{String(preset).toUpperCase()}</span>
-                                                                                </SelectItem>
-                                                                            )
-                                                                        })
-                                                                        }
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                     <div className="rounded-md border overflow-scroll  h-full max-h-[300px lg:min-h-[600px] xl:min-h-[700px] ">
-                                                        <CardsChat messages={messages?.filter(m => m.status == status)} setMessages={setMessages} />
+                                                        <CardsChat messages={messages} setMessages={setMessages} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -603,31 +593,7 @@ export default function PlaygroundPage() {
                                         <div className="grid h-full gap-6 lg:grid-cols-2">
                                             <div className="flex flex-col space-y-4">
                                                 <div className="flex flex-1 flex-col space-y-2">
-                                                    <div className="flex flex-row items-center justify-between">
-                                                        <Label htmlFor="input">Input</Label>
-                                                        <div>
-                                                            <div className="space-y-2 pl-2 flex-grow">
-                                                                <Select onValueChange={(e) =>
-                                                                    setStatus(e)
-                                                                } defaultValue={status} value={status}>
 
-                                                                    <SelectTrigger>
-                                                                        <SelectValue placeholder="Select a preset" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {statuses.map((preset: any, index: any) => {
-                                                                            return (
-                                                                                <SelectItem value={preset} key={index}>
-                                                                                    <span className="font-medium">{String(preset).toUpperCase()}</span>
-                                                                                </SelectItem>
-                                                                            )
-                                                                        })
-                                                                        }
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                     <Textarea
                                                         id="input"
                                                         placeholder="We is going to the market."
@@ -647,7 +613,7 @@ export default function PlaygroundPage() {
                                                 </div>
                                             </div>
                                             <div className="rounded-md border  overflow-scroll max-h-[300px] lg:max-h-[700px] ">
-                                                <CardsChat messages={messages?.filter(m => m.status == status)} setMessages={setMessages} />
+                                                <CardsChat messages={messages} setMessages={setMessages} />
                                             </div>
                                             {/* <div className="mt-[21px] min-h-[400px] rounded-md border bg-muted lg:min-h-[700px]" /> */}
                                         </div>

@@ -46,7 +46,11 @@ const PlaygroundContext = createContext<PlaygroundContextType | undefined>(undef
 // Provider component
 export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   children,
-  defaultSelectedPreset = null,
+  defaultSelectedPreset = {
+    topP: 0.9,
+    maxTokens: 2000,
+    temperature: 0.3
+  },
   defaultUserMessage = "",
   defaultMessages = [],
   defaultPresets = [],
@@ -66,7 +70,7 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   const [conversations, setConversations] = useState<any>(defaultMessages);
   const [presets, setPresets] = useState<any>(defaultPresets);
   const [preset, setPreset] = useState<any | null>(defaultPreset);
-  const [selectedContact, setSelectedContact] = useState<any | null>(null);
+  const [selectedContact, setSelectedContact] = useState<any>(null);
 
 
   const getConversations = async () => {
@@ -102,26 +106,10 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   useEffect(() => {
 
     if (selectedPreset) {
-      setPreset({
-        ...preset,
-        ...selectedPreset,
-        systemBehavior: selectedPreset.systemBehavior,
-        temperature: selectedPreset.aiTemperature,
-        maxTokens: selectedPreset.aiMaxLength,
-        topP: selectedPreset.aiTopP,
-        aiModel: selectedPreset.modelName,
-        instruction: selectedPreset.instruction
-      })
+      console.log(selectedPreset, 'SELECTED')
+      setPreset(selectedPreset)
       getConversations()
-      axios.get(`/api/presets/chat/${selectedPreset._id}`)
-        .then((response) => {
-          if (response.data) {
-            setConversations(response.data)
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        })
+
     } else {
       setConversations([]);
       // setMessages()

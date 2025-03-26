@@ -92,6 +92,7 @@ export function DeviceForm() {
         priority: 'Low',
         category: 'Background',
         title: 'GSM Module',
+        system: parentSystem?.phone,
         taskObject: JSON.stringify({
           url: `http://127.0.0.1:23006/api/gsm/restart`,
           method: 'post',

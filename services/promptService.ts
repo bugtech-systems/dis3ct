@@ -2,11 +2,11 @@ import { convertQuillToPlainText } from "@/lib/helpers";
 import Ollama from 'ollama';
 import { createInteraction, getUserInteractions } from "./interactionServices";
 import { getPresetByValue } from "./presetServices";
-import { getContactByNumber, getContactMobile } from "./contactServices";
+import { getContactByNumber } from "./contactServices";
 
 
 class PromptService {
-    static async generateResponse({ userInput, contact, system, preset }: { userInput: any, contact: any, system: any, preset: any }) {
+    static async generateResponse({ userInput, contact, system, preset, status }: any) {
         try {
             const instruction = preset?.instruction;
             const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" });
@@ -64,10 +64,19 @@ class PromptService {
 
 
             if (response && response.message) {
+                // Log interaction for tracking AI responses
+                await createInteraction({
+                    contact,
+                    system,
+                    ...(preset ? { preset: preset?._id } : {}),
+                    inputText: userInput,
+                    responseText: response?.message.content,
+                    status
+                });
 
                 return response?.message.content;
             } else {
-                return "I'm unable to process your request.";
+                return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
             }
         } catch (error) {
             console.log("Ollama Error:", error);
@@ -75,96 +84,103 @@ class PromptService {
         }
     }
 
-    static async generateOptResponse(userInput: string, contact: any, system: any) {
+    static async generateOptResponse({ message: userInput, sender, system, status = 'pending', mobile }: any) {
         try {
-            // 🔹 Fetch AI preset for opt-in process
+            // 🔹 Fetch necessary data
             const presetResult = await getPresetByValue('opting');
             const preset = presetResult.success ? presetResult.data : null;
+            let contactData;
+            let contact = system;
+            const contactResult = await getContactByNumber(sender, system);
+            const systemResult = await getContactByNumber(system, system);
 
-            // 🔹 Fetch contact details
-            const contactResult = await getContactByNumber(contact, system);
-            const contactData = contactResult.success ? contactResult.data : null;
 
-            // 🔹 Fetch mobile subscription status
-            const mobile = await getContactMobile(contact);
+            if (sender) {
+                contactData = contactResult.success ? contactResult.data : null;
+                contact = sender;
+            } else if (systemResult.success) {
+                contactData = systemResult.data
+            }
 
-            // 🔹 Fetch system defaults (for formatting reference, NOT response data)
             const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" });
+            const recentChats = await getUserInteractions({ contact, system, preset: preset?._id, status: 'pending' }, 5, { timestamp: 1 });
 
-            // 🔹 Fetch recent user interactions (used as reference for response)
-            const recentChats = await getUserInteractions(
-                { contact, system, preset: preset?._id },
-                5, // Limit to the 5 most recent interactions
-                { timestamp: 1 }
-            );
-
-
-            let userContext = '';
-            let sampleConversations = [] as any[];
+            // 🔹 Process user & system context
+            let sampleConversations: any[] = [];
+            let userContext = "";
+            let systemContext = "";
 
 
-            // 📌 Convert system defaults into structured AI behavior examples
-            // const systemInstruction = systemDefaults?.data?.map(d =>
-            //     `🔹 **Example:** User: "${d.inputText}" → AI: "${d.feedback ? d.feedback.correction : d.responseText}"`
-            // ).join("\n") || "No predefined examples.";
+            if (systemDefaults?.data) {
+                systemDefaults.data.forEach(d => {
+                    sampleConversations.push({ role: 'user', content: d.inputText });
+                    sampleConversations.push({ role: 'assistant', content: d.feedback?.correction || d.responseText });
+                });
 
-            if (systemDefaults.data) {
-                systemDefaults.data.map(d => {
-                    sampleConversations.push({ role: 'user', content: d.inputText })
-                    sampleConversations.push({ role: 'assistant', content: d.feedback ? d.feedback.correction : d.responseText })
-                })
+                systemContext = systemDefaults.data.map(c =>
+                    `User: ${c.inputText}\nAssistant: ${c.feedback?.correction || c.responseText}`
+                ).join("\n");
             }
 
             if (recentChats?.data) {
-                userContext = recentChats?.data.map(c =>
-                    `User: ${c.inputText}\nAssistant: ${c.feedback?.correction ? c.feedback?.correction : c.responseText}`
+                userContext = recentChats.data.map(c =>
+                    `User: ${c.inputText}\nAssistant: ${c.feedback?.correction || c.responseText}`
                 ).join("\n");
             }
 
 
-            // 📌 Define AI system behavior & response structure
-            const promptRules = `
-            📌 **Strict AI Response Rules:**  
-            1️⃣ Responses **must be under 500 characters**.  
-            2️⃣ **Short, direct, and SMS-friendly** replies only.  
-            3️⃣ AI **must not assume missing details**.  
-            4️⃣ Base responses **ONLY** on recent interactions.  
-            5️⃣ Always respond in **structured JSON format**.  
-            6️⃣ **Do NOT generate information** outside of opt-in context.  
-                    `.trim();
 
-            // 📌 Construct AI Messages Array
+            const userData = `
+            📌 **User Context**  
+            - **Contact Number:** ${sender ? contactData?.phone : "Unknown"}  
+            - **Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}  
+            - **Name:** ${sender ? contactData?.name : "Missing"}  
+            - **Location:** ${sender ? contactData?.address : "Missing"}  
+            `
+
+
+            // 🔹 Define AI Behavior Rules
+            const promptRules = `
+            📌 **AI Response Rules**  
+            - Keep responses **minimum 500 and maximum 700 characters**.  
+            - Ensure replies are **SMS-friendly**.  
+            - Do **not assume** missing details.  
+            - Respond in **structured JSON format**.  
+            - Do **not generate information** beyond opt-in context.  
+            - Always response for opt-in request if **Not Subscribed**.
+            `.trim();
+
+            // 🔹 Build AI Prompt
+            const userPrompt = `
+            ${promptRules}  
+            \n
+            ${userData}
+            \n
+    
+            📩 **User Input:** ${userInput}
+    
+            🔹 **Recent Conversations**  
+            ${userContext}\n
+            `.trim();
+
+            // 🔹 Construct AI Messages Array
             const messages = [
                 preset?.systemBehavior ? { role: 'system', content: convertQuillToPlainText(preset?.systemBehavior) } : { role: "system", content: "" },
-                ...sampleConversations, // Include formatted recent conversations
-                {
-                    role: "user", content: `
-    ${promptRules}\n
-    ${preset?.instruction}
-    
-    
-    📌 **User Context:**  
-    - **Contact ID:** ${contactData?._id || "Unknown"}  
-    - **Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}  
-    - **Name:** ${contactData?.name || "Missing"}  
-    - **Location:** ${contactData?.address || "Missing"}  
-    
-    
-    Recent Conversations:
-        ${userContext}
-    
-    
-    📩 **New User Input:** ${userInput}  
-    
-    🤖 **AI Response (Strict JSON Format)**:  
-                    `.trim()
-                }
+                ...sampleConversations, // Include system behavior examples
+                { role: "user", content: userPrompt }
             ];
 
+            console.log({
+                model: preset?.modelName || 'llama3.1',
+                messages,
+                options: {
+                    num_predict: preset?.aiMaxLength,
+                    temperature: preset?.aiTemperature,
+                    top_p: preset?.aiTopP,
+                },
+            });
 
-
-            console.log(messages, userInput)
-            // 🔹 Generate AI response using Ollama
+            // 🔹 Generate AI response
             const response = await Ollama.chat({
                 model: preset?.modelName || 'llama3.1',
                 messages,
@@ -176,17 +192,16 @@ class PromptService {
             });
 
             // 🔹 Handle AI response
-            if (response && response.message) {
-                // Log interaction for tracking AI responses
+            if (response?.message) {
                 await createInteraction({
                     contact,
                     system,
                     ...(preset ? { preset: preset?._id } : {}),
                     inputText: userInput,
-                    responseText: response?.message.content
+                    responseText: response.message.content,
+                    status: 'closed'
                 });
-
-                return response?.message.content;
+                return response.message.content;
             } else {
                 return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
             }
@@ -195,8 +210,6 @@ class PromptService {
             return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
         }
     }
-
-
 
 }
 

@@ -1,11 +1,6 @@
-import { cleanJsonObject, convertQuillToPlainText, extractJsonFromText, getSMSTemplate, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
-import AiPreset from '@/models/AiPreset';
-import Contact from '@/models/Contact';
-import Conversation from '@/models/Conversation';
-import User from '@/models/User';
-import { getContactByNumber, getContactMobile, getSystemByNumber, optInContact, optOutContact, setContactPreset, updateContact, updateContactByNumber } from '@/services/contactServices';
-import { createInteraction } from '@/services/interactionServices';
-import { getPresetById, getPresetByValue } from '@/services/presetServices';
+import { cleanJsonObject, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
+import { getContactByNumber, getContactMobile, optInContact, optOutContact, updateContact } from '@/services/contactServices';
+import { getPresetByValue } from '@/services/presetServices';
 import PromptService from '@/services/promptService';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,6 +15,7 @@ const handleCall = async ({ phone, system }: { phone?: string; system?: string; 
     priority: 'Medium',
     category: 'Call',
     title: 'Call Contact',
+    system: system,
     taskObject: JSON.stringify({
       // ...preset,
       phone,
@@ -44,6 +40,7 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
     priority: 'Medium',
     category: 'Sms',
     title: 'Send Message',
+    system: system,
     taskObject: JSON.stringify({
       // ...preset,
       isFlash,
@@ -64,10 +61,14 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
 async function processApiResponse(response: any) {
 
   try {
-    let { system, sender, phone } = response;
+    let { system, sender } = response;
     let contact: any;
-    let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
-    console.log(jsonObject, 'EXTRACT')
+    sender = sender ? sender : system;
+    let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
+
+    if (senderContact.data) {
+      contact = senderContact.data;
+    }
     if (response && isParsableObject(cleanJsonObject(response.content))) {
       let contentData = JSON.parse(cleanJsonObject(response.content))
 
@@ -77,22 +78,18 @@ async function processApiResponse(response: any) {
         //  await contactService.optIn(contact.phone)
         let optRes = await optInContact(sender, system);
         console.log(optRes, 'OPT RESP')
-      }
-
-      if (contentData.actions?.includes("unsubscribe")) {
+      } else if (contentData.actions?.includes("unsubscribe")) {
         // let res = await contactService.optOut(contact.phone)
 
 
         let optRes = await optOutContact(sender, system);
         console.log(optRes, 'OPT RESP OUT')
-        await setContactPreset(sender, 'opting');
       }
 
 
 
 
       if (contentData.actions?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
-        console.log(contentData, 'CALL DATA', phone, sender)
         await handleCall({
           phone: contentData?.phone ? contentData?.phone : sender,
           system
@@ -111,13 +108,10 @@ async function processApiResponse(response: any) {
       if (contentData.actions?.includes("API")) {
         let { userData } = contentData;
         if (userData.name || userData.phone || userData.address) {
-          let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
 
-          if (senderContact.data) {
-            contact = senderContact.data;
+          if (sender) {
+            await updateContact(contact?._id, { name: userData.name, address: userData.address })
           }
-
-          await updateContact(contact?._id, { name: userData.name, address: userData.address })
           // await updateAllPendingConversationsToClose(sender, system)
           await axios.post(`https://sharewin.pro/apiv3/order/create`, { ...userData, system, phone: sender, address: userData?.address, order_quantity: userData?.quantity, name: userData?.name, price: userData?.price })
         }
@@ -138,6 +132,8 @@ async function processApiResponse(response: any) {
       }
     } else {
       console.log('OTHER SMS')
+      let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
+
       await handleNewMessage({
         sender,
         message: `${jsonObject.message}`,
@@ -155,7 +151,7 @@ async function processApiResponse(response: any) {
 export const POST = async (req: NextRequest) => {
   try {
 
-    const { message, sender, system, preset } = await req.json();
+    const { message, sender, system, preset, status } = await req.json();
     let contact;
     let presetData;
     let response;
@@ -169,11 +165,7 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    let contactResult = await getContactByNumber(sender, system);
 
-    if (contactResult.success) {
-      contact = contactResult.data
-    };
 
 
 
@@ -183,21 +175,23 @@ export const POST = async (req: NextRequest) => {
     if (presetResult.success) {
       presetData = presetResult.data
     } else {
-      const defaultPreset = await getPresetByValue('general_assistant');
+      const defaultPreset = await getPresetByValue('alayon_help');
       presetData = defaultPreset.data
     };
 
 
 
-    let mobile = await getContactMobile(sender, system)
-    if (!mobile || !mobile?.data?.subscribedAt || !contact) {
-      console.log('opt', mobile)
-      response = await PromptService.generateOptResponse(message, sender, system)
+    let mobile = await getContactMobile(sender ? sender : system, system)
+    if (!mobile.success || !mobile?.data?.subscribedAt) {
+      console.log('opt', mobile, contact)
+      response = await PromptService.generateOptResponse({ message, sender, system, status, mobile })
     } else {
+      console.log('Help resp', presetData)
       response = await PromptService.generateResponse({ userInput: message, contact: sender, system, preset: presetData })
     }
 
 
+    await processApiResponse({ sender, system, content: response })
 
 
 
@@ -208,7 +202,6 @@ export const POST = async (req: NextRequest) => {
     // let respData = JSON.parse(cleanJsonObject(response));
     // let smsTemp = getSMSTemplate(respData)
     console.log(response, "SMS TEMP")
-    await processApiResponse({ sender, system, content: response })
     // let resp = await createInteraction({ contact, system, preset: preset?._id, inputText: message, responseText: response })
     // console.log(r  esp, 'INTER RESP', response)
 

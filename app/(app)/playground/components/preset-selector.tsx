@@ -75,7 +75,7 @@ export function PresetSelector() {
           aria-expanded={open}
           className="flex-1 justify-between md:max-w-[200px] lg:max-w-[300px]"
         >
-          {selectedPreset ? selectedPreset.name : "Load a preset..."}
+          {(selectedPreset && selectedPreset.name) ? selectedPreset.name : "Load a preset..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -88,11 +88,15 @@ export function PresetSelector() {
             {!loading && !error && presets.length === 0 && (
               <CommandEmpty>No presets found.</CommandEmpty>
             )}
-            {selectedPreset && (
+            {(selectedPreset && selectedPreset.name) && (
               <CommandGroup className="pt-2">
                 <CommandItem
                   onSelect={() => {
-                    setSelectedPreset(null)
+                    setSelectedPreset({
+                      topP: 0.9,
+                      maxTokens: 2000,
+                      temperature: 0.3
+                    })
                     setOpen(false)
                   }}
                 >
@@ -105,7 +109,15 @@ export function PresetSelector() {
                 <CommandItem
                   key={index}
                   onSelect={() => {
-                    setSelectedPreset(preset)
+                    setSelectedPreset({
+                      ...preset,
+                      systemBehavior: preset.systemBehavior,
+                      temperature: preset.aiTemperature,
+                      maxTokens: preset.aiMaxLength,
+                      topP: preset.aiTopP,
+                      aiModel: preset.modelName,
+                      instruction: preset.instruction
+                    })
                     setOpen(false)
                   }}
                 >

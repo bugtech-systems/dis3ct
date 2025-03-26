@@ -17,7 +17,7 @@ interface TopPSelectorProps {
 }
 
 export function TopPSelector() {
-const { preset, setPreset} = usePlayground();
+  const { selectedPreset, setSelectedPreset } = usePlayground();
 
   return (
     <div className="grid gap-2 pt-2">
@@ -27,15 +27,15 @@ const { preset, setPreset} = usePlayground();
             <div className="flex items-center justify-between">
               <Label htmlFor="top-p">Top P</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
-                {preset.topP}
+                {selectedPreset?.topP}
               </span>
             </div>
             <Slider
               id="top-p"
               max={1}
               step={0.1}
-              value={[preset.topP]}
-              onValueChange={(e) => setPreset({...preset, topP: e[0]})}
+              value={[selectedPreset?.topP]}
+              onValueChange={(e) => setSelectedPreset({ ...selectedPreset, topP: e[0] })}
               className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
               aria-label="Top P"
             />
