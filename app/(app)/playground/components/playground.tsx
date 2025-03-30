@@ -68,9 +68,9 @@ export default function PlaygroundPage() {
             setLoading(true)
 
             // .finally(() => setLoading(false));
-            let stat = tab == 'insert' ? 'pending' : 'default';
+            let stat = tab == 'insert' ? 'active' : 'default';
             const queryParams = {
-                contact: selectedContact?.phone || parent?.phone,
+                contact: tab != 'insert' ? null : selectedContact?.phone || parent?.phone,
                 system: parent?.phone,
                 preset: selectedPreset?._id,
                 status: stat
@@ -85,6 +85,8 @@ export default function PlaygroundPage() {
 
             // Convert object to query string
             const queryString = new URLSearchParams(filteredParams).toString();
+
+            console.log(queryString, 'QUERY')
 
             // Fetch request with dynamic query parameters
             const response = await fetch(`/api/interactions?${queryString}`);
@@ -120,8 +122,8 @@ export default function PlaygroundPage() {
 
             setUserMessage('')
             console.log(selectedPreset, 'SELECTED PRESET')
-            let apiUrl = (selectedPreset && selectedPreset.value) ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
-            // let apiUrl = '/api/presets/chat'
+            // let apiUrl = (selectedPreset && selectedPreset.value) ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
+            let apiUrl = '/api/presets/chat'
 
             if (isTask) {
 
@@ -164,16 +166,16 @@ export default function PlaygroundPage() {
                 });
 
 
-                if (resp.data) {
-                    newMessages.push({
-                        inputText: userMessage,
-                        responseText: resp.data
-                    })
-                    console.log(resp, 'RESP')
-                    setMessages(newMessages)
-                }
+                // if (resp.data) {
+                //     newMessages.push({
+                //         inputText: userMessage,
+                //         responseText: resp.data
+                //     })
+                //     console.log(resp, 'RESP')
+                //     setMessages(newMessages)
+                // }
 
-                // getConversations()
+                getConversations()
                 /*        if(resp.data.preset){
                         setSelectedPreset(resp.data.preset)
                       }  */
@@ -574,7 +576,7 @@ export default function PlaygroundPage() {
                                                 <div className="h-full  flex flex-1 flex-col space-y-2">
 
                                                     <div className="rounded-md border overflow-scroll  h-full max-h-[300px lg:min-h-[600px] xl:min-h-[700px] ">
-                                                        <CardsChat messages={messages} setMessages={setMessages} />
+                                                        <CardsChat messages={messages.filter(a => a.status != 'default')} setMessages={setMessages} />
                                                     </div>
                                                 </div>
                                             </div>

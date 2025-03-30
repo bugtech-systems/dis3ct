@@ -77,13 +77,11 @@ async function processApiResponse(response: any) {
       if (contentData.actions?.includes("subscribed")) {
         //  await contactService.optIn(contact.phone)
         let optRes = await optInContact(sender, system);
-        console.log(optRes, 'OPT RESP')
       } else if (contentData.actions?.includes("unsubscribe")) {
         // let res = await contactService.optOut(contact.phone)
 
 
         let optRes = await optOutContact(sender, system);
-        console.log(optRes, 'OPT RESP OUT')
       }
 
 
@@ -131,7 +129,6 @@ async function processApiResponse(response: any) {
         // })
       }
     } else {
-      console.log('OTHER SMS')
       let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
 
       await handleNewMessage({
@@ -184,24 +181,21 @@ export const POST = async (req: NextRequest) => {
     let mobile = await getContactMobile(sender ? sender : system, system)
     if (!mobile.success || !mobile?.data?.subscribedAt) {
       console.log('opt', mobile, contact)
-      response = await PromptService.generateOptResponse({ message, sender, system, status, mobile })
+      const defaultPreset = await getPresetByValue('opting');
+
+      presetData = defaultPreset.data;
+      response = await PromptService.generateOptResponse({ message, sender, system, status, mobile, preset: presetData })
     } else {
       console.log('Help resp', presetData)
-      response = await PromptService.generateResponse({ userInput: message, contact: sender, system, preset: presetData })
+      response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
     }
 
 
     await processApiResponse({ sender, system, content: response })
 
 
-
-
-
-
-
     // let respData = JSON.parse(cleanJsonObject(response));
     // let smsTemp = getSMSTemplate(respData)
-    console.log(response, "SMS TEMP")
     // let resp = await createInteraction({ contact, system, preset: preset?._id, inputText: message, responseText: response })
     // console.log(r  esp, 'INTER RESP', response)
 

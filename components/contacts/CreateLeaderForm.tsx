@@ -484,6 +484,20 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
                   </div>
                   <div className="flex space-x-5">
                     <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Image Upload</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow record to have images
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'image')?.value}
+                      onCheckedChange={e => handleFeatues('image')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
                       <Label className="text-base" htmlFor="username">GSM Module</Label>
                       {/* <FormDescription> */}
                       <span className="text-sm text-foreground">

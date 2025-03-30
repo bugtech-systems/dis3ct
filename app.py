@@ -86,7 +86,7 @@ def capture_handler():
 
         with scanner_lock:
             fid, score = zkfp2.DBIdentify(tmp_bytes)
-            logger.info(f"🟢 Scan captured for User {current_fid} (Identified: {fid}) {score}")
+            # logger.info(f"🟢 Scan captured for User {current_fid} (Identified: {fid}) {score}")
 
         if register_mode:
             # Ensure user ID is an ObjectId or convert it to a string
@@ -187,6 +187,7 @@ def initialize_scanner():
         try:
             if zkfp2.Init() is not None:
                 logger.error("❌ SDK initialization failed.")
+                socketio.emit("scanner_status", {"message": "Initialize Failed", "status": "failed"})
                 return False
 
             device_count = zkfp2.GetDeviceCount()
@@ -206,6 +207,7 @@ def initialize_scanner():
             load_templates()
 
             Thread(target=listen_to_fingerprints, daemon=True).start()
+            socketio.emit("scanner_status", {"message": "Initialized Success", "status": "initialized"})
             return True
 
         except Exception as e:
@@ -247,6 +249,7 @@ def shutdown_scanner():
             scanner_initialized = False
 
             logger.info("🔴 Fingerprint scanner shut down successfully.")
+            socketio.emit("server_response", {"message": "Shutdown"})
             return jsonify({"message": "Scanner shut down."}), 200
 
         except Exception as e:
@@ -380,29 +383,30 @@ def socket_enroll_fingerprint(data):
 def handle_connect():
     """Handle WebSocket connection."""
     logger.info("🖥️ Frontend connected to WebSocket.")
-    emit("socket_started", {"message": "Device Started!"})
-    emit("server_response", {"message": "Connected to WebSocket!"})
+    emit("status_response", {"message": "Socket Started!"})
+    emit("server_response", {"message": "Connected"})
 
 @socketio.on("init")
 def socket_initialize_scanner():
     """INIT WebSocket connection."""
     if initialize_scanner():
+        emit("scanner_status", {"message": "Initialize", "status": "initialize"})
         logger.info("🖥️ Frontend connected to WebSocket.")
         zkfp2.Light('red', 3)
         zkfp2.Light('green', 3)
         
         if not socketio.server:  
                 Thread(target=socketio.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 5000, "allow_unsafe_werkzeug": True, "use_reloader": False}, daemon=True).start()
-        emit("server_response", {"message": "Connected to WebSocket!"})
+        emit("server_response", {"message": "Done Initialize"})
 
 
 @socketio.on("shutdown")
 def socket_shutdown_scanner():
     """Shutdown WebSocket connection."""
     shutdown_scanner()
-    logger.info("🖥️ Frontend connected to WebSocket.")
-    emit("server_response", {"message": "Shutdown WebSocket!"})
-    socketio.stop()  # Gracefully stops the WebSocket server
+    logger.info("🖥️ Scanner Shutdown!.")
+    emit("server_response", {"message": "Shutdown"})
+    # socketio.stop()  # Gracefully stops the WebSocket server
 
 @socketio.on("stop_enroll")
 def socket_stop_enroll():
@@ -411,7 +415,7 @@ def socket_stop_enroll():
 
     register_mode = False
     logger.info("🖥️ Enrollment Stopped.")
-    emit("server_response", {"message": "Enrollment Stop!"})
+    emit("status_response", {"message": "Enrollment Stop!"})
 
 
 
@@ -420,9 +424,9 @@ def socket_status():
     """INIT WebSocket connection."""
     logger.info("🖥️ Socket Status.")
     if scanner_initialized:
-        emit("status_response", {"message": "Connected to WebSocket!", "connected": True})
+        emit("check_status_response", {"message": "Scanner initialized", "connected": True})
     else:
-        emit("status_response", {"message": "Connected to WebSocket!", "connected": False})
+        emit("check_status_response", {"message": "Scanner not initialized", "connected": False})
 
 def delete_fingerprint(finger_id):
     """Deletes a fingerprint by biometric ID from the scanner and MongoDB."""

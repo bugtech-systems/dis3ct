@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { BookPlusIcon } from "lucide-react";
 import axios from "axios";
 
 import {
@@ -237,7 +236,7 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
   };
 
 
-
+  console.log('EDIT')
 
   return (
     <>
@@ -492,6 +491,20 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
                     <Switch
                       checked={findFeature(features, 'biometric')?.value}
                       onCheckedChange={e => handleFeatues('biometric')}
+                    />
+                  </div>
+                  <div className="flex space-x-5">
+                    <div className="space-y-0.5 flex flex-col flex-1">
+                      <Label className="text-base" htmlFor="username">Image Upload</Label>
+                      {/* <FormDescription> */}
+                      <span className="text-sm text-foreground">
+                        Allow record to have images
+                      </span>
+                      {/* </FormDescription> */}
+                    </div>
+                    <Switch
+                      checked={findFeature(features, 'image')?.value}
+                      onCheckedChange={e => handleFeatues('image')}
                     />
                   </div>
                   <div className="flex space-x-5">

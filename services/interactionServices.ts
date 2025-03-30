@@ -79,15 +79,21 @@ export const updateInteraction = async (
  * @returns {Promise<{ success: boolean; data?: IInteraction[]; error?: string }>}
  */
 export const getUserInteractions = async (
-    options: any,
+    options?: any,
     limit?: any,
     sort?: any
 ): Promise<{ success: boolean; data?: IInteraction[]; error?: string }> => {
     try {
         await dbConnect();
 
-        let newOptions = removeNullishValues(options)
-        const interactions = await Interaction.find(newOptions).limit(limit || 100).sort(sort || { timestamp: 1 });
+        let newOptions = removeNullishValues(options);
+        if (newOptions.status == 'active') {
+            delete newOptions.status;
+            newOptions.status = 'pending'
+            // newOptions.$or = [{ status: 'pending' }, { status: 'closed' }]
+        }
+
+        const interactions = await Interaction.find(newOptions).limit(limit || 100).sort(sort || { timestamp: -1 });
         return { success: true, data: interactions };
     } catch (error: any) {
         return { success: false, error: error.message || 'Failed to fetch interactions' };

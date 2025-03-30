@@ -371,7 +371,6 @@ export function extractJsonFromText(text) {
 
   let jsonString = match[0];
   let remainingText = text.replace(jsonString, '').trim();
-  console.log(match, 'MTCH')
 
   try {
     let jsonObject = JSON.parse(jsonString);
@@ -455,7 +454,6 @@ export function getSMSTemplate(responseData, defaultTemplateKey = "default") {
 
   // Retrieve the template message (fallback to default if no match)
   let message = smsTemplates[templateKey] || smsTemplates["default"];
-  console.log(message, "MESS")
   // Replace placeholders with actual values, keeping brackets if value is missing
   for (const key in responseData) {
     const placeholder = `[${key}]`;

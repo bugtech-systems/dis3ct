@@ -10,8 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import toast from "react-hot-toast";
-import io from "socket.io-client";
 import { useComponent } from "./providers/ComponentContext";
 import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
@@ -19,21 +17,19 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 
-let socket = getSocket()
 
 
 export function DeviceForm() {
-  const { modal, setModal, modalId, biometricRunning, setBiometricRunning } = useComponent();
-  const { parentSystem, user } = useContact()
-  const [scannerStatus, setScannerStatus] = React.useState("Disconnected");
+  const { modal, setModal, scannerStatus, setScannerStatus, setBiometricRunning, setBiometricConnected, setIsEnrolling } = useComponent();
+  const { parentSystem, user } = useContact();
   const [isConnected, setIsConnected] = React.useState(false);
+  let socket = getSocket()
 
   const handleInit = async () => {
     console.log("🔄 Initializing scanner...");
     try {
 
-      socket = connectSocket();
-      setBiometricRunning(true)
+
 
 
 
@@ -41,14 +37,19 @@ export function DeviceForm() {
         method: "POST"
       });
 
-      setScannerStatus("Initializing...");
-      setIsConnected(true)
+      // setScannerStatus("Starting");
 
       const data = await response.json();
       console.log(data, 'RESP INIT')
+      if (data.message) {
+        socket = connectSocket();
+        setBiometricConnected(true);
+        setIsEnrolling(true)
+        setScannerStatus("Started");
+      }
 
 
-      socket.emit('init')
+      setIsConnected(true)
 
     } catch (err) {
       setIsConnected(false)
@@ -59,19 +60,23 @@ export function DeviceForm() {
   const handleShutdown = async () => {
     console.log("🛑 Shutting down scanner...");
     setIsConnected(false)
-    setScannerStatus("Device Shutdown!");
+    // setScannerStatus("Shutting");
     // socket.emit("shutdown")
+
     socket?.emit('shutdown')
+    socket?.disconnect()
+    setScannerStatus("Stopped");
 
-    const response = await fetch("/api/biometric/stop", {
-      method: "POST"
-    });
+    /*   const response = await fetch("/api/biometric/stop", {
+        method: "POST"
+      }); */
 
-    const data = await response.json();
+    // const data = await response.json();
 
 
-    console.log(data, 'RESP SHUTDOWN')
+    // console.log(data, 'RESP SHUTDOWN')
     setBiometricRunning(false)
+    setBiometricConnected(false)
 
   };
 
@@ -108,23 +113,18 @@ export function DeviceForm() {
 
 
   React.useEffect(() => {
-    console.log(modal == 'devices', socket, 'SOCKET')
     socket = getSocket()
 
     if (modal == 'devices') {
 
       if (socket?.connected) {
         setScannerStatus("Connected");
-        setIsConnected(true);
-        setBiometricRunning(true)
-
+        // setBiometricRunning(true)
+        setIsConnected(true)
+        setBiometricConnected(true)
       }
       console.log(socket?.connected, 'con')
-      socket?.on("connect", () => {
-        console.log("✅ Socket connected!");
-        setScannerStatus("Connected");
-        setIsConnected(true);
-      });
+
 
 
       socket?.on("server_response", (data) => {
@@ -134,24 +134,25 @@ export function DeviceForm() {
       });
 
       socket?.on("status_response", (data) => {
-        console.log("📡 Server Response:", data);
+        console.log("📡 Status Response:", data);
         // setScannerStatus(data.message);
         // setScannerStatus("Connected");
       });
+
+      socket?.on("disconnect", (data) => {
+        console.log("📡 Disconnect Response:", data);
+        setScannerStatus("Shutdown");
+
+        // setScannerStatus(data.message);
+        // setScannerStatus("Connected");
+      });
+
     }
 
     return () => {
-      if (modal == 'devices') {
-
-        console.log("🚪 Cleaning up socket listeners...");
-        socket?.off("connect")
-        socket?.off("server_response");
-        socket?.off("status_response");
-
-      }
 
     };
-  }, [socket, modal]);
+  }, [socket, modal, isConnected]);
 
 
 

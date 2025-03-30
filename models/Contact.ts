@@ -28,6 +28,7 @@ export interface IContact extends Document {
   biometric?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
+  descriptor?: Number[];
   tags?: any[];
   recordType: 'contact' | 'master_list' | 'hotline' | 'leader' | 'subscriber';
   coordinates: any;
@@ -65,6 +66,7 @@ const ContactSchema = new Schema<IContact>(
     parNum: { type: Schema.Types.ObjectId, ref: 'User' },
     refNum: { type: Schema.Types.ObjectId, ref: 'User' },
     uplines: [{ type: Schema.Types.ObjectId, ref: 'Contact' }],
+    descriptor: { type: [Number], required: false },
     recordType: {
       type: String,
       enum: ['contact', 'subscriber', 'master_list', 'hotline', 'leader'],

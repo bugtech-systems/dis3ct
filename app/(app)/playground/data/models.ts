@@ -36,6 +36,12 @@ export const models: Model<ModelType>[] = [
     description: "Alayon Emergency Hotline AI",
     type: "Ollama"
   },
+  {
+    id: "mistral",
+    name: "mistral",
+    description: "Mistral Light weight AI Model",
+    type: "Ollama"
+  },
 
 
 ]

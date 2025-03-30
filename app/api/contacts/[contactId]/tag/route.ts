@@ -93,3 +93,34 @@ export const POST = async (
     return new Response("Internal Server Error", { status: 500 });
   }
 };
+
+
+export async function DELETE(req: NextRequest, { params }: { params: { contactId: string } }) {
+  try {
+    const { tagType, value } = await req.json();
+
+    if (!tagType) {
+      return NextResponse.json({ error: "Missing tag type" }, { status: 400 });
+    }
+
+    const { contactId } = params;
+    console.log(contactId, 'CONTACT')
+    await dbConnect();
+
+    const contact = await Contact.findOne({ _id: contactId }) as any;
+    if (!contact) {
+      return NextResponse.json({ error: "Contact not found" }, { status: 404 });
+    }
+
+    const updatedTags = contact?.tags.filter((tag: any) => !(tag.tagType == tagType && tag.value == value));
+    await Contact.updateOne(
+      { _id: contactId },
+      { $set: { tags: updatedTags, descriptor: null } }
+    );
+
+    return NextResponse.json({ message: "Tag deleted successfully" });
+  } catch (error) {
+    console.log(error, 'ERROR')
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

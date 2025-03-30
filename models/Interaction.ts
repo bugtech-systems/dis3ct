@@ -37,7 +37,6 @@ const InteractionSchema: Schema<IInteraction> = new Schema(
         system: { type: String, required: true },
         status: { type: String, enum: ["pending", "closed", "default"], default: "pending" },
         preset: { type: Schema.Types.ObjectId, ref: 'AiPreset', required: false },
-
     },
     { timestamps: true } // Automatically manage createdAt and updatedAt fields
 );

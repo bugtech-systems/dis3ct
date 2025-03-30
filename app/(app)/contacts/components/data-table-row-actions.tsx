@@ -1,7 +1,7 @@
 "use client"
 
 import { Row } from "@tanstack/react-table"
-import { Fingerprint, ListRestartIcon, MessageCircle, MessageCircleDashedIcon, MessageCircleIcon, MessageSquareIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
+import { Fingerprint, Image, ListRestartIcon, MessageCircle, MessageCircleDashedIcon, MessageCircleIcon, MessageSquareIcon, MoreHorizontal, Trash, UserCheck2Icon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -55,8 +55,8 @@ export function DataTableRowActions<TData>({
   const contact = contactSchema.parse(row.original);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter(); // ⬅ Initialize useRouter
-  const { setModal, setRecord, setRefreshId } = useComponent();
-  const { user, system, setContactTable, contactTable } = useContact();
+  const { setModal, setRecord, setRefreshId, biometricRunning, biometricConnected, setTab } = useComponent();
+  const { user, system, setContactTable, contactTable, parentSystem } = useContact();
 
 
   const handleDelete = async () => {
@@ -144,7 +144,9 @@ export function DataTableRowActions<TData>({
 
   }
 
-  let parent = user.parent;
+  let hasImg = contact?.tags.find(tg => tg.tagType == 'image');
+  let parent = parentSystem ? parentSystem.parent : user.parent;
+
 
   return (
     <>
@@ -209,7 +211,7 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          {(findFeature(parent?.configs, 'biometric')?.value || (system?.userType == 'admin')) &&
+          {((findFeature(parent?.configs, 'biometric')?.value || (system?.userType == 'admin')) && biometricConnected) &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -224,6 +226,24 @@ export function DataTableRowActions<TData>({
               </DropdownMenuItem>
             </>
           }
+
+          {(findFeature(parent?.configs, 'image')?.value || (system?.userType == 'admin')) &&
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setRecord(contact)
+                  setModal('viewContact', contact?._id)
+                  setTab('image')
+                }}
+              >
+                Set Image
+                <DropdownMenuShortcut><Image size={18} color={hasImg ? "blue" : "gray"} /></DropdownMenuShortcut>
+
+              </DropdownMenuItem>
+            </>
+          }
+
           {(user?.userType == 'admin') &&
             <>
               <DropdownMenuSeparator />

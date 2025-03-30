@@ -36,7 +36,7 @@ import { useComponent } from "../providers/ComponentContext";
 import getContactId from "@/actions/getContactId";
 
 export function ViewContactForm() {
-  const { modal, setModal, modalId, record } = useComponent();
+  const { modal, setModal, modalId, record, tab, setTab } = useComponent();
   const [contact, setContact] = React.useState(null)
 
 
@@ -83,17 +83,20 @@ export function ViewContactForm() {
   return (
     <>
 
-      <Dialog open={modal == 'viewContact'} onOpenChange={() => setModal(null)}>
+      <Dialog open={modal == 'viewContact'} onOpenChange={() => {
+        setTab('basic')
+        setModal(null)
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>View Record</DialogTitle>
             <DialogDescription>View record details</DialogDescription>
           </DialogHeader>
-          <Tabs defaultValue="basic" className="space-y-4">
+          <Tabs defaultValue="basic" className="space-y-4" value={tab}>
             <TabsList className="flex justify-center">
-              <TabsTrigger value="basic">Basic Details</TabsTrigger>
-              <TabsTrigger value="area">Area Location</TabsTrigger>
-              {/* <TabsTrigger value="image">Image</TabsTrigger> */}
+              <TabsTrigger value="basic" onClick={() => setTab('basic')}>Basic Details</TabsTrigger>
+              <TabsTrigger value="area" onClick={() => setTab('area')}>Area Location</TabsTrigger>
+              <TabsTrigger value="image" onClick={() => setTab('image')}>Image</TabsTrigger>
             </TabsList>
             <TabsContent value="basic" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
@@ -153,11 +156,11 @@ export function ViewContactForm() {
                 </div>
               </div>
             </TabsContent>
-            {/*  <TabsContent value="image" className="space-y-4">
+            <TabsContent value="image" className="space-y-4">
               <div className="min-h-[300px] space-y-4 py-2 pb-4">
-                <WebcamSelector />
+                <WebcamSelector camType="image" />
               </div>
-            </TabsContent> */}
+            </TabsContent>
           </Tabs>
 
           <DialogFooter>

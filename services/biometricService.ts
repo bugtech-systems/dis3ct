@@ -32,7 +32,7 @@ export const startBiometricService = () => {
         biometricProcess = null;
     });
 
-    return { message: "✅ Biometric service started." };
+    return { message: "✅ Biometric service started.", biometricProcess };
 };
 
 export const stopBiometricService = () => {

@@ -185,7 +185,7 @@ export async function GET(req: NextRequest) {
 
       let tagContact = tags.filter(a => a.tagType == 'tag').sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
-
+      console.log(contact.descriptor)
       return {
         _id: contact._id,
         name: contact.name,
@@ -205,6 +205,7 @@ export async function GET(req: NextRequest) {
         tags: tags,
         tag: tagContact.length ? tagContact[0].value : 'unknown',
         subscribed: contact.subscribed,
+        descriptor: contact.descriptor
       };
     });
 

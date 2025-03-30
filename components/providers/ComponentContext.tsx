@@ -17,9 +17,18 @@ interface ComponentContextType {
     setIsRefreshing: (temp: any) => void;
     biometricRunning: boolean;
     setBiometricRunning: (temp: any) => void;
+    biometricConnected: boolean;
+    setBiometricConnected: (temp: any) => void;
+    scannerStatus: string;
+    setScannerStatus: (temp: any) => void;
     contacts: any;
     setContacts: (temp: any) => void;
-
+    isEnrolling: any;
+    setIsEnrolling: (temp: any) => void;
+    error: any;
+    setError: (temp: any) => void;
+    tab: any;
+    setTab: (temp: any) => void;
 }
 
 const ComponentContext = createContext<ComponentContextType | undefined>(undefined);
@@ -27,12 +36,16 @@ const ComponentContext = createContext<ComponentContextType | undefined>(undefin
 export const ComponentProvider = ({ children }: { children: ReactNode }) => {
     const [modal, setModal] = useState<any>(null);
     const [modalId, setModalId] = useState<any>(null);
+    const [tab, setTab] = useState<any>('basic');
     const [record, setRecord] = useState<any>(null);
     const [refreshId, setRefreshId] = useState<any>(null);
     const [isRefreshing, setIsRefreshing] = useState<any>(false);
     const [biometricRunning, setBiometricRunning] = useState<any>(false);
+    const [biometricConnected, setBiometricConnected] = useState<any>(false);
     const [contacts, setContacts] = useState<any>([]);
-
+    const [scannerStatus, setScannerStatus] = useState("Disconnected");
+    const [isEnrolling, setIsEnrolling] = React.useState(false);
+    const [error, setError] = React.useState(null)
 
     const handleModal = (type: any, id: any) => {
         if (type) {
@@ -53,7 +66,7 @@ export const ComponentProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <ComponentContext.Provider value={{ contacts, setContacts, record, setRecord, biometricRunning, setBiometricRunning, isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
+        <ComponentContext.Provider value={{ contacts, setContacts, tab, setTab, error, setError, isEnrolling, setIsEnrolling, record, setRecord, biometricRunning, setBiometricRunning, biometricConnected, setBiometricConnected, scannerStatus, setScannerStatus, isRefreshing, setIsRefreshing, refreshId, setRefreshId: handleRefreshId, modal, setModal: (type, id) => handleModal(type, id), modalId, setModalId }}>
             {children}
         </ComponentContext.Provider>
     );

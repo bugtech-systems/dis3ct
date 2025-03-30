@@ -22,7 +22,7 @@ export const connectSocket = () => {
     if (!socket) {
         socket = io(SOCKET_SERVER_URL, {
             autoConnect: true,
-            reconnection: true,
+            reconnection: false,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             transports: ["websocket"], // Force WebSocket connection

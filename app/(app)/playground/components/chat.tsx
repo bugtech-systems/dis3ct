@@ -30,6 +30,7 @@ import axios from "axios";
 import { Textarea } from "@/components/ui/textarea";
 import { IConversation } from "@/models/Conversation";
 import { Label } from "@/components/ui/label";
+import moment from "moment";
 
 const statuses = ["pending", "default", "closed"]
 
@@ -128,33 +129,36 @@ export function CardsChat({ messages }: ChatProps) {
           <>
             <div
               key={message._id}
-              className={"flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ml-auto bg-primary text-primary-foreground items-start"}
-            >
-              <div>
-                <i onClick={() => handleDelete(index)}>Delete</i>&nbsp;&nbsp;
-                <i onClick={() => {
-                  setOpen(true);
-                  setSelectedMessage({ ...message, index });
-                }}>Edit</i>
-              </div>
-              <ReadText
-                value={message.inputText}
-              />
-            </div>
-            <div
-              key={index}
               className={"flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm bg-muted items-end"}
             >
-              <div>
-                <i onClick={() => handleDelete(index)}>Delete</i>&nbsp;&nbsp;
-                <i onClick={() => {
-                  setOpen(true);
-                  setSelectedMessage({ ...message, index });
-                }}>Edit</i>
-              </div>
+              <i>{moment(message.timestamp).fromNow()}</i>
+
               <ReadText
                 value={message?.feedback?.correction ? message?.feedback?.correction : message.responseText}
               />
+              <div>
+                <i onClick={() => handleDelete(index)}>Delete</i>&nbsp;&nbsp;
+                <i onClick={() => {
+                  setOpen(true);
+                  setSelectedMessage({ ...message, index });
+                }}>Edit</i>
+              </div>
+            </div>
+            <div
+              key={index}
+              className={"flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ml-auto bg-primary text-primary-foreground items-start"}
+            >
+              <i>{moment(message.timestamp).fromNow()}</i>
+              <ReadText
+                value={message.inputText}
+              />
+              <div>
+                <i onClick={() => handleDelete(index)}>Delete</i>&nbsp;&nbsp;
+                <i onClick={() => {
+                  setOpen(true);
+                  setSelectedMessage({ ...message, index });
+                }}>Edit</i>
+              </div>
             </div>
 
           </>
