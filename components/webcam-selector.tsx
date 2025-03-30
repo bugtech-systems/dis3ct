@@ -14,6 +14,7 @@ import {
 import { Delete } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 
 const CamScreen = ({ camType }: any) => {
@@ -326,7 +327,7 @@ const CamScreen = ({ camType }: any) => {
                                                 className="float-end cursor-pointer"
                                                 onClick={() => handleDelete(image)}
                                             />
-                                            <img src={image} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
+                                            <Image src={image} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
@@ -338,7 +339,7 @@ const CamScreen = ({ camType }: any) => {
                         <div className="flex flex-col items-center space-y-4">
                             {capturedImage ?
                                 <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
-                                    <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                    <Image src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
                                 </div>
                                 :
                                 <>
@@ -391,7 +392,7 @@ const CamScreen = ({ camType }: any) => {
 
                         <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
                             {capturedImage ?
-                                <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                <Image src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
                                 :
                                 <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
                             }
