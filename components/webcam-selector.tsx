@@ -353,7 +353,7 @@ const CamScreen = ({ camType }: any) => {
                     )}
                     <div className="flex space-x-4">
 
-                        {!viewing ? <Button variant="outline" onClick={() => {
+                        {!viewing && <Button variant="outline" onClick={() => {
                             setCapturedImage(null);
 
                             setViewing(!viewing)
@@ -362,21 +362,20 @@ const CamScreen = ({ camType }: any) => {
                         }}>
                             List
                         </Button>
-                            :
-                            <Button variant="outline" onClick={() => {
-                                if (capturedImage) {
-                                    handleDelete(capturedImages[0])
-                                }
-                                setCapturedImage(null);
-                                setViewing(!viewing)
-                                setDetection(null)
-                                setUploadType('capture')
-
-                            }}>
-                                {capturedImage ? "Remove Image" : "Take Image"}
-                            </Button>
                         }
+                        {(viewing || capturedImage) && <Button variant="outline" onClick={() => {
+                            if (capturedImages[0]) {
+                                handleDelete(capturedImages[0])
+                            }
+                            setViewing(!viewing)
+                            setCapturedImage(null);
+                            setDetection(null)
+                            setUploadType('capture')
 
+                        }}>
+                            {capturedImages[0] ? "Recapture Image" : "Take Image"}
+                        </Button>
+                        }
 
                         {!viewing && (
                             <Button onClick={uploadImage} disabled={uploading || !capturedImage || !detection}>
