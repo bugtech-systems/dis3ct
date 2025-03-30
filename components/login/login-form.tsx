@@ -95,7 +95,7 @@ export function LoginForm({ className, ...props }: any) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col gap-6">
-        <h1 className="text-xl font-bold text-center">Welcome Maretext</h1>
+        <h1 className="text-xl font-bold text-center">Welcome</h1>
         {step === 1 && (
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <Label>Username</Label>

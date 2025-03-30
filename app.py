@@ -17,7 +17,7 @@ sys.dont_write_bytecode = True
 
 # MongoDB Configuration
 MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "fingerprintDB"
+DB_NAME = "sanisidro-qa"
 COLLECTION_NAME = "fingerprints"
 COLLECTION_CONTACT = "contacts"
 COLLECTION_COUNTERS = "counters"
