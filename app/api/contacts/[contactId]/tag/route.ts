@@ -113,9 +113,19 @@ export async function DELETE(req: NextRequest, { params }: { params: { contactId
     }
 
     const updatedTags = contact?.tags.filter((tag: any) => !(tag.tagType == tagType && tag.value == value));
+    const imageTags = updatedTags.filter((tag: any) => tag.tagType == 'image');
+
+    let options = { tags: updatedTags } as any;
+
+    if (!imageTags.length) {
+      options = { ...options, descriptor: null }
+    }
+
+
+
     await Contact.updateOne(
       { _id: contactId },
-      { $set: { tags: updatedTags, descriptor: null } }
+      { $set: options }
     );
 
     return NextResponse.json({ message: "Tag deleted successfully" });

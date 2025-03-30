@@ -34,6 +34,8 @@ const CamScreen = ({ camType }: any) => {
     const [faceDetectionInterval, setFaceDetectionInterval] = useState(null);
     const [borderColor, setBorderColor] = useState('transparent');
     const [uploadType, setUploadType] = useState('capture');
+    const [matching, setMatching] = useState(false);
+
 
     useEffect(() => {
         return () => {
@@ -237,30 +239,37 @@ const CamScreen = ({ camType }: any) => {
         }
     };
 
-    const matchImage = async (id) => {
+    const matchImage = async () => {
         try {
+            setMatching(true)
+
             let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor });
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)
-            if (newMatch.data) {
-                let { match, message, data } = newMatch.data;
-                if (match) {
-                    console.log(data)
-                    handleRecord(data)
-                    toast.success(message)
-                } else {
-                    toast.error(message)
+            setTimeout(() => {
+                if (newMatch.data) {
+                    let { match, message, data } = newMatch.data;
+                    if (match) {
+                        console.log(data)
+                        setMatching(false)
+                        handleRecord(data)
+                        toast.success(message)
+                    } else {
+                        setMatching(false)
+                        toast.error(message)
+                        setModal(null)
+
+                    }
                 }
-
-
-            }
-
+            }, 3000)
             console.log("Match response:", newMatch);
         } catch (error) {
 
             toast.error('No Face Match')
             setBorderColor('red')
+            setMatching(false)
+            setModal(null)
             console.error("Error deleting image:", error);
         }
     };
@@ -269,7 +278,7 @@ const CamScreen = ({ camType }: any) => {
     const handleRecord = async (data) => {
         // setModal(null)
         if (data) {
-            setTab('basic')
+            setTab('image')
             setRecord(data)
             setModal('viewContact', data._id)
             // setFingerPrintId(finger.id)
@@ -358,7 +367,6 @@ const CamScreen = ({ camType }: any) => {
 
                         {!viewing && <Button variant="outline" onClick={() => {
                             setCapturedImage(null);
-
                             setViewing(!viewing)
                             setDetection(null)
                             setUploadType('capture')
@@ -367,14 +375,13 @@ const CamScreen = ({ camType }: any) => {
                         </Button>
                         }
                         {(viewing || capturedImage) && <Button variant="outline" onClick={() => {
-                            if (capturedImages[0]) {
-                                handleDelete(capturedImages[0])
-                            }
+                            /*        if (capturedImages[0]) {
+                                       handleDelete(capturedImages[0])
+                                   } */
                             setViewing(!viewing)
                             setCapturedImage(null);
                             setDetection(null)
                             setUploadType('capture')
-
                         }}>
                             {capturedImages[0] ? "Recapture Image" : "Take Image"}
                         </Button>
@@ -390,24 +397,34 @@ const CamScreen = ({ camType }: any) => {
                 :
                 <>
                     <div className="flex flex-col items-center space-y-4">
-                        <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
-
-                        <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
-                            {capturedImage ?
-                                <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
-                                :
-                                <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
-                            }
-                        </div>
-                        {capturedImage && <Button variant="outline" onClick={() => {
-                            setCapturedImage(null);
-                            setViewing(!viewing)
-                            setDetection(null)
-                            setUploadType('capture')
-                        }}>
-                            Remove Image
-                        </Button>}
-                        <Button onClick={matchImage} className="mt-4">MATCH</Button>
+                        {matching ?
+                            <img src={`/examples/face_id.gif`} alt={`Captured `} className="w-full rounded-lg shadow" />
+                            :
+                            <>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+                                <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
+                                    {capturedImage ?
+                                        <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                        :
+                                        <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
+                                    }
+                                </div>
+                                {capturedImage && <Button variant="outline" onClick={() => {
+                                    setCapturedImage(null);
+                                    setViewing(!viewing)
+                                    setDetection(null)
+                                    setUploadType('capture')
+                                }}>
+                                    Remove Image
+                                </Button>}
+                            </>
+                        }
+                        <Button
+                            disabled={!detection}
+                            onClick={() => {
+                                setMatching(true)
+                                matchImage()
+                            }} className="mt-4">MATCH</Button>
                     </div>
                 </>
             }
