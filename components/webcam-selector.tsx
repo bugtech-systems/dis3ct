@@ -17,6 +17,8 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 
 
+let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
+
 const CamScreen = ({ camType }: any) => {
     const { record, setModal, setRefreshId, setRecord, setTab } = useComponent();
     const videoRef = useRef(null);
@@ -48,7 +50,7 @@ const CamScreen = ({ camType }: any) => {
         if (record?.tags && !capturedImage) {
             const imagesTag = record.tags
                 .filter(img => img.tagType === 'image')
-                .map(img => img.value);
+                .map(img => `${img.value}`);
             setCapturedImages(imagesTag);
             // setViewing(imagesTag.length > 0);
         }
@@ -285,15 +287,15 @@ const CamScreen = ({ camType }: any) => {
             const formData = new FormData();
             formData.append("file", blob, "image.png");
 
-            const response = await fetch(`/api/contacts/${record._id}/upload`, {
+            const response = await fetch(`${STATIC_URL}/api/upload`, {
                 method: "POST",
                 body: formData,
             });
-
-
-            await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor });
             const data = await response.json();
             console.log(data, 'RESP')
+
+            await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
+
             if (data.url) {
                 let newImgs = [data.url, ...capturedImages]
                 setDetection(null)
@@ -311,7 +313,7 @@ const CamScreen = ({ camType }: any) => {
     };
 
 
-    console.log(uploadType, detection, camType)
+    console.log(capturedImages, 'CAPT')
     return (
         <div className="flex flex-col items-center space-y-4">
             {camType == 'image' ?
@@ -327,7 +329,7 @@ const CamScreen = ({ camType }: any) => {
                                                 className="float-end cursor-pointer"
                                                 onClick={() => handleDelete(image)}
                                             />
-                                            <Image src={image} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
+                                            <img src={STATIC_URL + image} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
@@ -339,7 +341,7 @@ const CamScreen = ({ camType }: any) => {
                         <div className="flex flex-col items-center space-y-4">
                             {capturedImage ?
                                 <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
-                                    <Image src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                    <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
                                 </div>
                                 :
                                 <>
@@ -392,7 +394,7 @@ const CamScreen = ({ camType }: any) => {
 
                         <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
                             {capturedImage ?
-                                <Image src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
                                 :
                                 <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
                             }

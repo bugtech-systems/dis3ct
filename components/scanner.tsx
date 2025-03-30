@@ -18,6 +18,12 @@ import getContactId from "@/actions/getContactId";
 import { connectSocket, getSocket } from "@/lib/socket";
 import clearFingerId from "@/actions/clearFingerId";
 
+const scanStages = [
+  "/examples/finger0.jpg", // 0-33% progress
+  "/examples/finger1.gif", // 0-33% progress
+  "/examples/finger3.gif", // 34-66% progress
+  "/examples/finger4.jpg", // 67-100% progress
+];
 
 
 export function ScannerForm() {
@@ -107,7 +113,7 @@ export function ScannerForm() {
       socket?.on("fingerprint_enrolled", (data) => {
         console.log("🔍 Fingerprint Verified for User:", data);
         handleRecord(data.user_id)
-        // toast.success(`Fingerprint matched! User ID: ${data.user_id}`);
+        // toast.success(`Fingerprint m/atched! User ID: ${data.user_id}`);
       });
 
       socket?.on("fingerprint_scan", (data) => {
@@ -117,10 +123,9 @@ export function ScannerForm() {
         setError(null)
         if (data.step >= 3) {
           toast.success("✅ Fingerprint enrolled successfully!");
-          setScanProgress(0);
-          setIsEnrolling(false);
-
-          setModal('viewContact', record._id)
+          // setScanProgress(0);
+          // setIsEnrolling(false);
+          // setModal('viewContact', record._id)
         }
       });
 
@@ -267,6 +272,13 @@ export function ScannerForm() {
   };
 
 
+  const getGif = (progress) => {
+    if (progress == 0) return scanStages[0];
+    if (progress == 1) return scanStages[1];
+    if (progress == 2) return scanStages[2];
+    return scanStages[3];
+  };
+
 
   return (
     <>
@@ -286,31 +298,38 @@ export function ScannerForm() {
               Set finger print for: <br /> {record.name}
             </div>
           }
-          {!biometricRunning ?
-            <Button
-              variant="outline"
-              onClick={() => {
-                console.log("🚪 Closing scanner modal...");
-                handleInit();
-                // handleShutdown(() => handleInit());
-              }}
-            >
-              Initialize
-            </Button>
-            :
-            (!record?.biometric && fingerPrint && !fingerPrint?.exist) ? (
-              <>
-                {isEnrolling && <p>Scan Progress: {scanProgress}/3</p>}
+
+          {(!record?.biometric && fingerPrint && !fingerPrint?.exist) && (
+            <>
+              {isEnrolling && <p>Scan Progress: {scanProgress}/3</p>}
+              {isEnrolling ?
+                <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
+                  <img src={getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
+                </div>
+                :
                 <Button onClick={() => handleEnroll()} disabled={(isEnrolling)}>
                   {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
                 </Button>
-              </>
-            ) : (
-              <Button disabled={!biometricRunning} onClick={() => handleDelete(fingerPrintId)} >Re-enroll</Button>
-            )}
+              }
+            </>
+          )}
 
           <DialogFooter>
-
+            {!(!record?.biometric && fingerPrint && !fingerPrint?.exist) ?
+              <Button onClick={() => handleDelete(fingerPrintId)} >Re-enroll</Button>
+              :
+              !biometricRunning &&
+              <Button
+                variant="outline"
+                onClick={() => {
+                  console.log("🚪 Closing scanner modal...");
+                  handleInit();
+                  // handleShutdown(() => handleInit());
+                }}
+              >
+                Initialize
+              </Button>
+            }
             <Button
               variant="outline"
               onClick={() => {
