@@ -86,7 +86,6 @@ export default function PlaygroundPage() {
             // Convert object to query string
             const queryString = new URLSearchParams(filteredParams).toString();
 
-            console.log(queryString, 'QUERY')
 
             // Fetch request with dynamic query parameters
             const response = await fetch(`/api/interactions?${queryString}`);
@@ -96,7 +95,6 @@ export default function PlaygroundPage() {
             }
 
             const data = await response.json();
-            console.log(data, 'INTERACTIONS')
             if (data && Array.isArray(data)) {
                 setMessages(data); // Assuming `data.data` contains the conversations array
             }
@@ -121,7 +119,6 @@ export default function PlaygroundPage() {
 
 
             setUserMessage('')
-            console.log(selectedPreset, 'SELECTED PRESET')
             // let apiUrl = (selectedPreset && selectedPreset.value) ? `/api/presets/chat/${selectedPreset?.value}` : '/api/presets/chat'
             let apiUrl = '/api/presets/chat'
 
@@ -153,7 +150,6 @@ export default function PlaygroundPage() {
 
             } else {
 
-                console.log(preset, 'PRESET')
                 let resp = await axios.post(apiUrl, {
                     preset: selectedPreset?.value,
                     modelName: selectedPreset?.modelName ?? selectedPreset?.aiModel,
@@ -323,8 +319,6 @@ export default function PlaygroundPage() {
 
 
 
-
-    console.log(tab, 'TAB', selectedPreset)
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-3">

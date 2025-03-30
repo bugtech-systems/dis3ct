@@ -32,7 +32,6 @@ export function CamScanner() {
 
 
 
-    console.log(modal, 'MODal')
     return (
         <>
             <Dialog open={modal == 'facecam'} onOpenChange={() => setModal(null)}>

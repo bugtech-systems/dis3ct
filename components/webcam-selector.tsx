@@ -121,8 +121,6 @@ const CamScreen = ({ camType }: any) => {
                 }
 
 
-
-                console.log(detections, 'DETECTION', uploadType)
                 if (camType == 'scanner' && uploadType == 'capture') {
                     if (detections.length > 0) {
                         setDetection(detections[0]);
@@ -188,7 +186,6 @@ const CamScreen = ({ camType }: any) => {
                 .withFaceLandmarks()
                 .withFaceDescriptors();
 
-            console.log("Uploaded Face detected", img, detections);
 
             if (detections.length > 0) {
                 setDetection(detections[0]);
@@ -224,11 +221,9 @@ const CamScreen = ({ camType }: any) => {
 
             let newTags = capturedImages.filter(img => img != id);
 
-            console.log(id, newTags.length, capturedImages.length)
             // setCapturedImages(newTags)
             setRefreshId(Math.random())
             setModal(null)
-            console.log("Delete response:", response);
         } catch (error) {
             console.error("Error deleting image:", error);
         }
@@ -243,7 +238,6 @@ const CamScreen = ({ camType }: any) => {
             if (newMatch.data) {
                 let { match, message, data } = newMatch.data;
                 if (match) {
-                    console.log(data)
                     handleRecord(data)
                     toast.success(message)
                 } else {
@@ -253,7 +247,6 @@ const CamScreen = ({ camType }: any) => {
 
             }
 
-            console.log("Match response:", newMatch);
         } catch (error) {
 
             toast.error('No Face Match')
@@ -292,7 +285,6 @@ const CamScreen = ({ camType }: any) => {
 
             await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor });
             const data = await response.json();
-            console.log(data, 'RESP')
             if (data.url) {
                 let newImgs = [data.url, ...capturedImages]
                 setDetection(null)
@@ -310,7 +302,6 @@ const CamScreen = ({ camType }: any) => {
     };
 
 
-    console.log(uploadType, detection, camType)
     return (
         <div className="flex flex-col items-center space-y-4">
             {camType == 'image' ?

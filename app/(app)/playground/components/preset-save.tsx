@@ -29,7 +29,6 @@ export function PresetSave() {
         throw new Error("Failed to fetch presets")
       }
       const data = await response.json()
-      console.log(data.data, 'PRESETS')
       setPresets(data.data) // Assuming API returns { success: true, data: [...] }
     } catch (err: any) {
       console.log(err, 'FETCH ERROR')

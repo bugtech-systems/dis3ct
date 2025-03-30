@@ -180,13 +180,11 @@ export const POST = async (req: NextRequest) => {
 
     let mobile = await getContactMobile(sender ? sender : system, system)
     if (!mobile.success || !mobile?.data?.subscribedAt) {
-      console.log('opt', mobile, contact)
       const defaultPreset = await getPresetByValue('opting');
 
       presetData = defaultPreset.data;
       response = await PromptService.generateOptResponse({ message, sender, system, status, mobile, preset: presetData })
     } else {
-      console.log('Help resp', presetData)
       response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
     }
 

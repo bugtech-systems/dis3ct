@@ -36,7 +36,6 @@ export async function POST(
         if (!descriptor) {
             return NextResponse.json({ error: "No face detected" }, { status: 400 });
         }
-        console.log(descriptor, 'DESC')
 
         const float32Array = new Float32Array(Object.values(descriptor));
 
@@ -105,7 +104,6 @@ export async function POST(
                     bestMatch = doc;
                 }
             });
-            console.log(newData, bestMatch, 'BMM')
 
             if (bestMatch) {
                 console.log(`Best match found: User ID ${bestMatch} with distance ${lowestDistance}`);

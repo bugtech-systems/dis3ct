@@ -20,7 +20,6 @@ export async function POST(
         if (!descriptor) {
             return NextResponse.json({ error: "No face detected" }, { status: 400 });
         }
-        console.log(descriptor, 'DESC')
 
         const float32Array = new Float32Array(Object.values(descriptor));
 
