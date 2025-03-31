@@ -37,3 +37,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 pm2 start your_script.py --interpreter python
+pm2 start node --name nextjs-app -- build/standalone/server.js
