@@ -126,8 +126,6 @@ const CamScreen = ({ camType }: any) => {
                 }
 
 
-
-                console.log(detections, 'DETECTION', uploadType)
                 if (camType == 'scanner' && uploadType == 'capture') {
                     if (detections.length > 0) {
                         setDetection(detections[0]);
@@ -193,7 +191,6 @@ const CamScreen = ({ camType }: any) => {
                 .withFaceLandmarks()
                 .withFaceDescriptors();
 
-            console.log("Uploaded Face detected", img, detections);
 
             if (detections.length > 0) {
                 setDetection(detections[0]);
@@ -229,11 +226,9 @@ const CamScreen = ({ camType }: any) => {
 
             let newTags = capturedImages.filter(img => img != id);
 
-            console.log(id, newTags.length, capturedImages.length)
             // setCapturedImages(newTags)
             setRefreshId(Math.random())
             setModal(null)
-            console.log("Delete response:", response);
         } catch (error) {
             console.error("Error deleting image:", error);
         }
@@ -301,10 +296,13 @@ const CamScreen = ({ camType }: any) => {
                 body: formData,
             });
             const data = await response.json();
+<<<<<<< HEAD
             console.log(data, 'RESP')
 
             await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
 
+=======
+>>>>>>> 43b2345010d874334bbc4532bfc66a3ec13cbd48
             if (data.url) {
                 let newImgs = [data.url, ...capturedImages]
                 setDetection(null)
@@ -322,7 +320,10 @@ const CamScreen = ({ camType }: any) => {
     };
 
 
+<<<<<<< HEAD
     console.log(capturedImages, 'CAPT')
+=======
+>>>>>>> 43b2345010d874334bbc4532bfc66a3ec13cbd48
     return (
         <div className="flex flex-col items-center space-y-4">
             {camType == 'image' ?

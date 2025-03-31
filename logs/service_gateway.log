@@ -1,0 +1,774 @@
+2025-03-24 15:13:58 557: 
+2025-03-24 15:13:58 557: > alayon-next@0.1.0 start
+2025-03-24 15:13:58 557: > next start
+2025-03-24 15:13:58 557: 
+2025-03-24 15:13:58 790:   ▲ Next.js 14.2.3
+2025-03-24 15:13:58 790:   - Local:        http://localhost:3000
+2025-03-24 15:13:58 790: 
+2025-03-24 15:13:58 790:  ✓ Starting...
+2025-03-24 15:13:58 912:  ✓ Ready in 246ms
+2025-03-24 15:15:46 443: 
+2025-03-24 15:15:46 443: > alayon-next@0.1.0 start
+2025-03-24 15:15:46 443: > next start
+2025-03-24 15:15:46 443: 
+2025-03-24 15:15:46 666:   ▲ Next.js 14.2.3
+2025-03-24 15:15:46 666:   - Local:        http://localhost:3000
+2025-03-24 15:15:46 666: 
+2025-03-24 15:15:46 666:  ✓ Starting...
+2025-03-24 15:15:46 788:  ✓ Ready in 244ms
+2025-03-24 15:15:50 441: 
+2025-03-24 15:15:50 441: > alayon-next@0.1.0 start
+2025-03-24 15:15:50 441: > next start
+2025-03-24 15:15:50 441: 
+2025-03-24 15:15:50 666:   ▲ Next.js 14.2.3
+2025-03-24 15:15:50 666:   - Local:        http://localhost:3000
+2025-03-24 15:15:50 667: 
+2025-03-24 15:15:50 667:  ✓ Starting...
+2025-03-24 15:15:50 787:  ✓ Ready in 241ms
+2025-03-24 15:18:13 947: 
+2025-03-24 15:18:13 947: > alayon-next@0.1.0 start
+2025-03-24 15:18:13 947: > next start
+2025-03-24 15:18:13 947: 
+2025-03-24 15:18:14 181:   ▲ Next.js 14.2.3
+2025-03-24 15:18:14 182:   - Local:        http://localhost:3000
+2025-03-24 15:18:14 182: 
+2025-03-24 15:18:14 182:  ✓ Starting...
+2025-03-24 15:18:14 305:  ✓ Ready in 249ms
+2025-03-24 15:18:19 320: 
+2025-03-24 15:18:19 320: > alayon-next@0.1.0 start
+2025-03-24 15:18:19 320: > next start
+2025-03-24 15:18:19 320: 
+2025-03-24 15:18:19 547:   ▲ Next.js 14.2.3
+2025-03-24 15:18:19 547:   - Local:        http://localhost:3000
+2025-03-24 15:18:19 547: 
+2025-03-24 15:18:19 547:  ✓ Starting...
+2025-03-24 15:18:19 669:  ✓ Ready in 244ms
+2025-03-24 15:18:21 097: 
+2025-03-24 15:18:21 097: > alayon-next@0.1.0 start
+2025-03-24 15:18:21 097: > next start
+2025-03-24 15:18:21 097: 
+2025-03-24 15:18:21 319:   ▲ Next.js 14.2.3
+2025-03-24 15:18:21 319:   - Local:        http://localhost:3000
+2025-03-24 15:18:21 319: 
+2025-03-24 15:18:21 319:  ✓ Starting...
+2025-03-24 15:18:21 442:  ✓ Ready in 242ms
+2025-03-24 15:19:52 089: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 089: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 089:           ^^^^^^^
+2025-03-24 15:19:52 089: 
+2025-03-24 15:19:52 089: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 089:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 089:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 089:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 089:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 089:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 089:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 089:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 089:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 089: 
+2025-03-24 15:19:52 089: Node.js v18.20.7
+2025-03-24 15:19:52 138: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 138: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 138:           ^^^^^^^
+2025-03-24 15:19:52 138: 
+2025-03-24 15:19:52 138: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 138:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 138:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 138:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 138:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 138:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 138:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 138:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 138:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 138: 
+2025-03-24 15:19:52 138: Node.js v18.20.7
+2025-03-24 15:19:52 185: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 185: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 185:           ^^^^^^^
+2025-03-24 15:19:52 185: 
+2025-03-24 15:19:52 185: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 185:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 185:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 185:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 185:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 185:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 185:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 185:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 185:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 185: 
+2025-03-24 15:19:52 185: Node.js v18.20.7
+2025-03-24 15:19:52 239: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 239: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 239:           ^^^^^^^
+2025-03-24 15:19:52 239: 
+2025-03-24 15:19:52 239: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 239:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 239:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 239:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 239:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 239:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 239:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 239:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 239:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 239: 
+2025-03-24 15:19:52 239: Node.js v18.20.7
+2025-03-24 15:19:52 298: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 298: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 298:           ^^^^^^^
+2025-03-24 15:19:52 298: 
+2025-03-24 15:19:52 298: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 298:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 299:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 299:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 299:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 299:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 299:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 299:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 299:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 299: 
+2025-03-24 15:19:52 299: Node.js v18.20.7
+2025-03-24 15:19:52 342: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 342: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 343:           ^^^^^^^
+2025-03-24 15:19:52 343: 
+2025-03-24 15:19:52 343: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 343:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 343:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 343:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 343:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 343:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 343:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 343:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 343:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 343: 
+2025-03-24 15:19:52 343: Node.js v18.20.7
+2025-03-24 15:19:52 393: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 393: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 393:           ^^^^^^^
+2025-03-24 15:19:52 393: 
+2025-03-24 15:19:52 393: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 393:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 393:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 393:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 393:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 393:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 393:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 393:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 393:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 393: 
+2025-03-24 15:19:52 393: Node.js v18.20.7
+2025-03-24 15:19:52 439: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 439: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 439:           ^^^^^^^
+2025-03-24 15:19:52 439: 
+2025-03-24 15:19:52 439: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 439:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 439:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 439:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 439:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 439:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 439:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 439:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 439:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 439: 
+2025-03-24 15:19:52 439: Node.js v18.20.7
+2025-03-24 15:19:52 489: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 489: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 489:           ^^^^^^^
+2025-03-24 15:19:52 489: 
+2025-03-24 15:19:52 489: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 489:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 489:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 489:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 489:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 489:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 489:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 489:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 489:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 489: 
+2025-03-24 15:19:52 489: Node.js v18.20.7
+2025-03-24 15:19:52 547: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 547: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 547:           ^^^^^^^
+2025-03-24 15:19:52 547: 
+2025-03-24 15:19:52 547: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 547:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 547:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 547:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 547:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 547:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 547:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 547:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 547:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 547: 
+2025-03-24 15:19:52 547: Node.js v18.20.7
+2025-03-24 15:19:52 597: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 597: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 597:           ^^^^^^^
+2025-03-24 15:19:52 597: 
+2025-03-24 15:19:52 597: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 597:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 597:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 597:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 597:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 597:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 597:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 597:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 597:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 597: 
+2025-03-24 15:19:52 597: Node.js v18.20.7
+2025-03-24 15:19:52 641: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 641: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 641:           ^^^^^^^
+2025-03-24 15:19:52 641: 
+2025-03-24 15:19:52 641: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 641:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 641:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 641:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 641:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 641:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 641:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 641:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 641:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 641: 
+2025-03-24 15:19:52 641: Node.js v18.20.7
+2025-03-24 15:19:52 700: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 700: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 700:           ^^^^^^^
+2025-03-24 15:19:52 700: 
+2025-03-24 15:19:52 700: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 700:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 700:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 700:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 700:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 700:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 700:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 700:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 700:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 700: 
+2025-03-24 15:19:52 700: Node.js v18.20.7
+2025-03-24 15:19:52 754: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 754: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 754:           ^^^^^^^
+2025-03-24 15:19:52 754: 
+2025-03-24 15:19:52 754: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 754:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 754:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 754:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 754:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 754:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 754:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 754:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 754:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 754: 
+2025-03-24 15:19:52 754: Node.js v18.20.7
+2025-03-24 15:19:52 809: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 809: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 809:           ^^^^^^^
+2025-03-24 15:19:52 809: 
+2025-03-24 15:19:52 809: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 809:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 809:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 809:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 809:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 809:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 809:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 809:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 809:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 809: 
+2025-03-24 15:19:52 809: Node.js v18.20.7
+2025-03-24 15:19:52 854: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:19:52 854: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:19:52 854:           ^^^^^^^
+2025-03-24 15:19:52 854: 
+2025-03-24 15:19:52 854: SyntaxError: missing ) after argument list
+2025-03-24 15:19:52 854:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:19:52 854:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:19:52 854:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:19:52 854:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:19:52 854:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:19:52 854:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:19:52 854:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:19:52 854:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:19:52 854: 
+2025-03-24 15:19:52 854: Node.js v18.20.7
+2025-03-24 15:21:17 280: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 280: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 280:           ^^^^^^^
+2025-03-24 15:21:17 280: 
+2025-03-24 15:21:17 280: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 280:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 280:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 280:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 280:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 280:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 280:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 280:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 280:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 280: 
+2025-03-24 15:21:17 280: Node.js v18.20.7
+2025-03-24 15:21:17 337: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 337: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 337:           ^^^^^^^
+2025-03-24 15:21:17 337: 
+2025-03-24 15:21:17 337: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 337:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 337:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 337:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 337:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 337:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 337:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 337:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 337:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 337: 
+2025-03-24 15:21:17 337: Node.js v18.20.7
+2025-03-24 15:21:17 391: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 391: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 391:           ^^^^^^^
+2025-03-24 15:21:17 391: 
+2025-03-24 15:21:17 391: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 391:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 391:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 391:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 391:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 391:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 391:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 391:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 391:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 391: 
+2025-03-24 15:21:17 391: Node.js v18.20.7
+2025-03-24 15:21:17 440: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 440: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 440:           ^^^^^^^
+2025-03-24 15:21:17 440: 
+2025-03-24 15:21:17 440: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 440:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 440:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 440:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 440:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 440:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 440:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 440:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 440:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 440: 
+2025-03-24 15:21:17 440: Node.js v18.20.7
+2025-03-24 15:21:17 487: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 487: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 487:           ^^^^^^^
+2025-03-24 15:21:17 487: 
+2025-03-24 15:21:17 487: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 487:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 487:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 487:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 487:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 487:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 487:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 487:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 487:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 487: 
+2025-03-24 15:21:17 487: Node.js v18.20.7
+2025-03-24 15:21:17 535: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 535: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 535:           ^^^^^^^
+2025-03-24 15:21:17 535: 
+2025-03-24 15:21:17 535: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 535:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 535:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 535:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 535:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 535:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 535:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 535:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 535:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 535: 
+2025-03-24 15:21:17 535: Node.js v18.20.7
+2025-03-24 15:21:17 578: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 578: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 578:           ^^^^^^^
+2025-03-24 15:21:17 578: 
+2025-03-24 15:21:17 578: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 578:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 578:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 578:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 578:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 578:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 578:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 578:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 578:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 578: 
+2025-03-24 15:21:17 578: Node.js v18.20.7
+2025-03-24 15:21:17 623: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 623: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 623:           ^^^^^^^
+2025-03-24 15:21:17 623: 
+2025-03-24 15:21:17 623: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 623:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 623:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 623:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 623:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 623:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 623:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 623:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 623:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 623: 
+2025-03-24 15:21:17 623: Node.js v18.20.7
+2025-03-24 15:21:17 667: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 667: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 667:           ^^^^^^^
+2025-03-24 15:21:17 667: 
+2025-03-24 15:21:17 667: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 667:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 667:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 667:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 667:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 667:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 667:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 667:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 667:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 667: 
+2025-03-24 15:21:17 667: Node.js v18.20.7
+2025-03-24 15:21:17 711: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 711: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 711:           ^^^^^^^
+2025-03-24 15:21:17 711: 
+2025-03-24 15:21:17 711: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 711:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 711:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 711:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 711:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 711:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 711:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 711:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 711:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 711: 
+2025-03-24 15:21:17 711: Node.js v18.20.7
+2025-03-24 15:21:17 764: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 764: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 764:           ^^^^^^^
+2025-03-24 15:21:17 764: 
+2025-03-24 15:21:17 764: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 764:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 764:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 764:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 764:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 764:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 764:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 764:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 764:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 764: 
+2025-03-24 15:21:17 764: Node.js v18.20.7
+2025-03-24 15:21:17 830: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 830: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 830:           ^^^^^^^
+2025-03-24 15:21:17 830: 
+2025-03-24 15:21:17 830: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 830:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 830:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 830:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 830:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 830:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 830:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 830:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 830:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 830: 
+2025-03-24 15:21:17 830: Node.js v18.20.7
+2025-03-24 15:21:17 887: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 887: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 887:           ^^^^^^^
+2025-03-24 15:21:17 887: 
+2025-03-24 15:21:17 887: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 887:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 887:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 887:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 887:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 887:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 887:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 887:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 887:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 887: 
+2025-03-24 15:21:17 887: Node.js v18.20.7
+2025-03-24 15:21:17 931: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 931: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 931:           ^^^^^^^
+2025-03-24 15:21:17 931: 
+2025-03-24 15:21:17 931: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 931:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 931:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 931:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 931:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 931:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 931:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 931:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 931:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 931: 
+2025-03-24 15:21:17 931: Node.js v18.20.7
+2025-03-24 15:21:17 975: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:17 975: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:17 975:           ^^^^^^^
+2025-03-24 15:21:17 975: 
+2025-03-24 15:21:17 975: SyntaxError: missing ) after argument list
+2025-03-24 15:21:17 975:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:17 975:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:17 975:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:17 975:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:17 975:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:17 975:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:17 975:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:17 975:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:17 975: 
+2025-03-24 15:21:17 975: Node.js v18.20.7
+2025-03-24 15:21:18 030: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:21:18 030: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:21:18 030:           ^^^^^^^
+2025-03-24 15:21:18 030: 
+2025-03-24 15:21:18 030: SyntaxError: missing ) after argument list
+2025-03-24 15:21:18 030:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:21:18 030:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:21:18 030:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:21:18 030:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:21:18 030:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:21:18 030:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:21:18 030:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:21:18 030:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:21:18 030: 
+2025-03-24 15:21:18 030: Node.js v18.20.7
+2025-03-24 15:32:03 330: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 330: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 330:           ^^^^^^^
+2025-03-24 15:32:03 330: 
+2025-03-24 15:32:03 330: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 330:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 330:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 330:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 330:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 330:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 330:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 330:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 330:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 330: 
+2025-03-24 15:32:03 330: Node.js v18.20.7
+2025-03-24 15:32:03 385: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 385: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 385:           ^^^^^^^
+2025-03-24 15:32:03 385: 
+2025-03-24 15:32:03 385: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 385:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 385:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 385:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 385:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 385:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 385:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 385:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 385:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 385: 
+2025-03-24 15:32:03 385: Node.js v18.20.7
+2025-03-24 15:32:03 434: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 434: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 434:           ^^^^^^^
+2025-03-24 15:32:03 434: 
+2025-03-24 15:32:03 434: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 434:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 434:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 434:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 434:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 434:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 434:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 434:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 434:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 434: 
+2025-03-24 15:32:03 434: Node.js v18.20.7
+2025-03-24 15:32:03 482: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 482: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 482:           ^^^^^^^
+2025-03-24 15:32:03 482: 
+2025-03-24 15:32:03 482: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 482:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 482:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 482:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 482:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 482:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 482:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 482:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 482:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 482: 
+2025-03-24 15:32:03 482: Node.js v18.20.7
+2025-03-24 15:32:03 544: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 544: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 544:           ^^^^^^^
+2025-03-24 15:32:03 544: 
+2025-03-24 15:32:03 544: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 544:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 544:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 544:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 544:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 544:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 544:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 544:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 544:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 544: 
+2025-03-24 15:32:03 544: Node.js v18.20.7
+2025-03-24 15:32:03 591: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 591: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 591:           ^^^^^^^
+2025-03-24 15:32:03 591: 
+2025-03-24 15:32:03 591: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 591:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 591:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 591:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 591:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 591:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 591:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 591:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 591:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 591: 
+2025-03-24 15:32:03 591: Node.js v18.20.7
+2025-03-24 15:32:03 637: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 637: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 637:           ^^^^^^^
+2025-03-24 15:32:03 637: 
+2025-03-24 15:32:03 637: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 637:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 637:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 637:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 637:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 637:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 637:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 637:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 637:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 637: 
+2025-03-24 15:32:03 637: Node.js v18.20.7
+2025-03-24 15:32:03 686: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 686: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 686:           ^^^^^^^
+2025-03-24 15:32:03 686: 
+2025-03-24 15:32:03 686: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 686:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 686:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 686:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 686:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 686:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 686:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 686:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 686:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 686: 
+2025-03-24 15:32:03 686: Node.js v18.20.7
+2025-03-24 15:32:03 730: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 730: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 730:           ^^^^^^^
+2025-03-24 15:32:03 730: 
+2025-03-24 15:32:03 730: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 730:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 730:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 730:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 730:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 730:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 730:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 730:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 730:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 730: 
+2025-03-24 15:32:03 730: Node.js v18.20.7
+2025-03-24 15:32:03 773: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 773: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 773:           ^^^^^^^
+2025-03-24 15:32:03 773: 
+2025-03-24 15:32:03 773: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 773:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 773:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 773:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 773:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 773:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 773:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 773:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 773:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 773: 
+2025-03-24 15:32:03 774: Node.js v18.20.7
+2025-03-24 15:32:03 831: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 831: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 831:           ^^^^^^^
+2025-03-24 15:32:03 831: 
+2025-03-24 15:32:03 831: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 831:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 831:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 831:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 831:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 831:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 831:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 831:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 831:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 831: 
+2025-03-24 15:32:03 831: Node.js v18.20.7
+2025-03-24 15:32:03 875: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 875: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 875:           ^^^^^^^
+2025-03-24 15:32:03 875: 
+2025-03-24 15:32:03 875: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 875:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 875:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 875:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 875:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 875:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 875:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 875:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 875:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 875: 
+2025-03-24 15:32:03 875: Node.js v18.20.7
+2025-03-24 15:32:03 929: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 929: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 929:           ^^^^^^^
+2025-03-24 15:32:03 929: 
+2025-03-24 15:32:03 929: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 929:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 929:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 929:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 929:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 929:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 929:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 929:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 929:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 929: 
+2025-03-24 15:32:03 930: Node.js v18.20.7
+2025-03-24 15:32:03 991: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:03 991: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:03 991:           ^^^^^^^
+2025-03-24 15:32:03 991: 
+2025-03-24 15:32:03 991: SyntaxError: missing ) after argument list
+2025-03-24 15:32:03 991:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:03 991:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:03 991:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:03 991:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:03 991:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:03 991:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:03 991:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:03 991:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:03 991: 
+2025-03-24 15:32:03 991: Node.js v18.20.7
+2025-03-24 15:32:04 040: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:04 040: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:04 040:           ^^^^^^^
+2025-03-24 15:32:04 040: 
+2025-03-24 15:32:04 040: SyntaxError: missing ) after argument list
+2025-03-24 15:32:04 040:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:04 040:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:04 040:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:04 040:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:04 040:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:04 040:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:04 040:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:04 040:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:04 040: 
+2025-03-24 15:32:04 040: Node.js v18.20.7
+2025-03-24 15:32:04 088: C:\Users\dis3c\Documents\Projects\Dis3ct\alayon-next\node_modules\.bin\next:2
+2025-03-24 15:32:04 088: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2025-03-24 15:32:04 088:           ^^^^^^^
+2025-03-24 15:32:04 088: 
+2025-03-24 15:32:04 088: SyntaxError: missing ) after argument list
+2025-03-24 15:32:04 088:     at internalCompileFunction (node:internal/vm:76:18)
+2025-03-24 15:32:04 088:     at wrapSafe (node:internal/modules/cjs/loader:1283:20)
+2025-03-24 15:32:04 088:     at Module._compile (node:internal/modules/cjs/loader:1328:27)
+2025-03-24 15:32:04 088:     at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+2025-03-24 15:32:04 088:     at Module.load (node:internal/modules/cjs/loader:1203:32)
+2025-03-24 15:32:04 088:     at Module._load (node:internal/modules/cjs/loader:1019:12)
+2025-03-24 15:32:04 088:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+2025-03-24 15:32:04 088:     at node:internal/main/run_main_module:28:49
+2025-03-24 15:32:04 088: 
+2025-03-24 15:32:04 088: Node.js v18.20.7

@@ -72,7 +72,6 @@ async function processApiResponse(response: any) {
     let contact: any;
 
     let { textWithoutJson, jsonObject } = extractJsonFromText(response.message.content)
-    console.log(textWithoutJson, jsonObject, 'EXTRACTION')
     if ((response.message.content && isParsableObject(cleanJsonObject(response.message.content))) || jsonObject) {
       let contentData = jsonObject ? jsonObject : JSON.parse(cleanJsonObject(response.message.content))
 
@@ -96,7 +95,6 @@ async function processApiResponse(response: any) {
 
 
       if (contentData.action?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
-        console.log(contentData, 'CALL DATA', phone, sender)
         await handleCall({
           phone: contentData?.phone ? contentData?.phone : sender,
           system
@@ -295,7 +293,6 @@ export const POST = async (req: NextRequest,
    */
     preset = presetResult.data as any;
 
-    console.log(presets, 'PRESETS')
     // if (!contact?.subscribed) {
     //   preset = presets.filter(preset => { return String(preset?.value).toLowerCase().includes('opt') })[0];
 

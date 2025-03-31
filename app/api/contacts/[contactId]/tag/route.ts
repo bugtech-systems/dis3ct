@@ -104,7 +104,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { contactId
     }
 
     const { contactId } = params;
-    console.log(contactId, 'CONTACT')
     await dbConnect();
 
     const contact = await Contact.findOne({ _id: contactId }) as any;

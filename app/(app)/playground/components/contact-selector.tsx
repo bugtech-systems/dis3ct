@@ -67,7 +67,6 @@ export function ContactSelector() {
 
       if (dataRes) {
         let { data } = dataRes;
-        console.log(data, 'DATA')
         let newContacts = removeDuplicates(data.filter((e: any) => e.phone));
         setContacts(newContacts) // Assuming API returns { success: true, data: [...] }
       }

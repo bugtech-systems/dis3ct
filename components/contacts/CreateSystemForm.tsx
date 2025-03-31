@@ -87,7 +87,6 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
     let newConfs = features;
 
 
-    console.log(config, 'CONF', findFeature(features, type))
     if (config.title == type) {
       newConfs = features.filter(conf => conf.title != type);
 
@@ -236,7 +235,6 @@ export function CreateSystemForm({ contact, open, setOpen, type = 'leader' }: {
   };
 
 
-  console.log('EDIT')
 
   return (
     <>

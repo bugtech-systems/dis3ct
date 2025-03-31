@@ -64,7 +64,6 @@ export function CardsChat({ messages }: ChatProps) {
       }
 
       const data = await response.json();
-      console.log(data, 'MESSAGESSS')
       if (data && Array.isArray(data)) {
         setMessages(data); // Assuming `data.data` contains the conversations array
       }
@@ -117,7 +116,6 @@ export function CardsChat({ messages }: ChatProps) {
 
 
 
-  console.log(messages, selectedMessage, 'MESSAGES')
   return (
     <>
       <div
@@ -238,7 +236,6 @@ export function CardsChat({ messages }: ChatProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {presets.map((preset: any, index: any) => {
-                      console.log(preset._id, 'PRES')
                       return (
                         <SelectItem value={String(preset?._id)} key={index}>
                           <span className="font-medium">{preset.name}</span>

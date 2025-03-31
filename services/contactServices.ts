@@ -162,7 +162,6 @@ export const getContactMobile = async (
 ): Promise<{ success: boolean; data?: IMobile; error?: string }> => {
   try {
     await dbConnect();
-    console.log('GET MOB', number, system)
     let options = {
       phone: sanitizePhoneNumber(number)
     } as any;

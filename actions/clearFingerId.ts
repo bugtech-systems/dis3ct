@@ -26,7 +26,6 @@ const clearFingerId = async (id): Promise<any> => {
 
 
 
-        console.log(contact, 'CCC')
         return sanitizeObject(contact)
     } catch (err) {
         console.log(err, "ERR")

@@ -13,6 +13,7 @@ import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
 import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
+import { findFeature } from "@/lib/helpers";
 
 export default function DashboardPage() {
   const { user, system, parentSystem } = useContact();
@@ -49,12 +50,12 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [parentSystem, fetchDashboardData]);
 
-
+let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
             {/* Team Reach */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -78,6 +79,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Subscriptions */}
+            {(parent && findFeature(parent?.configs, 'sms').value) && 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
@@ -85,7 +87,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
               </CardContent>
-            </Card>
+            </Card>}
           </div>
 
           {/* Chart & Recent Contacts */}
