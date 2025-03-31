@@ -296,13 +296,9 @@ const CamScreen = ({ camType }: any) => {
                 body: formData,
             });
             const data = await response.json();
-<<<<<<< HEAD
-            console.log(data, 'RESP')
 
             await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
 
-=======
->>>>>>> 43b2345010d874334bbc4532bfc66a3ec13cbd48
             if (data.url) {
                 let newImgs = [data.url, ...capturedImages]
                 setDetection(null)
@@ -320,10 +316,6 @@ const CamScreen = ({ camType }: any) => {
     };
 
 
-<<<<<<< HEAD
-    console.log(capturedImages, 'CAPT')
-=======
->>>>>>> 43b2345010d874334bbc4532bfc66a3ec13cbd48
     return (
         <div className="flex flex-col items-center space-y-4">
             {camType == 'image' ?
