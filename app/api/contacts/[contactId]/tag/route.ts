@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth";
 import Contact from "@/models/Contact";
 import { sanitizeObject, sanitizePhoneNumber } from "@/lib/helpers";
@@ -45,26 +44,27 @@ export const POST = async (
 
 
 
-    let tagExist = updatedContact?.tags?.find(tag => String(tag?.user) == String(authUser?._id))
-    newTags = newTags.filter(tag => String(tag.user) != String(authUser._id));
+    let tagExist = updatedContact?.tags?.find(tag => (String(tag?.user) == String(authUser?._id) && tag.value == type))
+    // newTags = newTags.filter(tag => String(tag.user) != String(authUser._id) );
 
 
-
+    console.log(tagExist)
 
     if (tagExist) {
       // if(tagExist)
+      newTags = newTags.filter(tag => String(tag._id) != String(tagExist._id));
 
-      if (tagExist.value != type) {
+      // if (tagExist.value != type) {
 
-        newTags.push({
-          tagType: 'tag',
-          user: authUser?._id,
-          value: type
-        })
-        isTag = true;
-      }
+      //   newTags.push({
+      //     tagType: 'tag',
+      //     user: authUser?._id,
+      //     value: type
+      //   })
+      //   isTag = true;
+      // }
 
-
+      console.log(newTags, 'NEW')
 
 
     } else {
@@ -112,9 +112,19 @@ export async function DELETE(req: NextRequest, { params }: { params: { contactId
     }
 
     const updatedTags = contact?.tags.filter((tag: any) => !(tag.tagType == tagType && tag.value == value));
+    const imageTags = updatedTags.filter((tag: any) => tag.tagType == 'image');
+
+    let options = { tags: updatedTags } as any;
+
+    if (!imageTags.length) {
+      options = { ...options, descriptor: null }
+    }
+
+
+
     await Contact.updateOne(
       { _id: contactId },
-      { $set: { tags: updatedTags, descriptor: null } }
+      { $set: options }
     );
 
     return NextResponse.json({ message: "Tag deleted successfully" });

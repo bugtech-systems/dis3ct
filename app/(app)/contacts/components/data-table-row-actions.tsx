@@ -122,7 +122,7 @@ export function DataTableRowActions<TData>({
 
   const handleTag = async (type: any) => {
     try {
-      const response = await axios.post(`/api/contacts/${contact._id}/tag`, { type, system: user._id });
+      const response = await axios.post(`/api/contacts/${contact._id}/tag`, { type, system: parentSystem?._id });
 
 
       if (response.data) {

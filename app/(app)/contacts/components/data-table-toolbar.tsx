@@ -52,9 +52,10 @@ export function DataTableToolbar<TData>({
   useEffect(() => {
     if ((parentSystem && parentSystem.parent)) {
       let parId = parentSystem?.parent?._id ? parentSystem?.parent?._id : parentSystem?.parent;
-      axios.get(`/api/contacts/filters?parNum=${parId}`).then((res) => {
+      axios.get(`/api/contacts/filters?parNum=${parId}&userId=${parentSystem?._id}`).then((res) => {
         if (res.data) {
           // setFilters(res.data);
+          console.log(res.data, "RES FILTER")
           setFilterOptions(res.data)
         }
       });

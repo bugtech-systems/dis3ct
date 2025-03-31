@@ -33,20 +33,16 @@ export function DeviceForm() {
 
 
 
-      const response = await fetch("/api/biometric/start", {
-        method: "POST"
-      });
-
+      /*      const response = await fetch("/api/biometric/start", {
+             method: "POST"
+           });
+      */
       // setScannerStatus("Starting");
 
-      const data = await response.json();
-      console.log(data, 'RESP INIT')
-      if (data.message) {
-        socket = connectSocket();
-        setBiometricConnected(true);
-        setIsEnrolling(true)
-        setScannerStatus("Started");
-      }
+      socket = connectSocket();
+      setBiometricConnected(true);
+      setIsEnrolling(true)
+      setScannerStatus("Started");
 
 
       setIsConnected(true)
@@ -64,7 +60,7 @@ export function DeviceForm() {
     // socket.emit("shutdown")
 
     socket?.emit('shutdown')
-    socket?.disconnect()
+    // socket?.disconnect()
     setScannerStatus("Stopped");
 
     /*   const response = await fetch("/api/biometric/stop", {

@@ -10,8 +10,10 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const parNum = searchParams.get("parNum");
+    const userId = searchParams.get("userId");
 
     const matchQuery = parNum ? { parNum: new mongoose.Types.ObjectId(parNum) } : {};
+    const userObjectId = userId ? new mongoose.Types.ObjectId(userId) : null;
 
     const filterFields = [
       { desc: "citymunDesc", field: "citymunCode", label: "City/Municipality", data: municipalities },
@@ -20,7 +22,6 @@ export async function GET(req) {
     ];
 
     const filters = {};
-
 
     // Generate filters for municipalities, barangays, and schools
     for (const { desc, field, label, data } of filterFields) {
@@ -69,68 +70,46 @@ export async function GET(req) {
     // Count occurrences of each tag type, ensuring only the latest tag is considered
     const tagResults = await Contact.aggregate([
       { $match: matchQuery },
-
-      // Add a field to identify if tags array is empty
+      { $unwind: "$tags" },
+      { $sort: { "tags.timestamp": -1 } },
       {
-        $addFields: {
-          hasTags: { $gt: [{ $size: "$tags" }, 0] } // true if tags exist, false otherwise
-        }
+        $group: {
+          _id: "$_id",
+          latestTag: { $first: "$tags" },
+        },
       },
-
-      // Separate contacts with tags and without tags
       {
-        $facet: {
-          withTags: [
-            { $match: { hasTags: true } }, // Only contacts that have tags
-            { $unwind: "$tags" }, // ✅ Flatten tags array
-            { $sort: { "tags.timestamp": -1 } }, // ✅ Sort by latest timestamp
-            {
-              $group: {
-                _id: "$_id",
-                latestTag: { $first: "$tags" } // ✅ Get the latest tag per contact
-              }
-            },
-            {
-              $group: {
-                _id: "$latestTag.value",
-                count: { $sum: 1 }
-              }
-            }
-          ],
-          withoutTags: [
-            { $match: { hasTags: false } }, // Only contacts with no tags
-            {
-              $group: {
-                _id: "unknown",
-                count: { $sum: 1 }
-              }
-            }
-          ]
-        }
+        $match: {
+          "latestTag.tagType": "tag",
+          "latestTag.value": { $in: ["confirm", "undecided", "declined"] },
+          "latestTag.user": userObjectId,
+        },
       },
-
-      // Merge results
       {
-        $project: {
-          tags: { $concatArrays: ["$withTags", "$withoutTags"] } // Merge both groups
-        }
+        $group: {
+          _id: { $toLower: "$latestTag.value" },
+          count: { $sum: 1 },
+        },
       },
-
-      { $unwind: "$tags" }, // Flatten final array
-
-      { $replaceRoot: { newRoot: "$tags" } }, // Convert structure back to array
-      { $sort: { _id: 1 } } // Optional: Sort alphabetically
+      { $sort: { _id: 1 } },
     ]).allowDiskUse(true);
 
+    // Count records without a tag of type "tag"
+    const unknownCount = await Contact.countDocuments({
+      ...matchQuery,
+      tags: { $not: { $elemMatch: { tagType: "tag", user: userObjectId } } },
+    });
 
-    filters.tags = tagResults
-      .map(({ _id, count }) => ({
-        value: _id,
-        label: String(_id).toUpperCase(),
-        count,
-      }))
-      .sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: "base" }));
+    filters.tags = tagResults.map(({ _id, count }) => ({
+      value: _id,
+      label: _id.toUpperCase(),
+      count,
+    }));
 
+    if (unknownCount > 0) {
+      filters.tags.push({ value: "unknown", label: "UNKNOWN", count: unknownCount });
+    }
+    console.log('filter', userObjectId, userId)
     return NextResponse.json(filters);
   } catch (error) {
     console.error("Error fetching filters:", error);
