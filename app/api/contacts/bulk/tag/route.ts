@@ -43,11 +43,16 @@ export const POST = async (req: NextRequest) => {
       let newTags = contact.tags || [];
 
       // Remove existing tag by this user
-      newTags = newTags.filter(tag => String(tag.user) !== String(authUser._id));
+      let tagExist = newTags?.find(tag => (String(tag?.user) == String(authUser?._id) && tag.value == type))
 
+      // newTags = newTags.filter(tag => String(tag.user) !== String(authUser._id));
+      if(tagExist){
+        newTags = newTags.filter(tag => String(tag._id) != String(tagExist._id));
+      } else {
+        newTags.push({ tagType: 'tag', user: authUser._id, value: type });
+        isTag = true;
+      }
       // Add new tag if it's different from the previous one
-      newTags.push({ tagType: 'tag', user: authUser._id, value: type });
-      isTag = true;
 
       contact.tags = newTags;
       await contact.save();

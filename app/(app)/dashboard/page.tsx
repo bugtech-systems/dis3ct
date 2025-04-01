@@ -14,6 +14,7 @@ import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
 import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
 import { findFeature } from "@/lib/helpers";
+import { BarangayChart } from "@/components/barangayChart";
 
 export default function DashboardPage() {
   const { user, system, parentSystem } = useContact();
@@ -24,6 +25,7 @@ export default function DashboardPage() {
     contacts: 0,
     recentContacts: [],
     overviewChartData: [],
+    barangay: {}
   });
 
   // Memoized function to fetch dashboard data
@@ -33,7 +35,6 @@ export default function DashboardPage() {
     try {
       const dashData = await getLeaderDashboard(parentSystem?._id);
       // Only update state if data actually changes
-
       setDashboardData((prevData) => {
         return JSON.stringify(prevData) !== JSON.stringify(dashData)
           ? dashData
@@ -93,12 +94,13 @@ let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
           {/* Chart & Recent Contacts */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <Card className="col-span-4">
-              <CardHeader>
+              {/* <CardHeader>
                 <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <Overview chartData={dashboardData?.overviewChartData} />
-              </CardContent>
+              </CardHeader> */}
+              {/* <CardContent className="pl-2"> */}
+                {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
+                <BarangayChart data={dashboardData.barangay}/>
+              {/* </CardContent> */}
             </Card>
             <Card className="col-span-3">
               <CardHeader>

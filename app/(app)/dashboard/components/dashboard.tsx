@@ -13,6 +13,7 @@ import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
 import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
+import { BarangayChart } from "@/components/barangayChart";
 
 export default function DashboardPage() {
     const { user, setUser } = useContact();
@@ -114,7 +115,8 @@ export default function DashboardPage() {
                                 <CardTitle>Overview</CardTitle>
                             </CardHeader>
                             <CardContent className="pl-2">
-                                <Overview chartData={dashboardData?.overviewChartData} />
+                                {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
+                                <BarangayChart/>
                             </CardContent>
                         </Card>
                         <Card className="col-span-3">

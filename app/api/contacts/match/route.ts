@@ -51,7 +51,7 @@ export async function POST(
             const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null } }).lean();
 
             let bestMatch = [] as any;
-            let lowestDistance = 0.7;
+            let lowestDistance = 0.5;
 
 
 
@@ -100,7 +100,8 @@ export async function POST(
             newData.forEach(doc => {
                 const distance = euclideanDistance(queryDescriptor, doc.descriptor);
                 if (distance < lowestDistance) {
-                    // lowestDistance = distance;
+                    lowestDistance = distance;
+                      console.log(distance, 'DIST', doc.name)
                     bestMatch.push(doc);
                 }
             });

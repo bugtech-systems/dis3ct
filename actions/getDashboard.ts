@@ -1,9 +1,11 @@
 "use server";
 
+import { sanitizeObject } from "@/lib/helpers";
 import connectToDatabase from "@/lib/mongodb";
 import AuditLogs from "@/models/AuditLogs";
 import Contact from "@/models/Contact";
 import User from "@/models/User";
+import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 
 export const getLeaderDashboard = async (id): Promise<any> => {
   try {
@@ -62,6 +64,31 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
+    const barangay = await Contact.find(options).select("name brgyCode tags").lean(); // ✅ Use .lean()
+
+   let newBarangay = barangay.map((contact: any) => {
+      let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
+      let tags = contact.tags.filter(a => a.tagType == 'tag');
+
+      let tag = tags.length ? tags[0].value : 'unknown';
+      if(tags.length){
+        console.log(tags, tag)
+    }
+      return { name: contact.name, barangay, tags, tag }
+    })
+
+
+  let groupedBar = newBarangay.reduce((acc: any, contact) => {
+    const bar = contact.barangay;
+    if(acc[bar]){
+      acc[bar] = {...acc[bar], total: acc[bar].total + 1, [contact.tag]: (acc[bar][contact.tag] || 0) + 1 };
+    } else {
+      acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0 };
+    }
+    return acc;
+  }, {})
+
+
 
     const groupedContacts = overview.reduce((acc: any, contact) => {
       const month = new Date(contact.timestamp).toLocaleString("default", { month: "short" });
@@ -84,7 +111,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
 
 
-    return { teamReach, subscriptions, contacts, recentContacts: newContacts, overviewChartData }
+    return { teamReach, subscriptions, contacts, recentContacts: newContacts, overviewChartData, barangay: sanitizeObject(groupedBar) }
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
     return { teamReach: 0, subscriptions: 0, contacts: 0, recentContacts: [], overviewChartData: [] };
