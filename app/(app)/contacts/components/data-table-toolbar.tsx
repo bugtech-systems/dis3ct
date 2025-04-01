@@ -14,6 +14,7 @@ import { DataTableToolbarActions } from "./data-table-toolbar-actions";
 import { UploadContactForm } from "@/components/contacts/UploadContactForm";
 import RefreshButton from "@/components/RefreshButton";
 import { useComponent } from "@/components/providers/ComponentContext";
+import ExportButton from "@/components/ExportButton";
 
 
 const tagsLabel = [
@@ -102,6 +103,23 @@ export function DataTableToolbar<TData>({
   })
 
 
+
+  let columns = table.getAllColumns().filter(col => col.getIsVisible()).map(col => col.id).filter(a => !(a == 'select' || a == 'id' || a == 'actions'));
+  // let columns = ['name', 'address', 'precinct', 'marker'];
+  let exportData = table.getRowModel().rows.map(row => {
+    let newObj = {}
+    console.log(row.original, 'ROW')
+    columns.forEach(col => {
+      console.log(col, 'COLL')
+      newObj = { ...newObj, [col]: row.original[col] }
+    })
+
+    return newObj
+  });
+
+  console.log(columns, 'COLS')
+  console.log(columns, 'COLS', exportData)
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -170,6 +188,9 @@ export function DataTableToolbar<TData>({
         ) : (
           <>
             <RefreshButton />
+            <ExportButton
+              data={exportData}
+            />
             {user?.userType === "admin" && <UploadContactForm />}
             <DataTableViewOptions table={table} />
           </>

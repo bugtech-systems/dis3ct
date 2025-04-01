@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node build/standalone/server.js",
     "lint": "next lint",
     "biometric": "concurrently \"next dev\" \"python app.py\"",
     "scanner": "python app.py"
@@ -45,6 +45,7 @@
     "embla-carousel-react": "^8.5.2",
     "encoding": "^0.1.13",
     "face-api.js": "^0.22.2",
+    "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "htmlparser2": "^6.1.0",
     "jotai": "^2.11.0",

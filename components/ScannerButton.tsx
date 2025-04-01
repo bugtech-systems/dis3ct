@@ -48,7 +48,7 @@ export default function ScannerButton() {
     }
     timeout = setTimeout(() => {
       setLoading(false);
-      socket?.emit('shutdown')
+      // socket?.emit('shutdown')
 
     }, 30000);
   }

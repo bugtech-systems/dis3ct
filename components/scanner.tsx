@@ -286,7 +286,7 @@ export function ScannerForm() {
         /*   if ((modal === "scanner" || modal == "searchScanner" || modal == "viewContact")) {
           } */
         console.log('modal change', e)
-        handleShutdown(socket?.emit('shutdown'))
+        handleShutdown()
       }}>
         <DialogContent>
           <DialogHeader>
