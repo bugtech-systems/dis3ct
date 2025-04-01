@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node build/standalone/server.js",
+    "start": "next start",
     "lint": "next lint",
     "biometric": "concurrently \"next dev\" \"python app.py\"",
-    "scanner": "python app.py"
+    "scanner": "python app.py",
+    "pm2": "pm2 start pm2.json"
   },
   "dependencies": {
     "@faker-js/faker": "^9.3.0",
