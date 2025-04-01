@@ -56,7 +56,6 @@ export function DataTableToolbar<TData>({
       axios.get(`/api/contacts/filters?parNum=${parId}&userId=${parentSystem?._id}`).then((res) => {
         if (res.data) {
           // setFilters(res.data);
-          console.log(res.data, "RES FILTER")
           setFilterOptions(res.data)
         }
       });
@@ -108,17 +107,13 @@ export function DataTableToolbar<TData>({
   // let columns = ['name', 'address', 'precinct', 'marker'];
   let exportData = table.getRowModel().rows.map(row => {
     let newObj = {}
-    console.log(row.original, 'ROW')
     columns.forEach(col => {
-      console.log(col, 'COLL')
       newObj = { ...newObj, [col]: row.original[col] }
     })
 
     return newObj
   });
 
-  console.log(columns, 'COLS')
-  console.log(columns, 'COLS', exportData)
 
   return (
     <div className="flex items-center justify-between">

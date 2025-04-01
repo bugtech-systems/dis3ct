@@ -122,6 +122,7 @@ export function ScannerForm() {
         setScannerStatus('Enrolling.. ')
         setError(null)
         if (data.step >= 3) {
+          console.log(data, 'SUCCESS')
           toast.success("✅ Fingerprint enrolled successfully!");
           // setScanProgress(0);
           // setIsEnrolling(false);
