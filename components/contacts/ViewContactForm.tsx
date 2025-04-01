@@ -71,7 +71,7 @@ export function ViewContactForm() {
 
   // State for form fields
   React.useEffect(() => {
-
+    setTab('image')
     setContact(record)
 
   }, [record])
@@ -84,7 +84,7 @@ export function ViewContactForm() {
     <>
 
       <Dialog open={modal == 'viewContact'} onOpenChange={() => {
-        setTab('basic')
+        setTab('image')
         setModal(null)
       }}>
         <DialogContent>
