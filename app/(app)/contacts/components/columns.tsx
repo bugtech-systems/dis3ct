@@ -314,23 +314,7 @@ export const columns: ColumnDef<Contact>[] = [
     },
     enableColumnFilter: true,
   },
-  {
-    accessorKey: "activePreset",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Preset" />
-    ),
-    cell: ({ row }) => {
-      // const label = labels.find((label) => label.value === row.original.label)
 
-      return (
-        <div className="flex space-x-2">
-          {row.getValue("activePreset")}
-        </div>
-      )
-    },
-    enableSorting: false,
-    enableHiding: false
-  },
   // {
   //   accessorKey: "keyStr",
   //   header: ({ column }) => (
