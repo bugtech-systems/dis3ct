@@ -122,6 +122,7 @@ export function ScannerForm() {
         setScannerStatus('Enrolling.. ')
         setError(null)
         if (data.step >= 3) {
+          console.log(data, 'SUCCESS')
           toast.success("✅ Fingerprint enrolled successfully!");
           // setScanProgress(0);
           // setIsEnrolling(false);
@@ -286,7 +287,7 @@ export function ScannerForm() {
         /*   if ((modal === "scanner" || modal == "searchScanner" || modal == "viewContact")) {
           } */
         console.log('modal change', e)
-        handleShutdown(socket?.emit('shutdown'))
+        handleShutdown()
       }}>
         <DialogContent>
           <DialogHeader>

@@ -50,8 +50,8 @@ export async function POST(
             // Retrieve all face descriptors from MongoDB
             const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null } }).lean();
 
-            let bestMatch = null;
-            let lowestDistance = 0.6;
+            let bestMatch = [] as any;
+            let lowestDistance = 0.7;
 
 
 
@@ -100,13 +100,13 @@ export async function POST(
             newData.forEach(doc => {
                 const distance = euclideanDistance(queryDescriptor, doc.descriptor);
                 if (distance < lowestDistance) {
-                    lowestDistance = distance;
-                    bestMatch = doc;
+                    // lowestDistance = distance;
+                    bestMatch.push(doc);
                 }
             });
 
-            if (bestMatch) {
-                console.log(`Best match found: User ID ${bestMatch} with distance ${lowestDistance}`);
+            if (bestMatch.length) {
+                console.log(`Best match found: ${bestMatch.length} with distance ${lowestDistance}`);
                 return NextResponse.json({ message: "Match Found", data: bestMatch, match: true });
             } else {
                 return NextResponse.json({ message: "No match found", match: false });

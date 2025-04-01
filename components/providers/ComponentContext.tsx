@@ -36,7 +36,7 @@ const ComponentContext = createContext<ComponentContextType | undefined>(undefin
 export const ComponentProvider = ({ children }: { children: ReactNode }) => {
     const [modal, setModal] = useState<any>(null);
     const [modalId, setModalId] = useState<any>(null);
-    const [tab, setTab] = useState<any>('basic');
+    const [tab, setTab] = useState<any>('image');
     const [record, setRecord] = useState<any>(null);
     const [refreshId, setRefreshId] = useState<any>(null);
     const [isRefreshing, setIsRefreshing] = useState<any>(false);

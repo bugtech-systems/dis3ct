@@ -23,6 +23,7 @@ const CamScreen = ({ camType }: any) => {
     const { record, setModal, setRefreshId, setRecord, setTab } = useComponent();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const [recordMatch, setRecordMatch] = useState([])
     const [faceapi, setFaceapi] = useState(null);
     const [mediaStream, setMediaStream] = useState(null);
     const [capturedImages, setCapturedImages] = useState([]);
@@ -58,7 +59,6 @@ const CamScreen = ({ camType }: any) => {
         }
         if (camType == 'scanner') {
             setViewing(false)
-            setTab('basic')
         }
 
     }, [record, viewing, camType]);
@@ -248,7 +248,8 @@ const CamScreen = ({ camType }: any) => {
                     if (match) {
                         console.log(data)
                         setMatching(false)
-                        handleRecord(data)
+                        setRecordMatch(data)
+                        // handleRecord(data)
                         toast.success(message)
                     } else {
                         setMatching(false)
@@ -389,36 +390,53 @@ const CamScreen = ({ camType }: any) => {
                 </>
                 :
                 <>
-                    <div className="flex flex-col items-center space-y-4">
-                        {matching ?
-                            <img src={`/examples/face_id.gif`} alt={`Captured `} className="w-full rounded-lg shadow" />
-                            :
-                            <>
-                                <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
-                                <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
-                                    {capturedImage ?
-                                        <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
-                                        :
-                                        <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
-                                    }
-                                </div>
-                                {capturedImage && <Button variant="outline" onClick={() => {
-                                    setCapturedImage(null);
-                                    setViewing(!viewing)
-                                    setDetection(null)
-                                    setUploadType('capture')
-                                }}>
-                                    Remove Image
-                                </Button>}
-                            </>
-                        }
-                        <Button
-                            disabled={!detection}
-                            onClick={() => {
-                                setMatching(true)
-                                matchImage()
-                            }} className="mt-4">MATCH</Button>
-                    </div>
+                    {recordMatch.length ?
+                        <div className="d-flex flex-col justify-start w-full">
+                            <p>Results:</p>
+                            {recordMatch.map(a => {
+                                return (
+                                    <div className="d-flex flex-row justify-between w-full">
+                                        <i className="flex-grow-1 clickable"
+                                            onClick={() => {
+                                                handleRecord(a)
+                                            }}
+                                        >{a.name}</i>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        :
+                        <div className="flex flex-col items-center space-y-4">
+                            {matching ?
+                                <img src={`/examples/face_id.gif`} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                :
+                                <>
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+                                    <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
+                                        {capturedImage ?
+                                            <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                            :
+                                            <video ref={videoRef} autoPlay className="w-full max-w-sm rounded-lg shadow" />
+                                        }
+                                    </div>
+                                    {capturedImage && <Button variant="outline" onClick={() => {
+                                        setCapturedImage(null);
+                                        setViewing(!viewing)
+                                        setDetection(null)
+                                        setUploadType('capture')
+                                    }}>
+                                        Remove Image
+                                    </Button>}
+                                </>
+                            }
+                            <Button
+                                disabled={!detection}
+                                onClick={() => {
+                                    setMatching(true)
+                                    matchImage()
+                                }} className="mt-4">MATCH</Button>
+                        </div>
+                    }
                 </>
             }
             <canvas ref={canvasRef} style={{ display: "none" }} />

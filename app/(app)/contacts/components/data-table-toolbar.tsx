@@ -14,6 +14,7 @@ import { DataTableToolbarActions } from "./data-table-toolbar-actions";
 import { UploadContactForm } from "@/components/contacts/UploadContactForm";
 import RefreshButton from "@/components/RefreshButton";
 import { useComponent } from "@/components/providers/ComponentContext";
+import ExportButton from "@/components/ExportButton";
 
 
 const tagsLabel = [
@@ -55,7 +56,6 @@ export function DataTableToolbar<TData>({
       axios.get(`/api/contacts/filters?parNum=${parId}&userId=${parentSystem?._id}`).then((res) => {
         if (res.data) {
           // setFilters(res.data);
-          console.log(res.data, "RES FILTER")
           setFilterOptions(res.data)
         }
       });
@@ -100,6 +100,19 @@ export function DataTableToolbar<TData>({
       return a
     }
   })
+
+
+
+  let columns = table.getAllColumns().filter(col => col.getIsVisible()).map(col => col.id).filter(a => !(a == 'select' || a == 'id' || a == 'actions'));
+  // let columns = ['name', 'address', 'precinct', 'marker'];
+  let exportData = table.getRowModel().rows.map(row => {
+    let newObj = {}
+    columns.forEach(col => {
+      newObj = { ...newObj, [col]: row.original[col] }
+    })
+
+    return newObj
+  });
 
 
   return (
@@ -170,6 +183,9 @@ export function DataTableToolbar<TData>({
         ) : (
           <>
             <RefreshButton />
+            <ExportButton
+              data={exportData}
+            />
             {user?.userType === "admin" && <UploadContactForm />}
             <DataTableViewOptions table={table} />
           </>

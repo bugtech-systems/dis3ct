@@ -32,9 +32,9 @@ const nextConfig = {
     }
     return config;
   },
-  reactStrictMode: true,
-  distDir: 'build',
-  output: 'standalone',
+  // reactStrictMode: true,
+  // distDir: 'build',
+  // output: 'standalone'
 };
 
 export default nextConfig;

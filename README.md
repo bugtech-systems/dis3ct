@@ -36,5 +36,5 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
-pm2 start your_script.py --interpreter python
+pm2 start   your_script.py --interpreter python
 pm2 start node --name nextjs-app -- build/standalone/server.js

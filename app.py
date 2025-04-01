@@ -17,7 +17,7 @@ sys.dont_write_bytecode = True
 
 # MongoDB Configuration
 MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "fingerprintDB"
+DB_NAME = "sanisidro-qa"
 COLLECTION_NAME = "fingerprints"
 COLLECTION_CONTACT = "contacts"
 COLLECTION_COUNTERS = "counters"
@@ -83,10 +83,15 @@ def capture_handler():
     try:
         tmp, img = capture
         tmp_bytes = bytes(tmp)
+        img_bytes = bytes(img)  # Convert image to bytes
+
 
         with scanner_lock:
             fid, score = zkfp2.DBIdentify(tmp_bytes)
             # logger.info(f"🟢 Scan captured for User {current_fid} (Identified: {fid}) {score}")
+
+        socketio.emit("fingerprint_image", {"image": img_bytes.hex()}, namespace='/')
+
 
         if register_mode:
             # Ensure user ID is an ObjectId or convert it to a string
@@ -142,7 +147,7 @@ def capture_handler():
                         upsert=True
                     )
                     zkfp2.Light('green', 3)
-                    socketio.emit("fingerprint_enrolled", {"user_id": current_user, "biometricId": user_id_int}, namespace='/')
+                    socketio.emit("fingerprint_enrolled", {"user_id": current_user, "biometricId": user_id_int, "image": img_bytes.hex()}, namespace='/')
 
                     # Cleanup
                     del user_templates[user_id_str]

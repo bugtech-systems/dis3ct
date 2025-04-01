@@ -71,7 +71,7 @@ export function ViewContactForm() {
 
   // State for form fields
   React.useEffect(() => {
-
+    setTab('image')
     setContact(record)
 
   }, [record])
@@ -84,7 +84,7 @@ export function ViewContactForm() {
     <>
 
       <Dialog open={modal == 'viewContact'} onOpenChange={() => {
-        setTab('basic')
+        setTab('image')
         setModal(null)
       }}>
         <DialogContent>
@@ -92,8 +92,8 @@ export function ViewContactForm() {
             <DialogTitle>View Record</DialogTitle>
             <DialogDescription>View record details</DialogDescription>
           </DialogHeader>
-          {tab == 'image' && <p>{contact?.name}</p>}
-          <Tabs defaultValue="basic" className="space-y-4" value={tab}>
+          {tab == 'image' && <div><p>{contact?.name}</p><p>{contact?.precinct}</p></div>}
+          <Tabs defaultValue="image" className="space-y-4" value={tab}>
             <TabsList className="flex justify-center">
               <TabsTrigger value="basic" onClick={() => setTab('basic')}>Basic Details</TabsTrigger>
               <TabsTrigger value="area" onClick={() => setTab('area')}>Area Location</TabsTrigger>
