@@ -56,7 +56,7 @@ export default function DashboardPage() {
   useEffect(() => {
     setInterval(() => {
       fetchDashboardData
-    }, 1000 * 60 * 5)
+    }, 1000 * 60 * 10)
   }, [])
 
   let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
