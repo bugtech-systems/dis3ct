@@ -21,10 +21,6 @@ import {
 import axios from "axios"
 import { CreateSystemForm } from "./contacts/CreateSystemForm"
 import { useContact } from "./providers/ContactProvider"
-import { signOut } from "next-auth/react"
-import getAuth from "@/actions/getAuth";
-import getTeams from "@/actions/getTeams";
-import { useComponent } from "./providers/ComponentContext";
 
 
 
@@ -40,6 +36,7 @@ export function TeamSwitchers({
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
 
   const handleSystems = async (e: any) => {
+    console.log(e, 'EE')
     setActiveTeam(e)
     // setTeams([])
     // setSystem(e)

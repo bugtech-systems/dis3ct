@@ -131,3 +131,23 @@ export const deleteInteraction = async (
         return { success: false, error: error.message || "Failed to delete conversation" };
     }
 };
+
+
+export const clearInteraction = async (
+    contact: string,
+    system: string
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+        await dbConnect();
+        const deletedConversation = await Interaction.updateMany({
+            contact,
+            system
+        }, { status: 'closed' });
+        if (!deletedConversation) {
+            return { success: false, error: "Conversation not found" };
+        }
+        return { success: true, data: deletedConversation };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Failed to delete conversation" };
+    }
+};

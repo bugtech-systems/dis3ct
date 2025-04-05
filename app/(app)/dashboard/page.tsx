@@ -15,6 +15,7 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
 import { findFeature } from "@/lib/helpers";
 import { BarangayChart } from "@/components/barangayChart";
+import { ChartProvider } from "@/components/ui/chart";
 
 export default function DashboardPage() {
   const { user, system, parentSystem } = useContact();
@@ -43,7 +44,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [parentSystem, user]);
+  }, [parentSystem, user, system]);
 
 
   // Fetch dashboard data when user changes
@@ -51,7 +52,8 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [parentSystem, fetchDashboardData]);
 
-let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
+  let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
+  console.log(parent, "PARENT")
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">
@@ -80,26 +82,28 @@ let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
             </Card>
 
             {/* Subscriptions */}
-            {(parent && findFeature(parent?.configs, 'sms').value) && 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
-              </CardContent>
-            </Card>}
+            {(parent && findFeature(parent?.configs, 'sms').value) &&
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
+                </CardContent>
+              </Card>}
           </div>
 
           {/* Chart & Recent Contacts */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
             <Card className="col-span-4">
               {/* <CardHeader>
                 <CardTitle>Overview</CardTitle>
               </CardHeader> */}
               {/* <CardContent className="pl-2"> */}
-                {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
-                <BarangayChart data={dashboardData.barangay}/>
+              {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
+              <ChartProvider>
+                <BarangayChart data={dashboardData.barangay || {}} />
+              </ChartProvider>
               {/* </CardContent> */}
             </Card>
             <Card className="col-span-3">

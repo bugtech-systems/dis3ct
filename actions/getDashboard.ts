@@ -61,32 +61,30 @@ export const getLeaderDashboard = async (id): Promise<any> => {
         .lean(), // ✅ Convert to plain objects
     ]);
 
-
+    console.log(options, 'OPTIONS', user)
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
     const barangay = await Contact.find(options).select("name brgyCode tags").lean(); // ✅ Use .lean()
 
-   let newBarangay = barangay.map((contact: any) => {
+    let newBarangay = barangay.map((contact: any) => {
       let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
       let tags = contact.tags.filter(a => a.tagType == 'tag');
 
       let tag = tags.length ? tags[0].value : 'unknown';
-      if(tags.length){
-        console.log(tags, tag)
-    }
+
       return { name: contact.name, barangay, tags, tag }
     })
 
 
-  let groupedBar = newBarangay.reduce((acc: any, contact) => {
-    const bar = contact.barangay;
-    if(acc[bar]){
-      acc[bar] = {...acc[bar], total: acc[bar].total + 1, [contact.tag]: (acc[bar][contact.tag] || 0) + 1 };
-    } else {
-      acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0 };
-    }
-    return acc;
-  }, {})
+    let groupedBar = newBarangay.reduce((acc: any, contact) => {
+      const bar = contact.barangay;
+      if (acc[bar]) {
+        acc[bar] = { ...acc[bar], total: acc[bar].total + 1, [contact.tag]: (acc[bar][contact.tag] || 0) + 1 };
+      } else {
+        acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0 };
+      }
+      return acc;
+    }, {})
 
 
 

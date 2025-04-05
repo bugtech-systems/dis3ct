@@ -24,7 +24,23 @@ class PromptService {
             }
 
             const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" });
-            const recentChats = await getUserInteractions({ contact, system, preset: preset?._id, status: 'pending' }, 5, { timestamp: 1 });
+
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const filter = {
+                contact,
+                system,
+                preset: preset?._id,
+                status: 'pending',
+                createdAt: { $gte: startOfDay, $lte: endOfDay }
+            };
+
+
+            const recentChats = await getUserInteractions(filter, 5, { timestamp: 1 });
 
 
             // 🔹 Process user & system context
@@ -69,6 +85,7 @@ class PromptService {
         - Responses must be SMS-friendly.
         - Do **not assume** missing details.  
         - Respond in **structured JSON format** Do **not generate text or content** outside JSON object.  
+        - Should use the **System sample** as reference to response sequence, behavior, format or template. But not it's subjects, as data value.  
        `
 
             const prompt = `
@@ -79,13 +96,17 @@ class PromptService {
             **User Input:** ${userInput}
              `.trim();
 
-            let systemInstruction = `${preset?.systemBehavior}\n\n${systemContext}`;
+            let systemInstruction = `${preset?.systemBehavior}\n\n
+            **System Sample Responses**
+            ${systemContext}`;
 
 
 
 
 
-
+            console.log(convertQuillToPlainText(systemInstruction))
+            console.log(sampleConversations)
+            console.log(prompt)
             const response = await Ollama.chat({
                 model: preset?.modelName || 'llama3.1',
                 messages: [
@@ -101,7 +122,7 @@ class PromptService {
                 },
             });
 
-
+            console.log(response, 'RESP OLLAMA')
             if (response && response.message) {
                 // Log interaction for tracking AI responses
                 let contentData = JSON.parse(cleanJsonObject(response?.message.content))

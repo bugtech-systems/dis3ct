@@ -12,6 +12,7 @@ from time import sleep
 from pymongo import MongoClient, ReturnDocument
 from bson import ObjectId  # Ensures MongoDB ObjectId handling
 from datetime import datetime
+import base64
 
 sys.dont_write_bytecode = True
 
@@ -332,7 +333,7 @@ def listen_to_fingerprints():
 
 
 # @app.route('/enroll', methods=['POST'])
-@socketio.on("enroll")
+@socketio.on("enroll") 
 def socket_enroll_fingerprint(data):
     """API endpoint to enroll a new fingerprint with a specific user ID."""
     global register_mode, current_fid, current_user
@@ -382,6 +383,44 @@ def socket_enroll_fingerprint(data):
         #     "user_id": user_id
         # }), 200
         emit("enrollment_started", {"user_id": user_id, "message": "Place the same finger three times to enroll."})
+
+
+@app.route('/match_fingerprint', methods=['POST'])
+def match_fingerprint():
+    """API endpoint to match a fingerprint using a fingerprint image."""
+    if not scanner_initialized:
+        return jsonify({"error": "Device not initialized."}), 400
+
+    try:
+        data = request.get_json()
+
+        # Pretty-print incoming JSON request
+        logger.info(f"📥 Received request: {json.dumps(data, indent=4)}")
+
+        fingerprint_image_base64 = data.get("fingerprint_image")
+        logger.info(f"📥 Received request: {fingerprint_image_base64}")
+        if not fingerprint_image_base64:
+            return jsonify({"error": "Fingerprint image is required."}), 400
+
+        # Validate Base64 string before processing
+        try:
+            fingerprint_bytes = base64.b64decode(fingerprint_image_base64)
+        except base64.binascii.Error:
+            return jsonify({"error": "Invalid Base64 fingerprint data."}), 400
+
+        with scanner_lock:
+            fid, score = zkfp2.DBIdentify(fingerprint_bytes)
+
+        if fid != -1 and score > 0:
+            logger.info(f"✅ Identified user: {fid}, Score: {score}")
+            return jsonify({"user_id": fid, "score": score}), 200
+        else:
+            logger.warning("❌ Fingerprint not recognized.")
+            return jsonify({"error": "Fingerprint not recognized."}), 404
+
+    except Exception as e:
+        logger.error(f"❌ Error in match_fingerprint: {e}")
+        return jsonify({"error": "Failed to match fingerprint."}), 500
 
 
 @socketio.on("connect")

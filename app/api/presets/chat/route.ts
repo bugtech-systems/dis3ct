@@ -72,17 +72,18 @@ async function processApiResponse(response: any) {
     if (response && isParsableObject(cleanJsonObject(response.content))) {
       let contentData = JSON.parse(cleanJsonObject(response.content))
 
+      if (contentData.actions?.includes("subscribed"))
 
 
-      if (contentData.actions?.includes("subscribed")) {
-        //  await contactService.optIn(contact.phone)
-        let optRes = await optInContact(sender, system);
-      } else if (contentData.actions?.includes("unsubscribe")) {
-        // let res = await contactService.optOut(contact.phone)
+        if (contentData.actions?.includes("subscribed")) {
+          //  await contactService.optIn(contact.phone)
+          let optRes = await optInContact(sender, system);
+        } else if (contentData.actions?.includes("unsubscribe")) {
+          // let res = await contactService.optOut(contact.phone)
 
 
-        let optRes = await optOutContact(sender, system);
-      }
+          let optRes = await optOutContact(sender, system);
+        }
 
 
 
@@ -189,8 +190,9 @@ export const POST = async (req: NextRequest) => {
     }
 
 
-    await processApiResponse({ sender, system, content: response })
 
+
+    await processApiResponse({ sender, system, content: response })
 
     // let respData = JSON.parse(cleanJsonObject(response));
     // let smsTemp = getSMSTemplate(respData)
