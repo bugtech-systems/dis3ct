@@ -4,6 +4,7 @@ import connectDB from "@/lib/mongodb";
 import System from "@/models/System";
 import { handleNewMessage, internationalizePhoneNumber, sanitizePhoneNumber } from "@/lib/helpers";
 import Contact from "@/models/Contact";
+import axios from "axios";
 
 export const
     registerUser = async (userData: any) => {
@@ -42,11 +43,13 @@ export const
             contact?.save()
         }
 
-
-
-
-
         await newUser.save();
+
+
+        await signUpAppUser({
+            ...userData,
+            email: `${userData.username}@bugtech.com`
+        })
         return { message: "User registered successfully" };
     };
 
@@ -166,6 +169,24 @@ export const updateUser = async (userId: string, data: any) => {
                 })
             }
         }
+
+
+        return user;
+
+    } catch (err) {
+
+        console.log(err, 'ERRR')
+        return null
+    }
+
+};
+
+
+export const signUpAppUser = async (data: any) => {
+
+    try {
+
+        await axios.post(`${process.env.APP_AUTH_URL}/api/auth/realm/register`, data)
 
 
         return user;

@@ -133,15 +133,17 @@ export default function PlaygroundPage() {
                     title: 'Chat AI',
                     system: parent.phone,
                     taskObject: JSON.stringify({
-                        url: `${nextUrl}/api/presets/chat${selectedPreset?.value ? `/${selectedPreset?.value}` : ''}`,
+                        url: `${nextUrl}/api/presets/chat`,
                         method: 'post',
                         dataObject: {
-                            modelName: preset?.modelName ?? preset?.aiModel,
+                            preset: selectedPreset?.value,
+                            modelName: selectedPreset?.modelName ?? selectedPreset?.aiModel,
                             sender: selectedContact?.phone,
-                            system: parent.phone,
+                            system: system.phone,
                             message: userMessage,
                             status,
-                            ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {})
+                            ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),
+                            instruction: selectedPreset?.instruction
                             /* instruction */
                         }
                     })

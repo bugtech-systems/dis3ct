@@ -6,6 +6,7 @@ export interface IFingerprint extends Document {
     biometricId: Number;
     templates?: string[]; // Hex-encoded fingerprint templates
     enrolledAt?: Date;
+    image_path?: string,
     lastUpdated?: Date;
 }
 
@@ -16,6 +17,7 @@ const FingerprintSchema: Schema<IFingerprint> = new Schema(
         biometricId: { type: Number, required: true, unique: true },
         templates: { type: [String], validate: (val: string[]) => val.length === 3 }, // Ensures exactly 3 templates
         enrolledAt: { type: Date, default: Date.now },
+        image_path: { type: String, required: false },
         lastUpdated: { type: Date, default: Date.now }
     },
     { timestamps: true } // Automatically manages createdAt and updatedAt fields

@@ -17,6 +17,8 @@ import getFingerId from "@/actions/getFingerId";
 import getContactId from "@/actions/getContactId";
 import { connectSocket, getSocket } from "@/lib/socket";
 import clearFingerId from "@/actions/clearFingerId";
+import axios from "axios";
+import { convertObjectToString } from "@/lib/helpers";
 
 const scanStages = [
   "/examples/finger0.jpg", // 0-33% progress
@@ -25,6 +27,7 @@ const scanStages = [
   "/examples/finger4.jpg", // 67-100% progress
 ];
 
+let appUrl = process.env.STATIC_URL || 'http://localhost:3500'
 
 export function ScannerForm() {
   const { modal, setModal, error, setError, biometricRunning, setBiometricRunning, setIsEnrolling, isEnrolling, biometricConnected, record, setRecord, scannerStatus, setScannerStatus } = useComponent();
@@ -32,13 +35,22 @@ export function ScannerForm() {
   const [isConnected, setIsConnected] = React.useState(false);
   const [fingerPrintId, setFingerPrintId] = React.useState(null)
   const [fingerPrint, setFingerPrint] = React.useState(null);
+  const [fingerFile, setFingerFile] = React.useState(null)
+  const [fingerImage, setFingerImage] = React.useState(null)
+
   let socket = getSocket()
 
 
   const handleFingerPrint = async (id) => {
-    let finger = await getFingerId(id);
-    setFingerPrint(finger)
-    setFingerPrintId(finger.id)
+    let fingerData = await getFingerId(id);
+    setFingerPrint(fingerData)
+    let { finger } = fingerData;
+    if (finger && finger.image_path) {
+      setFingerFile(`${appUrl}${finger.image_path}`)
+    } else {
+      setFingerFile(null)
+    }
+    setFingerPrintId(fingerData.id)
   }
 
   const handleDeleteFinger = async (id) => {
@@ -59,6 +71,27 @@ export function ScannerForm() {
       // setFingerPrintId(finger.id)
     }
   }
+
+
+  const handleUpload = async () => {
+    // setModal(null)
+
+
+    // const blob = await fetch(fingerFile).then(res => res.blob());
+    const formData = new FormData();
+    formData.append("file", fingerImage);
+
+    let fingerId = convertObjectToString({ name: record.name, precinct: record.precinct, brgyCode: record.brgyCode })
+
+    const response = await fetch(`${appUrl}/api/biometrics?fingerId=${fingerId}`, {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    console.log(data, appUrl, fingerId, 'FINGER DATA')
+
+  }
+
 
 
   React.useEffect(() => {
@@ -189,7 +222,19 @@ export function ScannerForm() {
     };
   }, [modal]);
 
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
 
+    if (file) {
+      setFingerImage(file)
+
+      // const reader = new FileReader();
+      // reader.onloadend = () => {
+      //   setFingerFile(reader.result);
+      // };
+      // reader.readAsDataURL(file);
+    }
+  };
 
 
   const handleInit = () => {
@@ -268,6 +313,7 @@ export function ScannerForm() {
     setFingerPrint(null)
     handleFingerPrint(record._id)
     handleDeleteFinger(record._id)
+    setFingerFile(null)
     toast.success("Scan your fingerprint. To enroll again.");
 
   };
@@ -280,6 +326,8 @@ export function ScannerForm() {
     return scanStages[3];
   };
 
+
+  console.log(fingerPrint, fingerFile, 'FINGERPRINT')
 
   return (
     <>
@@ -295,9 +343,13 @@ export function ScannerForm() {
             <DialogDescription>Status: <span className={`${error ? 'text-red-500' : 'text-gray-800'}`}>{scannerStatus}</span></DialogDescription>
           </DialogHeader>
           {record &&
-            <div>
-              Set finger print for: <br /> {record.name}
-            </div>
+            <>
+              <div>
+                Set finger print for: <br /> {record.name}
+              </div>
+              <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+            </>
+
           }
 
           {(!record?.biometric && fingerPrint && !fingerPrint?.exist) && (
@@ -307,15 +359,24 @@ export function ScannerForm() {
                 <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
                   <img src={getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
                 </div>
-                :
-                <Button onClick={() => handleEnroll()} disabled={(isEnrolling)}>
-                  {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
-                </Button>
+                : fingerFile ?
+                  <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
+                    <img src={fingerFile ? fingerFile : getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
+                  </div>
+                  :
+                  <Button onClick={() => handleEnroll()} disabled={(isEnrolling)}>
+                    {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
+                  </Button>
               }
             </>
           )}
-
+          {fingerFile &&
+            <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
+              <img src={fingerFile ? fingerFile : getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
+            </div>
+          }
           <DialogFooter>
+
             {!(!record?.biometric && fingerPrint && !fingerPrint?.exist) ?
               <Button onClick={() => handleDelete(fingerPrintId)} >Re-enroll</Button>
               :
@@ -331,6 +392,13 @@ export function ScannerForm() {
                 Initialize
               </Button>
             }
+
+            <Button
+              variant="outline"
+              onClick={() => handleUpload()}
+            >
+              Save
+            </Button>
             <Button
               variant="outline"
               onClick={() => {

@@ -148,11 +148,13 @@ export async function GET(req: NextRequest) {
 
     // Include only contacts with a phone number if requested
     if (phoneFilter) {
-      query['tags.tagType'] = 'phone';
-      query['tags.user'] = String(user._id);
+      // query['tags.tagType'] = 'phone';
+      // query['tags.user'] = String(user._id);
+      query['phone'] = { $exists: true };
 
     }
 
+    console.log(query, 'QUE')
     // Search functionality
     if (search) {
       const searchLower = search.trim().toLowerCase();
@@ -188,7 +190,7 @@ export async function GET(req: NextRequest) {
       return {
         _id: contact._id,
         name: contact.name,
-        phone: tagPhone,
+        phone: tagPhone || contact.phone,
         address: contact.address,
         marker: contact.marker,
         precinct: contact.precinct,

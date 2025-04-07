@@ -464,3 +464,63 @@ export function getSMSTemplate(responseData, defaultTemplateKey = "default") {
 }
 
 // Example Usage
+
+
+type OutputObject = {
+  lastName: string;
+  firstName: string;
+  precinct: string;
+  brgyCode: string;
+};
+
+export function convertStringToObject(inputString: string): OutputObject {
+  const values = inputString
+    .split('_')  // Split the string by '_'
+    .map(value => value.replace(/-/g, ' '));  // Replace hyphens with spaces
+
+  // Ensure we have the correct number of values
+  if (values.length !== 5) {
+    throw new Error("Input string does not have the correct format or number of parts.");
+  }
+
+  // Return the object with the correct mapping
+  return {
+    lastName: values[0],
+    firstName: values[1],
+    precinct: values[3],
+    brgyCode: values[4]
+  };
+}
+
+
+
+type InputObject = {
+  lastName: string;
+  firstName: string;
+  precinct: string;
+  brgyCode: string;
+};
+
+export function convertObjectToString(obj: any): string {
+
+  let name = String(obj.name).split(', ');
+  let lastName = name[0];
+  let firstName = name[1].trim();
+
+  delete obj.name;
+
+  let newObj = {
+    lastName,
+    firstName,
+    ...obj
+  }
+
+
+  console.log(newObj, 'NEW OBJ')
+  return Object.values(newObj)
+    .map(value => value?.toLowerCase().replace(/\s+/g, '-'))  // Convert to lowercase and replace spaces with '-'
+    .join('_');  // Join the values with '_'
+}
+
+
+
