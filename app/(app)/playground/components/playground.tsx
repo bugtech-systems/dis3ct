@@ -43,7 +43,7 @@ import { Switch } from "@/components/ui/switch"
 import createTask from "@/actions/createTask"
 import { PresetShare } from "./preset-share"
 
-let nextUrl = process.env.ALAYON_NEXT || `https://sharewin.pro`
+let nextUrl = process.env.ALAYON_NEXT || `http://localhost:3000`
 const statuses = ["pending", "default", "closed"]
 
 export default function PlaygroundPage() {
