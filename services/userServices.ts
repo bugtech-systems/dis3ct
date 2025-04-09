@@ -6,52 +6,54 @@ import { handleNewMessage, internationalizePhoneNumber, sanitizePhoneNumber } fr
 import Contact from "@/models/Contact";
 import axios from "axios";
 
-export const
-    registerUser = async (userData: any) => {
-        await connectDB();
-        const hashedPassword = await bcrypt.hash(userData.password, 10);
-        // const refNum = crypto.randomBytes(6).toString("hex").toUpperCase(); // Generate a unique ref number
-
-        const newUser = await User.create({
-            ...userData,
-            password: hashedPassword,
-            // refNum,
-        });
-        if (newUser && userData.userType == 'leader') {
-            let parent = User.findById(userData.parent);
-            newUser.configs = parent?.configs ? parent?.configs : [];
-        }
 
 
+export const registerUser = async (userData: any) => {
+    await connectDB();
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    // const refNum = crypto.randomBytes(6).toString("hex").toUpperCase(); // Generate a unique ref number
 
-        if (newUser && userData.userType == 'system') {
-            newUser.parent = newUser._id as any;
-            await System.create({
-                number: userData.phone,
-                port: userData.port,
-                description: userData.name
-            })
-        }
+    const newUser = await User.create({
+        ...userData,
+        password: hashedPassword,
+        // refNum,
+    });
+    if (newUser && userData.userType == 'leader') {
+        let parent = User.findById(userData.parent);
+        newUser.configs = parent?.configs ? parent?.configs : [];
+    }
 
 
 
-        if (newUser && userData.contact) {
-            let contact = await Contact.findById(userData?.contact);
-            if (contact) {
-                contact.recordType = 'leader';
-            }
-            contact?.save()
-        }
-
-        await newUser.save();
-
-
-        await signUpAppUser({
-            ...userData,
-            email: `${userData.username}@bugtech.com`
+    if (newUser && userData.userType == 'system') {
+        newUser.parent = newUser._id as any;
+        await System.create({
+            number: userData.phone,
+            port: userData.port,
+            description: userData.name
         })
-        return { message: "User registered successfully" };
-    };
+    }
+
+
+
+    if (newUser && userData.contact) {
+        let contact = await Contact.findById(userData?.contact);
+        if (contact) {
+            contact.recordType = 'leader';
+        }
+        contact?.save()
+    }
+
+    await newUser.save();
+
+
+    await signUpAppUser({
+        ...userData,
+        email: `${userData.username}@bugtech.com`,
+        userId: newUser._id
+    })
+    return { message: "User registered successfully" };
+};
 
 export const loginUser = async (phone: string, password: string) => {
     await connectDB();
@@ -171,6 +173,12 @@ export const updateUser = async (userId: string, data: any) => {
         }
 
 
+        if (data.host) {
+            await axios.post(`${process.env.APP_AUTH_URL}/api/auth/host`, { host: data.host })
+        }
+
+
+
         return user;
 
     } catch (err) {
@@ -186,10 +194,10 @@ export const signUpAppUser = async (data: any) => {
 
     try {
 
-        await axios.post(`${process.env.APP_AUTH_URL}/api/auth/realm/register`, data)
+        let user = await axios.post(`${process.env.APP_AUTH_URL}/api/auth/realm/register`, data)
+        console.log(user, 'USER')
 
-
-        return user;
+        return true;
 
     } catch (err) {
 

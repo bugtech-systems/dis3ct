@@ -347,7 +347,7 @@ export function ScannerForm() {
               <div>
                 Set finger print for: <br /> {record.name}
               </div>
-              <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+              {/* <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" /> */}
             </>
 
           }
@@ -393,12 +393,12 @@ export function ScannerForm() {
               </Button>
             }
 
-            <Button
+            {/*  <Button
               variant="outline"
               onClick={() => handleUpload()}
             >
               Save
-            </Button>
+            </Button> */}
             <Button
               variant="outline"
               onClick={() => {

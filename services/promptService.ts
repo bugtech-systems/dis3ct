@@ -122,7 +122,6 @@ class PromptService {
                 },
             });
 
-            console.log(response, 'RESP OLLAMA')
             if (response && response.message) {
                 // Log interaction for tracking AI responses
                 let contentData = JSON.parse(cleanJsonObject(response?.message.content))
@@ -164,7 +163,7 @@ class PromptService {
                 contactData = systemResult.data
             }
 
-            const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" });
+            const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" }, 100, { timestamp: 1 });
             const recentChats = await getUserInteractions({ contact, system, preset: preset?._id, status: 'pending' }, 5, { timestamp: 1 });
 
 
@@ -210,7 +209,7 @@ class PromptService {
         - Responses must be SMS-friendly.
         - Do **not assume** missing details.  
         - Respond in **structured JSON format**. 
-        - Always response for opt-in request if **Not Subscribed**.
+        - Always response for opt-in request if Subscription status is **Not Subscribed** and prompt is not opt-in or SUBSCRIBE.
        `
 
             const prompt = `
@@ -218,21 +217,25 @@ class PromptService {
         **IMPORTANT INSTRUCTION**
          ${instruction}\n
     
-            **User DATA:** ${userData}
-            **User Prompt:** ${userInput}
+            **User DATA**: ${userData}
+            **User Prompt**: ${userInput}
             **Recent Conversations**  
             ${userContext}\n
              `.trim();
 
             let systemInstruction = `${convertQuillToPlainText(preset?.systemBehavior)}\n
-            **Sample AI Responses:**
-            \n${systemContext}`;
+         `;
 
 
 
 
 
-            console.log(systemInstruction)
+            console.log([
+                //  ...newMessages,
+                preset?.systemBehavior ? { role: 'system', content: systemInstruction } : { role: "system", content: "" },
+                ...sampleConversations,
+                { role: 'user', content: prompt }
+            ], 'PROMPTTT')
             const response = await Ollama.chat({
                 model: preset?.modelName ? preset?.modelName : 'llama3.1',
                 messages: [

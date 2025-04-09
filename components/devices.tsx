@@ -17,12 +17,18 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 
+let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
 
 export function DeviceForm() {
   const { modal, setModal, scannerStatus, setScannerStatus, setBiometricRunning, setBiometricConnected, setIsEnrolling } = useComponent();
   const { parentSystem, user } = useContact();
+  const [faceapi, setFaceapi] = React.useState(null);
+  const [status, setStatus] = React.useState('');
+  const [syncables, setSyncables] = React.useState([]);
   const [isConnected, setIsConnected] = React.useState(false);
+  const [modelsLoaded, setModelsLoaded] = React.useState(false);
+
   let socket = getSocket()
 
   const handleInit = async () => {
@@ -107,6 +113,106 @@ export function DeviceForm() {
 
   }
 
+  const handleSyncables = async () => {
+    const response = await fetch("/api/public/syncs", {
+      method: "GET"
+    });
+    const data = await response.json();
+
+    if (data) {
+      let { image, biometric } = data;
+      let syncs = []
+      image?.map(a => {
+        syncs.push({
+          ...a,
+          sync: "image"
+        });
+      })
+      biometric?.map(a => {
+        syncs.push({
+          ...a,
+          sync: "biometric"
+        });
+      })
+      setStatus(`${syncs.length} pending sync`)
+      setSyncables(syncs)
+    }
+  }
+
+
+
+  async function extractFaceDescriptor(imageUrl) {
+    // Fetch the image
+
+    if (!modelsLoaded) return console.log('model not loaded!')
+    const img = await faceapi.fetchImage(imageUrl);
+
+    // Detect face in the image and extract face descriptor
+    const detections = await faceapi.detectSingleFace(img)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (detections) {
+      // Return the face descriptor
+      return detections.descriptor;
+    } else {
+      console.error('No face detected in the image.');
+      return null;
+    }
+  }
+
+  const handleSubmit = async () => {
+    setStatus('Submitting data...');
+    for (const data of syncables) {
+      try {
+
+        if (data?.sync == 'biometric') {
+
+
+          const response = await fetch(`${STATIC_URL}/api/biometrics/register?id=${data?._id}`, {
+            method: "POST",
+          });
+
+          if (response.ok) {
+            console.log(`Successfully submitted: ${JSON.stringify(data)}`);
+          } else {
+            console.error(`Failed to submit: ${JSON.stringify(data)}`);
+          }
+
+
+        } else {
+
+
+          /*  const descriptor = await extractFaceDescriptor(imageUrl);
+           if (descriptor) {
+             console.log('Face Descriptor:', descriptor);
+           }
+ 
+  */
+
+        }
+
+      } catch (error) {
+        console.error('Error during submission:', error);
+      }
+    }
+    setStatus('Data submission complete.');
+  };
+
+  const loadModels = async () => {
+    try {
+      const faceapiModule = await import('face-api.js');
+      setFaceapi(faceapiModule);
+      await faceapiModule.nets.ssdMobilenetv1.loadFromUri("/models");
+      await faceapiModule.nets.faceLandmark68Net.loadFromUri("/models");
+      await faceapiModule?.nets.tinyFaceDetector.loadFromUri("/models");
+      await faceapiModule?.nets.faceLandmark68Net.loadFromUri("/models");
+      await faceapiModule?.nets.faceRecognitionNet.loadFromUri("/models");
+      setModelsLoaded(true);
+    } catch (error) {
+      console.error("Error loading face-api models:", error);
+    }
+  };
 
   React.useEffect(() => {
     socket = getSocket()
@@ -150,6 +256,20 @@ export function DeviceForm() {
     };
   }, [socket, modal, isConnected]);
 
+  React.useEffect(() => {
+    handleSyncables()
+  }, [modal])
+
+  React.useEffect(() => {
+    loadModels();
+  }, []);
+
+
+
+
+
+  console.log(syncables, 'SYNCS')
+
 
 
   return (
@@ -181,9 +301,16 @@ export function DeviceForm() {
             </Button>
           </>
         }
+        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+          <>
+            <p>Sync Data: {status}</p>
+            <Button onClick={() => handleSubmit()} >
+              Start Syncing
+            </Button>
+          </>
+        }
 
         <DialogFooter>
-
           <Button
             variant="outline"
             onClick={() => {

@@ -61,7 +61,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [features, setFeatures] = React.useState([]);
-
+  const [host, setHost] = React.useState('');
   // State for dynamic location selections
   const [municipalities, setMunicipalities] = React.useState([]);
   const [barangays, setBarangays] = React.useState([]);
@@ -165,6 +165,7 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
         port,
         accessCodes,
         ...(password ? { password } : {}),
+        host
       })
 
       // toast({ title: "Success", description: response.data.message, status: "success" });
@@ -459,6 +460,10 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                       <div className="space-y-2">
                         <Label htmlFor="mobile">Port</Label>
                         <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="mobile">Host</Label>
+                        <Input id="host" placeholder="Host" value={host || ""} onChange={(e) => setHost(e.target.value)} />
                       </div>
                     </>
                   }

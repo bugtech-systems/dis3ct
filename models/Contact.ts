@@ -88,6 +88,7 @@ ContactSchema.index({ address: 1 });
 ContactSchema.index({ marker: 1 });
 ContactSchema.index({ precinct: 1 });
 ContactSchema.index({ username: 1 });
+ContactSchema.index({ descriptor: 1 });
 ContactSchema.index({ "tags.timestamp": -1 });
 
 
