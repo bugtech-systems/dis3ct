@@ -114,11 +114,15 @@ export function DeviceForm() {
   }
 
   const handleSyncables = async () => {
-    const response = await fetch("/api/public/syncs", {
+
+
+    let parent = user?.parent ? (user?.parent || user?.parent?._id) : (parentSystem?.parent || parentSystem?.parent?._id)
+    console.log(parent, 'PARENT')
+    const response = await fetch(`/api/public/syncs?parent=${parent?._id || parent}`, {
       method: "GET"
     });
     const data = await response.json();
-
+    console.log(data, 'SYNC ')
     if (data) {
       let { image, biometric } = data;
       let syncs = []
@@ -143,9 +147,10 @@ export function DeviceForm() {
 
   async function extractFaceDescriptor(imageUrl) {
     // Fetch the image
-
+    console.log(imageUrl, 'IMG')
     if (!modelsLoaded) return console.log('model not loaded!')
-    const img = await faceapi.fetchImage(imageUrl);
+    const img = await faceapi.fetchImage(STATIC_URL + imageUrl);
+    console.log(imageUrl, 'IMG')
 
     // Detect face in the image and extract face descriptor
     const detections = await faceapi.detectSingleFace(img)
@@ -183,15 +188,29 @@ export function DeviceForm() {
         } else {
 
 
-          /*  const descriptor = await extractFaceDescriptor(imageUrl);
-           if (descriptor) {
-             console.log('Face Descriptor:', descriptor);
-           }
- 
-  */
+          let descriptors = []
+          let newTags = data?.tags?.filter(a => a.tagType == 'image').map(a => a.value);
+
+          for (let pic of newTags) {
+            const descriptor = await extractFaceDescriptor(pic);
+            if (descriptor) {
+              descriptors.push(descriptor)
+            }
+          }
+          console.log('Face Descriptor:', descriptors);
+          if (descriptors.length == 3) {
+            const mergedDescriptor = mergeDescriptors(descriptors);
+            console.log(mergedDescriptor, 'dddd')
+            await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
+
+
+
+
+          }
+
+
 
         }
-
       } catch (error) {
         console.error('Error during submission:', error);
       }
@@ -213,6 +232,23 @@ export function DeviceForm() {
       console.error("Error loading face-api models:", error);
     }
   };
+
+  function mergeDescriptors(descriptors) {
+    const merged = new Float32Array(descriptors[0].length);
+    descriptors.forEach(descriptor => {
+      for (let i = 0; i < merged.length; i++) {
+        merged[i] += descriptor[i];
+      }
+    });
+    for (let i = 0; i < merged.length; i++) {
+      merged[i] /= descriptors.length;
+    }
+    return merged;
+  }
+
+
+
+
 
   React.useEffect(() => {
     socket = getSocket()
@@ -268,7 +304,6 @@ export function DeviceForm() {
 
 
 
-  console.log(syncables, 'SYNCS')
 
 
 

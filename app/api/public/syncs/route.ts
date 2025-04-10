@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from '@/lib/mongodb';
 import Contact from '@/models/Contact';
+import User from "@/models/User";
 
 export async function GET(req: NextRequest) {
     try {
         await connectToDatabase(); // Ensure MongoDB connection
+
+        const { searchParams } = new URL(req.url);
+        const userId = searchParams.get("parent") || "";
+
+        let user = await User.findById(userId);
+
+        if (!user) {
+            return NextResponse.json({ message: 'Record not found!' }, { status: 404 });
+        }
 
         // Define the aggregation pipeline
         const pipeline = [
@@ -14,7 +24,8 @@ export async function GET(req: NextRequest) {
                         {
                             $match: {
                                 tags: { $elemMatch: { tagType: "image" } },
-                                descriptor: null
+                                descriptor: { $in: [null, "", []] },
+                                parNum: user?._id
                             }
                         }
                     ],
@@ -22,7 +33,8 @@ export async function GET(req: NextRequest) {
                         {
                             $match: {
                                 tags: { $elemMatch: { tagType: "biometrics" } },
-                                biometric: { $in: [null, ""] }
+                                biometric: { $in: [null, ""] },
+                                parNum: user?._id
                             }
                         }
                     ]

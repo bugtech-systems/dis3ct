@@ -19,6 +19,7 @@ import { ViewContactForm } from "@/components/contacts/ViewContactForm";
 import ScannerButton from "@/components/ScannerButton";
 import FaceButton from "@/components/FaceButton";
 import { CamScanner } from "@/components/webcam-scanner";
+import AppButton from "@/components/AppButton";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
 };
 
 
+let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
 export default async function RootLayout({
   children,
@@ -77,6 +79,10 @@ export default async function RootLayout({
                 <ScannerForm />
                 <ViewContactForm />
                 <CamScanner />
+                <AppButton
+                  fileName={'dis3ct.apk'}
+                  url={STATIC_URL + '/uploads/app.apk'}
+                />
                 <FaceButton />
                 <ScannerButton />
 

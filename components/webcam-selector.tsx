@@ -316,7 +316,7 @@ const CamScreen = ({ camType }: any) => {
         }
     };
 
-
+    console.log(capturedImages, 'imgs')
     return (
         <div className="flex flex-col items-center space-y-4">
             {camType == 'image' ?
@@ -327,11 +327,14 @@ const CamScreen = ({ camType }: any) => {
                                 <CarouselContent>
                                     {capturedImages.map((image, index) => (
                                         <CarouselItem key={index}>
-                                            <Delete
-                                                size={15}
-                                                className="float-end cursor-pointer"
-                                                onClick={() => handleDelete(image)}
-                                            />
+                                            <div className="d-flex w-full flex-row justify-between">
+                                                <a target="_blank" href={`${STATIC_URL + image}`}>Download</a>
+                                                <Delete
+                                                    size={15}
+                                                    className="float-end cursor-pointer"
+                                                    onClick={() => handleDelete(image)}
+                                                />
+                                            </div>
                                             <img src={STATIC_URL + image} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
                                         </CarouselItem>
                                     ))}
