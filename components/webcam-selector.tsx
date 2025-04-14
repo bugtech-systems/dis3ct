@@ -242,23 +242,21 @@ const CamScreen = ({ camType }: any) => {
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)
-            setTimeout(() => {
-                if (newMatch.data) {
-                    let { match, message, data } = newMatch.data;
-                    if (match) {
-                        console.log(data)
-                        setMatching(false)
-                        setRecordMatch(data)
-                        // handleRecord(data)
-                        toast.success(message)
-                    } else {
-                        setMatching(false)
-                        toast.error(message)
-                        setModal(null)
+            if (newMatch.data) {
+                let { match, message, data } = newMatch.data;
+                if (match) {
+                    console.log(data)
+                    setMatching(false)
+                    setRecordMatch(data)
+                    // handleRecord(data)
+                    toast.success(message)
+                } else {
+                    setMatching(false)
+                    toast.error(message)
+                    setModal(null)
 
-                    }
                 }
-            }, 3000)
+            }
             console.log("Match response:", newMatch);
         } catch (error) {
 
