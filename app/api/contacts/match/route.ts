@@ -28,10 +28,10 @@ export async function POST(
 
 
 
-        const { descriptor } = await req.json();
+        const { descriptor, parent } = await req.json();
 
 
-
+        console.log(parent, 'PARRR')
 
         if (!descriptor) {
             return NextResponse.json({ error: "No face detected" }, { status: 400 });
@@ -48,7 +48,7 @@ export async function POST(
             const queryDescriptor = descriptorArray;
 
             // Retrieve all face descriptors from MongoDB
-            const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null } }).lean();
+            const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null }, parNum: parent }).lean();
 
             let bestMatch = [] as any;
             let lowestDistance = 0.5;
@@ -101,7 +101,7 @@ export async function POST(
                 const distance = euclideanDistance(queryDescriptor, doc.descriptor);
                 if (distance < lowestDistance) {
                     lowestDistance = distance;
-                      console.log(distance, 'DIST', doc.name)
+                    console.log(distance, 'DIST', doc.name)
                     bestMatch.push(doc);
                 }
             });

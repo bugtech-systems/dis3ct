@@ -5,28 +5,27 @@ import Fingerprint from "@/models/fingerprints";
 export const POST = async (req: NextRequest) => {
     try {
         const data = await req.json()
-        let { contactId } = data;
-        let contact = await Contact.findById(contactId);
+        let { parent } = data;
 
-        if (contact) {
-
-            let tags = contact?.tags ? contact.tags : [];
-
-            let newTags = tags.filter(a => a.tagType != 'biometrics');
-
-
-            contact.tags = newTags;
-
-            if (contact.biometric) {
-                await Fingerprint.deleteMany({ user_id: String(contact._id) })
-                await Fingerprint.deleteOne({ _id: String(contact.biometric) })
-                contact.biometric = undefined;
+        let contacts = await Contact.updateMany(
+            {
+                descriptor: { $exists: true },
+                biometric: { $exists: true },
+                parNum: parent
+            },
+            {
+                $unset: {
+                    descriptor: "",
+                    biometric: ""
+                }
             }
-            contact.save();
-        }
+        );
 
-        console.log(contact, 'CONTACT CLEAR')
-        return NextResponse.json(contact, { status: 200 });
+        await Fingerprint.deleteMany({
+            user_id: { $exists: true },
+        })
+
+        return NextResponse.json(contacts, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: (error as Error).message }, { status: 400 });
     }

@@ -16,6 +16,7 @@ import { useContact } from "./providers/ContactProvider";
 import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
+import { SyncView } from "./SyncView";
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
@@ -28,7 +29,7 @@ export function DeviceForm() {
   const [syncables, setSyncables] = React.useState([]);
   const [isConnected, setIsConnected] = React.useState(false);
   const [modelsLoaded, setModelsLoaded] = React.useState(false);
-
+  const [isView, setIsView] = React.useState(false);
   let socket = getSocket()
 
   const handleInit = async () => {
@@ -112,6 +113,17 @@ export function DeviceForm() {
     }
 
   }
+
+
+  const handleRestartTemplates = async () => {
+
+    let systemResp = await axios.post(`/api/biometric/clear`, { parent: parentSystem._id });
+    console.log(systemResp, 'RES')
+    handleSyncables()
+
+  }
+
+
 
   const handleSyncables = async () => {
 
@@ -247,9 +259,6 @@ export function DeviceForm() {
   }
 
 
-
-
-
   React.useEffect(() => {
     socket = getSocket()
 
@@ -306,7 +315,6 @@ export function DeviceForm() {
 
 
 
-
   return (
     <Dialog open={modal === "devices"} onOpenChange={(e) => setModal(e)}>
       <DialogContent>
@@ -315,37 +323,63 @@ export function DeviceForm() {
           <DialogDescription>Configure Devices</DialogDescription>
         </DialogHeader>
         <br />
-        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'biometric').value) &&
+        {isView ?
           <>
-            <p onClick={() => handleStatus()}>Biometric: {scannerStatus}</p>
-            {isConnected ?
-              <Button onClick={() => handleShutdown()} >
-                Stop Device
-              </Button> :
-              <Button onClick={() => handleInit()} >
-                Start Device
-              </Button>
-            }
+            <SyncView data={syncables} onBack={() => setIsView(false)} />
           </>
-        }
-        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+          :
+          <>
+            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'biometric').value) &&
+              <>
+                <p onClick={() => handleStatus()}>Biometric: {scannerStatus}</p>
+                {isConnected ?
+                  <Button onClick={() => handleShutdown()} >
+                    Stop Device
+                  </Button> :
+                  <Button onClick={() => handleInit()} >
+                    Start Device
+                  </Button>
+                }
+              </>
+            }
+            {/* {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
           <>
             <p >GSM Module</p>
             <Button onClick={() => handleRestartGsm()} >
               Restart Device
             </Button>
           </>
-        }
-        {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
-          <>
-            <p>Sync Data: {status}</p>
-            <Button onClick={() => handleSubmit()} >
-              Start Syncing
-            </Button>
+        } */}
+            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+              <>
+                <p >GSM Module</p>
+                <Button onClick={() => handleRestartTemplates()} >
+                  Reset Templates
+                </Button>
+              </>
+            }
+
+            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+              <>
+                <div className="d-flex flex-row justify-around">
+                  <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView(true)} className="float-end clickable text-blue">View</button>
+                </div>
+                <Button onClick={() => handleSubmit()} >
+                  Start Syncing
+                </Button>
+              </>
+            }
           </>
         }
-
         <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsView(false);
+            }}
+          >
+            Back
+          </Button>
           <Button
             variant="outline"
             onClick={() => {

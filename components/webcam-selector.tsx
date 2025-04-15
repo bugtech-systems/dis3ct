@@ -15,11 +15,13 @@ import { Delete } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { useContact } from "./providers/ContactProvider";
 
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
 const CamScreen = ({ camType }: any) => {
+    const { parentSystem, user } = useContact()
     const { record, setModal, setRefreshId, setRecord, setTab } = useComponent();
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -238,7 +240,7 @@ const CamScreen = ({ camType }: any) => {
         try {
             setMatching(true)
 
-            let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor });
+            let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor, parent: parentSystem?._id });
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)

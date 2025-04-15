@@ -42,17 +42,21 @@ export async function GET(req: NextRequest) {
             }
         ];
 
+
+
         // Execute the aggregation pipeline
         const result = await Contact.aggregate(pipeline);
 
         // Extract the arrays from the result
         const imageContacts = result[0]?.imageContacts || [];
-        const biometricContacts = result[0]?.biometricContacts || [];
+        const newContacts = result[0]?.biometricContacts || [];
+
+
 
         return NextResponse.json(
             {
                 image: imageContacts,
-                biometric: biometricContacts
+                biometric: newContacts,
             },
             { status: 200 }
         );

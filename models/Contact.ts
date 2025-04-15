@@ -79,17 +79,17 @@ const ContactSchema = new Schema<IContact>(
   }, { timestamps: true });
 
 
-ContactSchema.index({ refNum: 1 });
+// ContactSchema.index({ refNum: 1 });
 ContactSchema.index({ parNum: 1 });
 ContactSchema.index({ brgyCode: 1 });
 ContactSchema.index({ name: 1 });
-ContactSchema.index({ phone: 1 });
-ContactSchema.index({ address: 1 });
-ContactSchema.index({ marker: 1 });
+// ContactSchema.index({ phone: 1 });
+// ContactSchema.index({ address: 1 });
+// ContactSchema.index({ marker: 1 });
 ContactSchema.index({ precinct: 1 });
-ContactSchema.index({ username: 1 });
+// ContactSchema.index({ username: 1 });
 ContactSchema.index({ descriptor: 1 });
-ContactSchema.index({ "tags.timestamp": -1 });
+// ContactSchema.index({ "tags.timestamp": -1 });
 
 
 
