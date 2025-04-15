@@ -10,6 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import toast from "react-hot-toast";
 // import io from "socket.io-client";
 import { useComponent } from "./providers/ComponentContext";
@@ -19,6 +26,7 @@ import { connectSocket, getSocket } from "@/lib/socket";
 import clearFingerId from "@/actions/clearFingerId";
 import axios from "axios";
 import { convertObjectToString } from "@/lib/helpers";
+import { Delete } from "lucide-react";
 
 const scanStages = [
   "/examples/finger0.jpg", // 0-33% progress
@@ -37,7 +45,8 @@ export function ScannerForm() {
   const [fingerPrint, setFingerPrint] = React.useState(null);
   const [fingerFile, setFingerFile] = React.useState(null)
   const [fingerImage, setFingerImage] = React.useState(null)
-
+  const [fingerImages, setFingerImages] = React.useState([])
+  const [rnd, setRnd] = React.useState(0);
   let socket = getSocket()
 
 
@@ -75,20 +84,29 @@ export function ScannerForm() {
 
   const handleUpload = async () => {
     // setModal(null)
-
+    if (fingerImages.length < 3) {
+      toast.error("Please upload 3 biometric file");
+      return
+    }
 
     // const blob = await fetch(fingerFile).then(res => res.blob());
     const formData = new FormData();
-    formData.append("file", fingerImage);
+    formData.append("file", fingerImages[0]?.file);
+    formData.append("file", fingerImages[1]?.file);
+    formData.append("file", fingerImages[2]?.file);
 
-    let fingerId = convertObjectToString({ name: record.name, precinct: record.precinct, brgyCode: record.brgyCode })
 
-    const response = await fetch(`${appUrl}/api/biometrics?fingerId=${fingerId}`, {
+    const response = await fetch(`${appUrl}/api/biometrics/upload?id=${record?._id}`, {
       method: "POST",
       body: formData,
     });
     const data = await response.json();
-    console.log(data, appUrl, fingerId, 'FINGER DATA')
+    console.log(data, appUrl, 'FINGER DATA')
+    if (response.ok) {
+      setModal(null)
+      setRecord(null)
+      toast.success('Uploaded Successfully')
+    }
 
   }
 
@@ -224,9 +242,27 @@ export function ScannerForm() {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-
+    let fImages = fingerImages;
     if (file) {
+      const reader = new FileReader();
+
+
+      if (fImages.length >= 3) {
+        fImages = []
+      }
+
+
+      reader.onloadend = () => {
+        fImages.push({ file, img: reader.result });
+        setScanProgress(fImages.length);
+        setFingerImages(fImages)
+      };
+      reader.readAsDataURL(file);
+
+
       setFingerImage(file)
+      setIsEnrolling(true);
+
 
       // const reader = new FileReader();
       // reader.onloadend = () => {
@@ -243,6 +279,8 @@ export function ScannerForm() {
     console.log("🔄 Initializing scanner...");
     setIsEnrolling(false);
     setScanProgress(0);
+    setFingerImages([])
+
     socket?.emit("stop_enroll");
     socket?.emit("init");
     setBiometricRunning(true)
@@ -284,14 +322,28 @@ export function ScannerForm() {
     }
     setScanProgress(0);
     setIsEnrolling(true);
+    setFingerImages([])
     console.log(`📌 Starting fingerprint enrollment for User ID: ${record._id}`, socket, fingerPrintId);
 
     socket?.emit("enroll", { user_id: record._id, fingerPrintId });
     toast.success("Enrollment started. Scan your fingerprint.");
   };
 
+  const handleDeleteFile = (ind) => {
+    let fingers = fingerImages;
 
-  const handleDelete = (fingerId) => {
+    fingers.splice(ind, 1)
+    console.log(fingers, 'FFF')
+    setScanProgress(fingers.length)
+    setFingerImages(fingers)
+    if (!fingers.length) {
+      setIsEnrolling(false)
+    }
+    setRnd(Math.random())
+
+  };
+
+  const handleDelete = async (fingerId) => {
 
     socket = connectSocket();
 
@@ -307,8 +359,16 @@ export function ScannerForm() {
          return;
        } */
     // console.log(`📌 Starting fingerprint enrollment for User ID: ${record._id}`, socket);
+
     socket?.emit("delete_fingerprint", { user_id: record._id, fingerPrintId: fingerId });
     socket?.emit("stop_enroll");
+    const response = await fetch(`/api/biometric/clear`, {
+      method: "POST",
+      body: JSON.stringify({ contactId: record?._id })
+    });
+
+    const data = await response.json();
+    console.log(data, 'DELETE FINGER DATA')
     setScanProgress(0);
     setFingerPrint(null)
     handleFingerPrint(record._id)
@@ -325,6 +385,11 @@ export function ScannerForm() {
     if (progress == 2) return scanStages[2];
     return scanStages[3];
   };
+
+  React.useEffect(() => {
+    console.log(rnd)
+
+  }, [rnd])
 
 
   console.log(fingerPrint, fingerFile, 'FINGERPRINT')
@@ -356,17 +421,48 @@ export function ScannerForm() {
             <>
               {isEnrolling && <p>Scan Progress: {scanProgress}/3</p>}
               {isEnrolling ?
-                <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
-                  <img src={getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
-                </div>
+                fingerImages.length ?
+                  <>
+                    <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+
+                    <div className="d-flex flex-col justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
+
+                      <Carousel className="w-full max-w-xs mr-auto ml-auto">
+                        <CarouselContent>
+                          {fingerImages.map((img, index) => (
+                            <CarouselItem key={index}>
+                              <div className="d-flex w-full flex-row justify-between">
+                                <Delete
+                                  size={15}
+                                  className="float-end cursor-pointer"
+                                  onClick={() => handleDeleteFile(index)}
+                                />
+                              </div>
+                              <img src={img?.img} alt={`Captured ${index + 1}`} className="w-full rounded-lg shadow" />
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                    </div>
+                  </>
+                  :
+                  <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
+                    <img src={getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
+                  </div>
                 : fingerFile ?
                   <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
                     <img src={fingerFile ? fingerFile : getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
                   </div>
                   :
-                  <Button onClick={() => handleEnroll()} disabled={(isEnrolling)}>
-                    {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
-                  </Button>
+                  <>
+                    <input type="file" accept="image/*" onChange={handleFileChange} className="mb-4" />
+                    <Button onClick={() => handleEnroll()} disabled={(isEnrolling)}>
+                      {isEnrolling ? "Enrolling..." : "Enroll Fingerprint"}
+                    </Button>
+                  </>
+
               }
             </>
           )}
@@ -393,12 +489,12 @@ export function ScannerForm() {
               </Button>
             }
 
-            {/*  <Button
+            {fingerImages.length == 3 && <Button
               variant="outline"
               onClick={() => handleUpload()}
             >
               Save
-            </Button> */}
+            </Button>}
             <Button
               variant="outline"
               onClick={() => {
