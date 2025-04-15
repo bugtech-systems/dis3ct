@@ -55,6 +55,7 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [features, setFeatures] = React.useState([]);
+  const [host, setHost] = React.useState('');
 
   // State for dynamic location selections
   const [municipalities, setMunicipalities] = React.useState([]);
@@ -176,11 +177,11 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
     // e.preventDefault();
 
     // Validation
-    if (!phone || !name || !username || !password) {
+    if (!username || !password) {
       // toast({ title: "Error", description: "All fields are required!", status: "error" });
       // alert('Phone field is required!')
       // console.log('Phone field is required!')
-      toast.error("Phone or Name field is required!");
+      toast.error("Username or Password field is required!");
 
       return;
     }
@@ -200,7 +201,8 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
         parent: user.userType == 'system' ? user._id : parentSystem.parent,
         configs: features,
         accessCodes: [selectedBarangay],
-        port
+        port,
+        host
       }).then((resp) => {
 
         return;
@@ -412,6 +414,10 @@ export function CreateLeaderFormDialog({ contact, open, setOpen, type = 'leader'
                   <div className="space-y-2">
                     <Label htmlFor="pin">Password</Label>
                     <Input id="pin" placeholder="000000" value={password} onChange={(e) => setPassword(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Host</Label>
+                    <Input id="host" placeholder="Host" value={host || ""} onChange={(e) => setHost(e.target.value)} />
                   </div>
                   {/*  <div className="space-y-2">
                     <Label htmlFor="subscription">User Type</Label>

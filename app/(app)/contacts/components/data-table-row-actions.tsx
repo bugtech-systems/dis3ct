@@ -144,6 +144,26 @@ export function DataTableRowActions<TData>({
 
   }
 
+  const handleDeleteLeader = async () => {
+    try {
+      const response = await axios.post(`/api/users`, { action: 'delete', contactId: contact._id });
+      if (response.data) {
+        toast.success('Deleted Successfully!')
+        router.refresh();
+
+      } else {
+        toast.error("Delete Failed. Please try again.")
+      }
+    } catch (error: any) {
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred while Deleting.")
+
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    }
+
+  }
+
+
   let hasImg = contact?.tags.find(tg => tg.tagType == 'image');
   let parent = parentSystem ? parentSystem.parent : user.parent;
 
@@ -280,6 +300,17 @@ export function DataTableRowActions<TData>({
                   setModal('newLeader', contact?._id)
                 }}
               >Set Leader</DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          }
+
+          {(((findFeature(parent?.configs, 'leaders')?.value || (user?.userType == 'admin')) && contact.recordType == 'leader')) &&
+            <>
+              <DropdownMenuItem
+                onClick={() => {
+                  handleDeleteLeader()
+                }}
+              >Delete Leader Account</DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           }

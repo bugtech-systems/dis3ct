@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword, updateUser } from "@/services/userServices";
+import { registerUser, loginUser, generateOTP, verifyOTP, resetPassword, updateUser, deleteUser } from "@/services/userServices";
 import getTeams from "@/actions/getTeams";
 import { logAction } from "@/services/auditLogsService";
 
 export async function POST(req: NextRequest) {
-    const { action, userId, ...data } = await req.json();
+    const { action, userId, contactId, ...data } = await req.json();
 
     logAction(userId, action, `User Actions.`)
 
@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json(await resetPassword(data.phone, data.newPassword));
             case "update":
                 return NextResponse.json(await updateUser(userId, data));
+            case "delete":
+                return NextResponse.json(await deleteUser(contactId));
             default:
                 return NextResponse.json({ error: "Invalid action" }, { status: 400 });
         }

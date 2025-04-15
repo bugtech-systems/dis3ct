@@ -7,7 +7,6 @@ import Contact from "@/models/Contact";
 import axios from "axios";
 
 
-
 export const registerUser = async (userData: any) => {
     await connectDB();
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -43,6 +42,13 @@ export const registerUser = async (userData: any) => {
         }
         contact?.save()
     }
+
+
+    if (userData.host) {
+        await axios.post(`${process.env.APP_AUTH_URL}/api/auth/host`, { host: userData.host })
+    }
+
+
 
     await newUser.save();
 
@@ -178,6 +184,37 @@ export const updateUser = async (userId: string, data: any) => {
         }
 
 
+
+        return user;
+
+    } catch (err) {
+
+        console.log(err, 'ERRR')
+        return null
+    }
+
+};
+
+export const deleteUser = async (userId: string) => {
+
+    try {
+
+        await connectDB();
+
+        const user = await User.findOne({ contact: userId });
+        console.log(user, 'DELL USER')
+        if (!user) throw new Error("User not found");
+
+
+        await axios.post(`${process.env.APP_AUTH_URL}/api/auth/realm/delete`, { userId: user._id }).catch(err => { console.log(err); return; })
+
+        const contact = await Contact.findById(userId);
+        if (!contact) throw new Error("Contact not found");
+
+        console.log(contact, user, 'DAT')
+        contact.recordType = 'contact';
+        contact.save()
+        await User.deleteOne({ _id: user._id });
 
         return user;
 

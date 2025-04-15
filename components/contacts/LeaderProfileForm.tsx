@@ -461,12 +461,13 @@ export function LeaderProfileForm({ open, setOpen, profile }: {
                         <Label htmlFor="mobile">Port</Label>
                         <Input id="port" placeholder="COM PORT" value={port || ""} onChange={(e) => setPort(e.target.value)} />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="mobile">Host</Label>
-                        <Input id="host" placeholder="Host" value={host || ""} onChange={(e) => setHost(e.target.value)} />
-                      </div>
+
                     </>
                   }
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Host</Label>
+                    <Input id="host" placeholder="Host" value={host || ""} onChange={(e) => setHost(e.target.value)} />
+                  </div>
                 </div>
               </div>
             </TabsContent>
