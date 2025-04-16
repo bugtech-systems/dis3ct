@@ -18,6 +18,7 @@ export enum TaskCategory {
   SMS = "Sms",
   CALL = "Call",
   API = "Api",
+  AI = "Ai",
   BACKGROUND = "Background",
 }
 

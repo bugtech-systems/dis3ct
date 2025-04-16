@@ -25,7 +25,7 @@ export async function sendOTP(phone: string, otp: string): Promise<void> {
   //   to: phone,
   //   message: `Your OTP code is ${otp}`,
   // });
-  
+
   const payload = {
     recipients: [internationalizePhoneNumber(phone)], // Extract phone numbers
     message: `One Time Password: ${otp}\n Maretext App.`,

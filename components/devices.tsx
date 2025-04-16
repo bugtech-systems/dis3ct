@@ -90,7 +90,7 @@ export function DeviceForm() {
 
 
   const handleRestartGsm = async () => {
-    let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://swc.sharewin.pro/api/tasks';
+    let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://sharewin.pro/api/tasks';
 
     let systemResp = await axios.get(`/api/contacts/save/system/${parentSystem?.phone}`);
     if (systemResp.data) {

@@ -7,28 +7,28 @@ import dbConnect from "@/lib/mongodb";
  * @returns {Promise<{ success: boolean; data?: ISystem; error?: string }>}
  */
 export const createSystem = async (
-    data: Partial<ISystem>
-  ): Promise<{ success: boolean; data?: ISystem; error?: string }> => {
-    try {
-      await dbConnect();
-  
-      // Check if an active system with the same number already exists
-      const existingSystem = await System.findOne({ number: data.number, isActive: true });
-      if (existingSystem) {
-        return {
-          success: false,
-          error: `An active system with the number "${data.number}" already exists.`,
-        };
-      }
-  
-      // Create the new system
-      const newSystem = new System(data);
-      const savedSystem = await newSystem.save();
-      return { success: true, data: savedSystem };
-    } catch (error: any) {
-      return { success: false, error: error.message || "Failed to create system" };
+  data: Partial<ISystem>
+): Promise<{ success: boolean; data?: ISystem; error?: string }> => {
+  try {
+    await dbConnect();
+
+    // Check if an active system with the same number already exists
+    const existingSystem = await System.findOne({ number: data.number, isActive: true });
+    if (existingSystem) {
+      return {
+        success: false,
+        error: `An active system with the number "${data.number}" already exists.`,
+      };
     }
-  };
+
+    // Create the new system
+    const newSystem = new System(data);
+    const savedSystem = await newSystem.save();
+    return { success: true, data: savedSystem };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to create system" };
+  }
+};
 
 /**
  * Get all Systems.

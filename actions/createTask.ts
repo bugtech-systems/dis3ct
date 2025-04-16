@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let apiUrl = process.env.TASK_URL ?? `https://swc.sharewin.pro/api/tasks`
+let apiUrl = process.env.TASK_URL || `https://sharewin.pro/api/tasks`
 
 const createTask = async (api_url, data): Promise<any[]> => {
 

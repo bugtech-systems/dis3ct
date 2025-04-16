@@ -46,7 +46,7 @@ export const POST = async (req: NextRequest) => {
       let tagExist = newTags?.find(tag => (String(tag?.user) == String(authUser?._id) && tag.value == type))
 
       // newTags = newTags.filter(tag => String(tag.user) !== String(authUser._id));
-      if(tagExist){
+      if (tagExist) {
         newTags = newTags.filter(tag => String(tag._id) != String(tagExist._id));
       } else {
         newTags.push({ tagType: 'tag', user: authUser._id, value: type });

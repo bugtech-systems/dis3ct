@@ -129,7 +129,7 @@ export default function PlaygroundPage() {
                 await createTask(null, {
                     status: 'Todo',
                     priority: 'High',
-                    category: 'Api',
+                    category: 'Ai',
                     title: 'Chat AI',
                     system: parent.phone,
                     taskObject: JSON.stringify({

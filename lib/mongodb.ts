@@ -2,8 +2,10 @@
 import mongoose from 'mongoose';
 
 
-const MONGODB_URI = (process.env.MONGODB_URI || 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/tacloban-db');
+const MONGODB_URI = 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/tacloban-db';
 
+
+console.log(MONGODB_URI, "MONGOD")
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable in .env.local');
 }

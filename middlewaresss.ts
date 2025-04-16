@@ -11,7 +11,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = authHeader.split(' ')[1];
-//   const decoded = verifyToken(token);
+  //   const decoded = verifyToken(token);
 
 
 
@@ -19,12 +19,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.json({ message: 'Invalid or expired token' }, { status: 403 });
   }
 
-//   await connectToDatabase();
-//   const user = await Contact.findById(token).select('-otpCode');
+  //   await connectToDatabase();
+  //   const user = await Contact.findById(token).select('-otpCode');
 
-//   if (!user) {
-//     return NextResponse.json({ message: 'User not found' }, { status: 404 });
-//   }
+  //   if (!user) {
+  //     return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  //   }
 
   req.headers.set('Auth-User', token);
 
@@ -35,6 +35,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-  '/api/contacts',
-  '/contacts', '/playground', '/tasks'], // Add all routes that require authentication
+    '/api/contacts',
+    '/contacts', '/playground', '/tasks'], // Add all routes that require authentication
 };
