@@ -43,7 +43,6 @@ export function PresetSave() {
 
   const handleSavePreset = async () => {
     // e.preventDefault()
-    console.log(selectedPreset, 'SELECTED')
     try {
       if (selectedPreset && selectedPreset.id) {
         let resp = await axios.patch(`/api/presets/${selectedPreset.id}`, { ...selectedPreset, system: system.phone });

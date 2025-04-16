@@ -104,9 +104,6 @@ class PromptService {
 
 
 
-            console.log(convertQuillToPlainText(systemInstruction))
-            console.log(sampleConversations)
-            console.log(prompt)
             const response = await Ollama.chat({
                 model: preset?.modelName || 'llama3.1',
                 messages: [

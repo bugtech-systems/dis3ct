@@ -118,7 +118,6 @@ export function DeviceForm() {
   const handleRestartTemplates = async () => {
 
     let systemResp = await axios.post(`/api/biometric/clear`, { parent: parentSystem._id });
-    console.log(systemResp, 'RES')
     handleSyncables()
 
   }
@@ -129,12 +128,10 @@ export function DeviceForm() {
 
 
     let parent = user?.parent ? (user?.parent || user?.parent?._id) : (parentSystem?.parent || parentSystem?.parent?._id)
-    console.log(parent, 'PARENT')
     const response = await fetch(`/api/public/syncs?parent=${parent?._id || parent}`, {
       method: "GET"
     });
     const data = await response.json();
-    console.log(data, 'SYNC ')
     if (data) {
       let { image, biometric } = data;
       let syncs = []
@@ -159,10 +156,8 @@ export function DeviceForm() {
 
   async function extractFaceDescriptor(imageUrl) {
     // Fetch the image
-    console.log(imageUrl, 'IMG')
     if (!modelsLoaded) return console.log('model not loaded!')
     const img = await faceapi.fetchImage(STATIC_URL + imageUrl);
-    console.log(imageUrl, 'IMG')
 
     // Detect face in the image and extract face descriptor
     const detections = await faceapi.detectSingleFace(img)
@@ -308,10 +303,6 @@ export function DeviceForm() {
   React.useEffect(() => {
     loadModels();
   }, []);
-
-
-
-
 
 
 

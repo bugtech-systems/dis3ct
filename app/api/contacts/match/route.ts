@@ -31,7 +31,6 @@ export async function POST(
         const { descriptor, parent } = await req.json();
 
 
-        console.log(parent, 'PARRR')
 
         if (!descriptor) {
             return NextResponse.json({ error: "No face detected" }, { status: 400 });
@@ -101,7 +100,6 @@ export async function POST(
                 const distance = euclideanDistance(queryDescriptor, doc.descriptor);
                 if (distance < lowestDistance) {
                     lowestDistance = distance;
-                    console.log(distance, 'DIST', doc.name)
                     bestMatch.push(doc);
                 }
             });

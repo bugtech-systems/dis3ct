@@ -141,7 +141,6 @@ export const updatePreset = async (
 ): Promise<{ success: boolean; data?: IAiPreset; error?: string }> => {
   try {
     await dbConnect();
-    console.log(data, 'PRESET DATA')
     const updatedPreset = await AiPreset.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,

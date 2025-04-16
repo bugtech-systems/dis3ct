@@ -249,23 +249,7 @@ export default function PlaygroundPage() {
 
 
     const handleSavePreset = async () => {
-        console.log(preset, 'PRESET', {
-            // ...selectedPreset,
-            systemBehavior: selectedPreset?.systemBehavior,
-            modelName: selectedPreset?.modelName,
-            aiTemperature: selectedPreset?.temperature,
-            aiTopP: selectedPreset?.topP,
-            aiMaxLength: selectedPreset?.maxTokens,
-            instruction: selectedPreset?.instruction
-        }, {
-            // ...selectedPreset,
-            systemBehavior: selectedPreset?.systemBehavior,
-            modelName: selectedPreset?.modelName,
-            aiTemperature: selectedPreset?.temperature,
-            aiTopP: selectedPreset?.topP,
-            aiMaxLength: selectedPreset?.maxTokens,
-            instruction: selectedPreset?.instruction
-        })
+
         try {
             if (selectedPreset && selectedPreset?._id) {
                 let resp = await axios.patch(`/api/presets/${selectedPreset?._id}`, {

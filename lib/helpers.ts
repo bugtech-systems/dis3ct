@@ -516,7 +516,6 @@ export function convertObjectToString(obj: any): string {
   }
 
 
-  console.log(newObj, 'NEW OBJ')
   return Object.values(newObj)
     .map(value => value?.toLowerCase().replace(/\s+/g, '-'))  // Convert to lowercase and replace spaces with '-'
     .join('_');  // Join the values with '_'

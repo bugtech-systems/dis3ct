@@ -1,7 +1,8 @@
 // lib/dbConnect.ts
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fingerprintDB';
+
+const MONGODB_URI = (process.env.MONGODB_URI || 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/tacloban-db');
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable in .env.local');
@@ -48,7 +49,7 @@ async function connectToDatabase() {
     cached.promise = null;
     throw error;
   }
-
+  console.log(process.env.MONGODB_URI, `Connected: ${MONGODB_URI}`)
   return cached.conn;
 }
 

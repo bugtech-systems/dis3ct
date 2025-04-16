@@ -36,7 +36,6 @@ export function TeamSwitchers({
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
 
   const handleSystems = async (e: any) => {
-    console.log(e, 'EE')
     setActiveTeam(e)
     // setTeams([])
     // setSystem(e)

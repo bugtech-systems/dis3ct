@@ -376,7 +376,6 @@ export const POST = async (req: NextRequest,
 
 
 
-    console.log(recentConversations, 'RECENT', newConvos)
 
     // Create the prompt templates
     const finalTemperature = temperature ?? preset?.aiTemperature;
@@ -404,7 +403,6 @@ export const POST = async (req: NextRequest,
 
 
 
-      console.log(newSystem, 'NEW SYSTEM')
 
 
 
@@ -447,7 +445,6 @@ export const POST = async (req: NextRequest,
     });
 
 
-    console.log(finalModelName ?? "llama3.1", 'MODEL')
 
 
     let newResponse = {

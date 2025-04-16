@@ -202,7 +202,6 @@ export const deleteUser = async (userId: string) => {
         await connectDB();
 
         const user = await User.findOne({ contact: userId });
-        console.log(user, 'DELL USER')
         if (!user) throw new Error("User not found");
 
 
@@ -211,7 +210,6 @@ export const deleteUser = async (userId: string) => {
         const contact = await Contact.findById(userId);
         if (!contact) throw new Error("Contact not found");
 
-        console.log(contact, user, 'DAT')
         contact.recordType = 'contact';
         contact.save()
         await User.deleteOne({ _id: user._id });
@@ -232,7 +230,6 @@ export const signUpAppUser = async (data: any) => {
     try {
 
         let user = await axios.post(`${process.env.APP_AUTH_URL}/api/auth/realm/register`, data)
-        console.log(user, 'USER')
 
         return true;
 

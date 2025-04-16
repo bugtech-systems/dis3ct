@@ -61,7 +61,6 @@ export const getLeaderDashboard = async (id): Promise<any> => {
         .lean(), // ✅ Convert to plain objects
     ]);
 
-    console.log(options, 'OPTIONS', user)
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
     const barangay = await Contact.find(options).select("name brgyCode tags").lean(); // ✅ Use .lean()

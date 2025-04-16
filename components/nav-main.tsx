@@ -25,16 +25,16 @@ const navAdmin = [
     icon: BookOpen,
     badge: "10",
   },
-  // {
-  //   title: "Ask AI",
-  //   url: "/playground",
-  //   icon: Sparkles,
-  // },
-  // {
-  //   title: "Tasks",
-  //   url: "/tasks",
-  //   icon: Settings2,
-  // },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
+  {
+    title: "Tasks",
+    url: "/tasks",
+    icon: Settings2,
+  },
 ]
 
 const navSystem = [
@@ -50,11 +50,11 @@ const navSystem = [
     icon: BookOpen,
     badge: "10",
   },
-  // {
-  //   title: "Ask AI",
-  //   url: "/playground",
-  //   icon: Sparkles,
-  // },
+  {
+    title: "Ask AI",
+    url: "/playground",
+    icon: Sparkles,
+  },
 ]
 
 

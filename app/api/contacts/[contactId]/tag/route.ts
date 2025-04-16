@@ -48,7 +48,6 @@ export const POST = async (
     // newTags = newTags.filter(tag => String(tag.user) != String(authUser._id) );
 
 
-    console.log(tagExist)
 
     if (tagExist) {
       // if(tagExist)
@@ -64,7 +63,6 @@ export const POST = async (
       //   isTag = true;
       // }
 
-      console.log(newTags, 'NEW')
 
 
     } else {

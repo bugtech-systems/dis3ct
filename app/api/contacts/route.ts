@@ -154,7 +154,6 @@ export async function GET(req: NextRequest) {
 
     }
 
-    console.log(query, 'QUE')
     // Search functionality
     if (search) {
       const searchLower = search.trim().toLowerCase();

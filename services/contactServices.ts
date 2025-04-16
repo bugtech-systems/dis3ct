@@ -285,7 +285,6 @@ export const optInContact = async (
       await mobile.save()
     }
 
-    console.log(mobile, contact, systemContact, 'MOBBB')
 
     return { success: true };
   } catch (error: any) {

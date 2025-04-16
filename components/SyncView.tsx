@@ -35,7 +35,6 @@ export function SyncView({ className, data, onBack }: any) {
 
     let newData = {};
 
-    console.log(data, 'SYNCABLES')
     data.sort((a, b) => a.name.localeCompare(b.name)); // Sort by age ascending
 
     data.forEach(a => {

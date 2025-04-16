@@ -106,7 +106,6 @@ export const PlaygroundProvider: React.FC<PlaygroundProviderProps> = ({
   useEffect(() => {
 
     if (selectedPreset) {
-      console.log(selectedPreset, 'SELECTED')
       setPreset(selectedPreset)
       getConversations()
 
