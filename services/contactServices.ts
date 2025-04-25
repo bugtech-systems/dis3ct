@@ -3,6 +3,7 @@ import dbConnect from "@/lib/mongodb";
 import AiPreset from "@/models/AiPreset";
 import Contact, { IContact } from "@/models/Contact";
 import Mobile, { IMobile } from "@/models/Mobile";
+import Resource from "@/models/Resource";
 import User from "@/models/User";
 
 /**
@@ -168,7 +169,7 @@ export const getContactMobile = async (
 
     const systemData = await User.findOne({ phone: sanitizePhoneNumber(system), userType: 'system' });
     if (systemData) {
-      options.system = systemData._id
+      options.system = sanitizePhoneNumber(system)
     }
 
     const mobile = await Mobile.findOne(options);;
@@ -266,16 +267,9 @@ export const optInContact = async (
 
 
 
-    const updatedContact = await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number), parNum: systemContact?._id },
-      { subscribed: true },
-      { new: true, runValidators: true }
-    );
-
-
     let mobile = await Mobile.findOne({
       phone: sanitizePhoneNumber(number),
-      system: systemContact?._id
+      system: sanitizePhoneNumber(system)
     });
 
 
@@ -329,21 +323,15 @@ export const optOutContact = async (
 
 
 
-    await Contact.findOneAndUpdate(
-      { phone: sanitizePhoneNumber(number), parNum: systemContact?._id },
-      { subscribed: false },
-      { new: true, runValidators: true }
-    );
-
-
     let mobile = await Mobile.findOne({
       phone: sanitizePhoneNumber(number),
-      system: systemContact?._id
+      system: sanitizePhoneNumber(system)
     });
 
 
     if (mobile) {
       mobile.subscribedAt = null;
+      mobile.activeIntent = null;
       await mobile.save()
     }
 
@@ -364,6 +352,36 @@ export const setContactPreset = async (
     const updatedContact = await Contact.findOneAndUpdate(
       { phone: sanitizePhoneNumber(number) },
       { activePreset: preset },
+      { new: true, runValidators: true }
+    );
+    if (!updatedContact) {
+      return { success: false, error: "Contact not found" };
+    }
+    return { success: true, data: updatedContact };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to opt-out contact" };
+  }
+};
+
+
+export const setMobileIntent = async (
+  number: string | null,
+  system: string,
+  intent: string | null
+): Promise<{ success: boolean; data?: IContact; error?: string }> => {
+  try {
+    await dbConnect();
+
+    const intentData = await Resource.findOne({ type: 'intent', value: intent, system: sanitizePhoneNumber(system) }).lean()
+
+
+    if (!intentData) {
+      intent = 'alayon_help';
+    }
+
+    const updatedContact = await Mobile.findOneAndUpdate(
+      { phone: sanitizePhoneNumber(number), system: sanitizePhoneNumber(system) },
+      { activeIntent: intent },
       { new: true, runValidators: true }
     );
     if (!updatedContact) {

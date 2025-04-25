@@ -50,21 +50,8 @@ export const POST = async (req: NextRequest) => {
     if (record) {
 
 
-      let mobile = await Mobile.findOne({ phone: newPhone, contact: record, user: userId }) as any;
-
-      if (!mobile) {
-        mobile = await Mobile.create({
-          phone,
-          contact: record,
-          user: userId
-        })
 
 
-
-
-      }
-
-      let newTags = updateOrPushObject(record?.tags, { value: newPhone, tagType: 'phone', user: user?._id })
 
       record['phone'] = newPhone;
       await record.save()

@@ -350,7 +350,7 @@ export function DeviceForm() {
               </>
             }
 
-            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+            {(user?.userType == 'admin' || (findFeature(parentSystem?.configs, 'biometric' || findFeature(parentSystem?.configs, 'image').value))) &&
               <>
                 <div className="d-flex flex-row justify-around">
                   <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView(true)} className="float-end clickable text-blue">View</button>

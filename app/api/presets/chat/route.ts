@@ -1,5 +1,6 @@
 import { cleanJsonObject, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
-import { getContactByNumber, getContactMobile, optInContact, optOutContact, updateContact } from '@/services/contactServices';
+import { getContactByNumber, getContactMobile, optInContact, optOutContact, setMobileIntent, updateContact } from '@/services/contactServices';
+import { createInteraction } from '@/services/interactionServices';
 import { getPresetByValue } from '@/services/presetServices';
 import PromptService from '@/services/promptService';
 import axios from 'axios';
@@ -32,7 +33,7 @@ const handleCall = async ({ phone, system }: { phone?: string; system?: string; 
 
 const handleNewMessage = async ({ message, sender, system, isFlash = false }: { message?: string; sender?: string; isFlash?: boolean; system?: string; }) => {
 
-  let apiUrl = `http://localhost:3000/api/tasks`
+  let apiUrl = `http://192.168.1.150:3000/api/tasks`
 
 
   let resp = await axios.post(apiUrl, {
@@ -61,7 +62,7 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
 async function processApiResponse(response: any) {
 
   try {
-    let { system, sender } = response;
+    let { system, sender, preset, status, userInput, content } = response;
     let contact: any;
     sender = sender ? sender : system;
     let senderContact = await getContactByNumber(sanitizePhoneNumber(sender), sanitizePhoneNumber(system));
@@ -69,40 +70,42 @@ async function processApiResponse(response: any) {
     if (senderContact.data) {
       contact = senderContact.data;
     }
-    if (response && isParsableObject(cleanJsonObject(response.content))) {
-      let contentData = JSON.parse(cleanJsonObject(response.content))
+    if (content && isParsableObject(cleanJsonObject(content))) {
+      let contentData = JSON.parse(cleanJsonObject(content))
 
-      if (contentData.actions?.includes("subscribed"))
-
-
-        if (contentData.actions?.includes("subscribed")) {
-          //  await contactService.optIn(contact.phone)
-          let optRes = await optInContact(sender, system);
-        } else if (contentData.actions?.includes("unsubscribe")) {
-          // let res = await contactService.optOut(contact.phone)
+      await setMobileIntent(sender, system, contentData?.intent)
 
 
-          let optRes = await optOutContact(sender, system);
+      if (contentData.actions?.includes("subscribed")) {
+        //  await contactService.optIn(contact.phone)
+        await optInContact(sender, system);
+      } else if (contentData.actions?.includes("unsubscribe")) {
+        // let res = await contactService.optOut(contact.phone)
+        await optOutContact(sender, system);
+      }
+
+
+      status = contentData.actions?.includes("flash") ? 'flash' : status
+      console.log(status, 'SMS STATUS')
+      if (status && (status == 'flash' || status == 'Sms')) {
+
+        if (contentData.actions?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
+          await handleCall({
+            phone: contentData?.phone ? contentData?.phone : sender,
+            system
+          })
         }
 
-
-
-
-      if (contentData.actions?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
-        await handleCall({
-          phone: contentData?.phone ? contentData?.phone : sender,
-          system
-        })
+        if (contentData.actions?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
+          await handleNewMessage({
+            sender,
+            message: contentData.message,
+            system,
+            isFlash: status == 'flash' ? true : false
+          })
+        }
       }
 
-      if (contentData.actions?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
-
-        await handleNewMessage({
-          sender,
-          message: contentData.message,
-          system
-        })
-      }
 
       if (contentData.actions?.includes("API")) {
         let { userData } = contentData;
@@ -129,6 +132,18 @@ async function processApiResponse(response: any) {
         //   },
         // })
       }
+
+      // Log interaction for tracking AI responses
+      await createInteraction({
+        contact: sanitizePhoneNumber(sender),
+        system: sanitizePhoneNumber(system),
+        ...(preset ? { preset: preset?._id } : {}),
+        inputText: userInput,
+        responseText: content,
+        intent: contentData?.intent
+      });
+
+
     } else {
       let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
 
@@ -149,7 +164,7 @@ async function processApiResponse(response: any) {
 export const POST = async (req: NextRequest) => {
   try {
 
-    const { message, sender, system, preset, status } = await req.json();
+    const { message, sender, system, preset, status, withSms } = await req.json();
     let contact;
     let presetData;
     let response;
@@ -180,19 +195,22 @@ export const POST = async (req: NextRequest) => {
 
 
     let mobile = await getContactMobile(sender ? sender : system, system)
-    if (!mobile.success || !mobile?.data?.subscribedAt) {
+    if (mobile?.data && !mobile?.data?.subscribedAt) {
       const defaultPreset = await getPresetByValue('opting');
-
       presetData = defaultPreset.data;
       response = await PromptService.generateOptResponse({ message, sender, system, status, mobile, preset: presetData })
+    } else if (mobile && mobile?.data?.activeIntent == 'alayon_hotline') {
+      response = await PromptService.generatePromptResponse({ message, sender, system, preset: presetData, mobile, status })
     } else {
-      response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
+      response = await PromptService.generatePromptResponse({ message, sender, system, preset: presetData, mobile, status })
+
+      // response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
     }
 
 
 
 
-    await processApiResponse({ sender, system, content: response })
+    await processApiResponse({ sender, system, content: response, status, preset: presetData, userInput: message })
 
     // let respData = JSON.parse(cleanJsonObject(response));
     // let smsTemp = getSMSTemplate(respData)

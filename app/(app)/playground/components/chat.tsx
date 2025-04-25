@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { convertQuillToPlainText, convertRichTextToPlain, textToQuillHTML } from "@/lib/helpers";
+import { convertQuillToPlainText, convertRichTextToPlain, sanitizePhoneNumber, textToQuillHTML } from "@/lib/helpers";
 import ReadText from "@/components/playground/components/ReadText";
 import RichEditor from "@/components/playground/components/RichEditor";
 import { usePlayground } from "@/components/providers/PlaygroundProvider";
@@ -44,11 +44,14 @@ interface ChatProps {
 
 export function CardsChat({ messages }: ChatProps) {
   const { presets, selectedPreset, selectedContact, setMessages } = usePlayground();
-  const { user, system } = useContact();
+  const { user, system, parentSystem } = useContact();
   const [open, setOpen] = React.useState(false);
   const [selectedMessage, setSelectedMessage] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [resources, setResources] = React.useState([]);
+
   const chatContainerRef = React.useRef(null);
+
 
   // Function to fetch conversations
   const getConversations = async () => {
@@ -100,7 +103,8 @@ export function CardsChat({ messages }: ChatProps) {
       responseText: convertQuillToPlainText(selectedMessage?.responseText || ""),
       feedback: { correction: convertQuillToPlainText(selectedMessage?.feedback?.correction || "") },
       preset: selectedMessage?.preset,
-      status: selectedMessage?.status
+      status: selectedMessage?.status,
+      intent: selectedMessage?.intent
     }).catch(err => {
       console.log(err)
     });
@@ -114,6 +118,27 @@ export function CardsChat({ messages }: ChatProps) {
     }
   }
 
+  const handleGetResources = async () => {
+    let response = await axios.get(`/api/system/${sanitizePhoneNumber(parentSystem?.phone)}/resources`).catch((err) => { return null })
+
+    console.log(response?.data, 'RESOURCES')
+    if (response?.status == 200) {
+      setResources(response.data)
+    } else {
+      setResources([])
+    }
+  }
+
+
+  React.useEffect(() => {
+    if (parentSystem) {
+      handleGetResources()
+    }
+
+  }, [parentSystem])
+
+
+  console.log(selectedMessage, 'SELCT', resources)
 
 
   return (
@@ -223,6 +248,36 @@ export function CardsChat({ messages }: ChatProps) {
                 setSelectedMessage({ ...selectedMessage, feedback: { ...selectedMessage.feedback, correction: e } })
               }
             /> */}
+            <div className="space-y-2 pr-2 flex-grow">
+              <Label htmlFor="preset">Intent</Label>
+              <Select onValueChange={(e) => {
+                console.log(e, 'EE')
+                setSelectedMessage({ ...selectedMessage, intent: e })
+                // setActiveResource(e)
+                // setResourceData(e)
+              }
+              } value={(selectedMessage?.intent)} >
+
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a preset" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(selectedMessage && selectedMessage?.intent) && (
+                    <SelectItem value={null}>
+                      <span className="font-medium">Clear Selected</span>
+                    </SelectItem>)
+                  }
+                  {resources.map((preset: any, index: any) => {
+                    return (
+                      <SelectItem value={preset?.value} key={index}>
+                        <span className="font-medium">{preset.title}</span>
+                      </SelectItem>
+                    )
+                  })
+                  }
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="flex flex-row justify-around">
               <div className="space-y-2 pr-2 flex-grow">

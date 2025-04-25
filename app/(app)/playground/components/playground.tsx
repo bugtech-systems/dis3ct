@@ -42,26 +42,26 @@ import { ContactSelector } from "./contact-selector"
 import { Switch } from "@/components/ui/switch"
 import createTask from "@/actions/createTask"
 import { PresetShare } from "./preset-share"
+import { sanitizePhoneNumber } from "@/lib/helpers"
 
 let nextUrl = process.env.ALAYON_NEXT || `http://localhost:3000`
 const statuses = ["pending", "default", "closed"]
 
 export default function PlaygroundPage() {
     const [isLoading, setLoading] = useState(false);
-    const [status, setStatus] = useState('pending');
+    const [status, setStatus] = useState<any>(null);
     const [instruction, setInstruction] = useState('');
     const [tab, setActiveTab] = useState('insert')
     const [isTask, setIsTask] = useState(false);
+    const [withSms, setWithSms] = useState(false);
     const { presets, selectedContact, messages, setMessages, userMessage, setUserMessage, selectedPreset, setSelectedPreset, preset, setPreset } = usePlayground();
     const { user, system, parentSystem } = useContact();
     const parent = (parentSystem && parentSystem?.parent?._id) ? parentSystem.parent : parentSystem
 
-    // const handleAddMessage = async (message: any) => {
-
-    //   if(selectedPreset){
-    //     await axios.post(`/api/conversations`, message);
-    //   }
-    // }
+    const clearConversations = async (message: any) => {
+        await axios.get(`/api/interactions/clear?system=${sanitizePhoneNumber(parent?.phone)}&phone=${sanitizePhoneNumber(selectedContact?.phone || parent?.phone)}`);
+        await getConversations()
+    }
 
     const getConversations = async () => {
         try {
@@ -72,7 +72,7 @@ export default function PlaygroundPage() {
             const queryParams = {
                 contact: tab != 'insert' ? null : selectedContact?.phone || parent?.phone,
                 system: parent?.phone,
-                preset: selectedPreset?._id,
+                ...(selectedPreset?._id ? { preset: selectedPreset?._id } : {}),
                 status: stat
             };
 
@@ -143,7 +143,8 @@ export default function PlaygroundPage() {
                             message: userMessage,
                             status,
                             ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),
-                            instruction: selectedPreset?.instruction
+                            instruction: selectedPreset?.instruction,
+                            withSms
                             /* instruction */
                         }
                     })
@@ -320,8 +321,8 @@ export default function PlaygroundPage() {
               <CodeViewer />
               <PresetShare />
             </div> */}
-                        {/* <PresetActions  /> */}
-                        <PresetShare />
+                        <PresetActions />
+                        {/* <PresetShare /> */}
                     </div>
                 </div>
                 <Separator />
@@ -516,6 +517,16 @@ export default function PlaygroundPage() {
                                         <Switch id="flash-message" checked={isTask} onCheckedChange={setIsTask} /> Task Process
                                     </Label>
                                 </div>
+                                <div className="flex items-center">
+                                    <Label htmlFor="withSms" className="flex items-center gap-2 text-xs font-normal">
+                                        <Switch id="withSms" checked={status == 'Sms'} onCheckedChange={(e) => setStatus(e ? 'Sms' : null)} /> Sms Process
+                                    </Label>
+                                </div>
+                                <div className="flex items-center">
+                                    <Label htmlFor="withSms" className="flex items-center gap-2 text-xs font-normal">
+                                        <Switch id="withSms" checked={status == 'flash'} onCheckedChange={(e) => setStatus(e ? 'flash' : null)} /> Flash Sms
+                                    </Label>
+                                </div>
                             </div>
                             <div className="max-h-[300px] md:order-1">
                                 <TabsContent value="complete" className="mt-0 border-0 p-0">
@@ -561,11 +572,16 @@ export default function PlaygroundPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Button disabled={isLoading} onClick={() => handleMessageSubmit()}>Submit</Button>
-                                            <Button disabled={isLoading} variant="secondary" onClick={() => getConversations()}>
-                                                <span className="sr-only">Show history</span>
-                                                <RotateCcw />
+                                        <div className="w-full flex items-center space-x-2">
+                                            <div className="flex-grow">
+                                                <Button disabled={isLoading} onClick={() => handleMessageSubmit()}>Submit</Button>
+                                                <Button disabled={isLoading} variant="secondary" onClick={() => getConversations()}>
+                                                    <span className="sr-only">Show history</span>
+                                                    <RotateCcw />
+                                                </Button>
+                                            </div>
+                                            <Button disabled={isLoading} variant="secondary" onClick={() => clearConversations()}>
+                                                Clear
                                             </Button>
                                         </div>
                                     </div>

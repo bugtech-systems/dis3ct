@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Fingerprint WebAPI Test App</title>
+    <link rel="stylesheet" href="/css/bootstrap-min.css">
+    <link rel="stylesheet" href="/app.css" type="text/css" />
+</head>
+
+<body>
+    <div id="Container">
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a href="/">
+                        <div class="navbar-brand" style="color: white;">Fingerprint WebAPI</div>
+                    </a>
+                </div>
+                <div class="navbar-form navbar-left">
+                    <select class="form-control" id="readersDropDown" onchange="selectChangeEvent()">
+                        <option value="">Loading readers...</option>
+                    </select>
+                    <button onClick="readersDropDownPopulate(false)">Refresh</button>
+                </div>
+            </div>
+        </nav>
+
+        <div id="content-capture">
+            <h5>
+                Full Name:
+                <span id="fullName"></span>
+            </h5>
+            <h5>
+                Precinct:
+                <span id="precinct"></span>
+            </h5>
+            <div id="name"></div>
+
+            <div id="status"></div>
+            <div id="imagediv"></div>
+
+            <div id="Scores" style="margin-top: 10px;">
+                <h5>Scan Quality:
+                    <input type="text" id="qualityInputBox" size="20" readonly
+                        style="background-color:#DCDCDC;text-align:center;">
+                </h5>
+            </div>
+
+            <div id="contentButtons" style="margin-bottom: 10px;">
+                <table width="100%" align="center">
+                    <tr>
+                        <td><input type="button" class="btn btn-primary" id="clearButton" value="Clear"
+                                onclick="onClear()"></td>
+                        <td><input type="button" class="btn btn-primary" id="save" value="Save">
+                        </td>
+                        <td><input type="button" class="btn btn-primary" id="start" value="Start" onclick="onStart()">
+                        </td>
+                        <td><input type="button" class="btn btn-primary" id="stop" value="Stop" onclick="onStop()">
+                        </td>
+                        <td><input type="button" class="btn btn-success" id="submit" value="Submit"
+                                onclick="onImageDownload()"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="imageGallery" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+
+            <div id="deviceInfo"></div>
+            <!--  -->
+            <div id="saveAndFormats" style="margin-top: 20px;">
+                <form name="myForm" style="border: solid grey; padding: 5px;">
+                    <b>Acquire Formats:</b><br>
+                    <label><input type="checkbox" name="Raw" value="1" onclick="checkOnly(this)"> RAW</label><br>
+                    <label><input type="checkbox" name="Intermediate" value="2" onclick="checkOnly(this)"> Feature
+                        Set</label><br>
+                    <label><input type="checkbox" name="Compressed" value="3" onclick="checkOnly(this)"> WSQ</label><br>
+                    <label><input type="checkbox" name="PngImage" value="4" checked onclick="checkOnly(this)">
+                        PNG</label>
+                </form>
+
+                <!-- <br> -->
+                <!-- <input type="button" class="btn btn-primary" id="saveImagePng" value="Export" -->
+                <!-- onclick="onImageDownload()"> -->
+                <!--  -->
+                <!-- <select id="fingerprintTypeDropdown" class="form-control" style="margin-top: 10px;"> -->
+                <!-- <option value="">Loading options...</option> -->
+                <!-- </select> -->
+            </div>
+        </div>
+
+        <div id="content-reader" style="margin-top: 40px;">
+            <!-- <h4>Search Reader at Bottom:</h4> -->
+            <!-- <div id="readerDivButtons"> -->
+            <!-- <table width="70%" align="center"> -->
+            <!-- <tr> -->
+            <!-- <td><input type="button" class="btn btn-primary" id="refreshList" value="Refresh List" -->
+            <!-- onclick="readersDropDownPopulate(false)"></td> -->
+            <!-- <td><input type="button" class="btn btn-primary" id="capabilities" value="Capabilities" -->
+            <!-- data-toggle="modal" data-target="#myModal" onclick="populatePopUpModal()"></td> -->
+            <!-- </tr> -->
+            <!-- </table> -->
+            <!-- </div> -->
+
+            <!-- Modal -->
+            <!-- <div class="modal fade" id="myModal" role="dialog"> -->
+            <!-- <div class="modal-dialog"> -->
+            <!-- <div class="modal-content" id="modalContent"> -->
+            <!-- <div class="modal-header"> -->
+            <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+            <!-- <h4 class="modal-title">Reader Information</h4> -->
+            <!-- </div> -->
+            <!-- <div class="modal-body" id="ReaderInformationFromDropDown"></div> -->
+            <!-- <div class="modal-footer"> -->
+            <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+            <!-- </div> -->
+            <!-- </div> -->
+            <!-- </div> -->
+            <!-- </div> -->
+        </div>
+    </div>
+
+
+    <script src="/lib/jquery.min.js"></script>
+    <script src="/lib/bootstrap.min.js"></script>
+    <script src="/scripts/es6-shim.js"></script>
+    <script src="/scripts/websdk.client.bundle.min.js"></script>
+    <script src="/scripts/fingerprint.sdk.min.js"></script>
+    <script src="/app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const pageId = getQueryParam("id");
+            if (!pageId) {
+                alert("Missing 'id' in URL");
+                return;
+            }
+            loadDropdownOptions(pageId);
+            readersDropDownPopulate(false)
+        });
+
+
+
+        function onSaveImage() {
+            const gallery = document.getElementById('imageGallery');
+            if (gallery.children.length >= 3) {
+                alert('You can only save up to 3 fingerprint images.');
+                return;
+            }
+
+            // Example image generation (replace with real image logic)
+            const img = document.createElement('img');
+            img.src = 'data:image/png;base64,...'; // your fingerprint data
+            img.style.width = '100px';
+            img.style.height = '100px';
+            gallery.appendChild(img);
+        }
+
+
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+        async function loadDropdownOptions(pageId) {
+            try {
+                const fullName = document.getElementById("fullName");
+                const precinct = document.getElementById("precinct");
+
+                // dropdown.innerHTML = ;
+
+                const response = await fetch(`http://localhost:3500/api/contacts/scan/${encodeURIComponent(pageId)}`).
+                    then(res => res.json())
+                    .then(data => {
+                        console.log(data, 'DATA')
+                        fullName.innerHTML = data.name;
+                        precinct.innerHTML = data.precinct;
+                        // const option = document.createElement("option");
+                        // option.value = item.id;
+                        // option.textContent = item.name;
+                        // dropdown.appendChild(option);
+                    })
+
+
+
+
+            } catch (err) {
+                console.error("Error loading dropdown:", err);
+                document.getElementById("fingerprintTypeDropdown").innerHTML =
+                    "<option value=''>Failed to load options</option>";
+            }
+        }
+        function onImageDownload() {
+            const pageId = getQueryParam("id");
+
+            // const dropdown = document.getElementById("fingerprintTypeDropdown");
+            // const selectedId = dropdown.value;
+
+            if (!pageId) {
+                alert("Please select a contact.");
+                return;
+            }
+
+
+            const imageElements = document.querySelectorAll('#imageGallery img');
+            if (imageElements.length === 0) {
+                alert("No images to upload!");
+                return;
+            }
+
+            if (imageElements.length != 3) {
+                alert('You can only submit 3 fingerprint images.');
+                return;
+            }
+
+
+            const formData = new FormData();
+
+            imageElements.forEach((img, index) => {
+                const base64Data = img.src;
+                const blob = dataURLToBlob(base64Data);
+                formData.append(`file`, blob, `fingerprint${index + 1}.png`);
+            });
+
+            const uploadUrl = `http://localhost:3500/api/biometrics/upload?id=${encodeURIComponent(pageId)}`;
+
+
+            fetch(uploadUrl, {
+                method: "POST",
+                body: formData
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Upload failed");
+                    return res.json();
+                })
+                .then(data => {
+                    alert("Upload successful!");
+                    console.log(data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Upload error: " + err.message);
+                });
+        }
+
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(';base64,');
+            const byteString = atob(parts[1]);
+            const mimeString = parts[0].split(':')[1];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+    </script>
+
+
+</body>
+
+</html>

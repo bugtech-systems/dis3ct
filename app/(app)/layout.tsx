@@ -20,6 +20,7 @@ import ScannerButton from "@/components/ScannerButton";
 import FaceButton from "@/components/FaceButton";
 import { CamScanner } from "@/components/webcam-scanner";
 import AppButton from "@/components/AppButton";
+import ScannerDialog from "@/components/ScannerPage";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -85,7 +86,6 @@ export default async function RootLayout({
                 />
                 <FaceButton />
                 <ScannerButton />
-
                 {/* <CreateContactForm /> */}
                 <UserNav
                   user={newUser}

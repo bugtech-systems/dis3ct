@@ -113,7 +113,7 @@ export function DataTableToolbarActions<TData>({ rows = [], table }: { table: an
   const handleTag = async (type) => {
 
     try {
-      const response = await axios.post(`/api/contacts/bulk/tag`, { type, system: user._id, contactIds: rows.map(a => { return a._id }) });
+      const response = await axios.post(`/api/contacts/bulk/tag`, { type, system: parentSystem._id, contactIds: rows.map(a => { return a._id }) });
       if (response.data) {
         toast.success('Tagged Successfully!')
         router.refresh();
@@ -126,7 +126,6 @@ export function DataTableToolbarActions<TData>({ rows = [], table }: { table: an
     } catch (error: any) {
       console.log(error.response, 'ERR')
       toast.error("An error occurred.")
-
       // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
     }
   };
@@ -138,8 +137,6 @@ export function DataTableToolbarActions<TData>({ rows = [], table }: { table: an
     <>
       <CreateNewMessageForm showContactDialog={showContactDialog} setShowContactDialog={setShowContactDialog} selectedContacts={rows} />
       <AreaLocationForm showContactDialog={showAreaDialog} setShowContactDialog={setShowAreaDialog} selectedContacts={rows} />
-
-
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

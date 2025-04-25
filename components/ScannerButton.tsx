@@ -10,6 +10,7 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import getContactId from "@/actions/getContactId";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 
 export default function ScannerButton() {
@@ -143,6 +144,11 @@ export default function ScannerButton() {
   let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
   return (
     <>
+      {/* <Link href={`/scanner.html?id=${parentSystem?._id}`}>
+        <Button>
+          Scan
+        </Button>
+      </Link> */}
       {((parent && findFeature(parent?.configs, 'biometric').value) && biometricConnected) &&
         <Button
           variant="outline"

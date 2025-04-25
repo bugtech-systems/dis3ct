@@ -6,15 +6,19 @@ export interface IMobile extends Document {
   validatedAt?: Date;
   contact?: Types.ObjectId; // Array of ObjectIds referencing Contact documents
   subscribedAt?: Date;
-  system?: Types.ObjectId; // Array of ObjectIds referencing Contact documents
+  system: string; // Array of ObjectIds referencing Contact documents
+  activeIntent?: string; // Array of ObjectIds referencing Contact documents
+
 }
 
 const MobileSchema: Schema = new Schema({
   phone: { type: String, required: true, maxlength: 20 },
   validatedAt: { type: Date },
   contact: { type: Schema.Types.ObjectId, ref: 'Contact' }, // References to Contact documents
-  system: { type: Schema.Types.ObjectId, ref: 'User' }, // References to Contact documents,
+  system: { type: String, required: true }, // References to Contact documents,
+  activeIntent: { type: String, required: false }, // References to Contact documents,
   subscribedAt: { type: Date },
+
 }, { timestamps: true });
 
 export default mongoose.models.Mobile || mongoose.model<IMobile>('Mobile', MobileSchema);

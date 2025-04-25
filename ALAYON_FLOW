@@ -1,0 +1,28 @@
+
+1) ALAYON HOTLINES
+Format:
+ALAYON HOTLINE [Department/Agency/Personnel] [Details: Area, Name, Address, Description]
+ALAYON HOTLINE CREATE [Department/Agency/Personnel] [Details: Area, Name, Address, Description]
+
+
+1) ALAYON ELECTION
+Format:
+ALAYON ELECTION [Query Type] [Candidate/Details]
+
+Precinct Finder: ALAYON ELECTION PRECINCT [LAST NAME, FIRST NAME]
+Candidate Finder: ALAYON ELECTION CANDIDATE [POSITION/BALOT#] [LAST NAME, FIRST NAME]
+Candidate Registration: ALAYON ELECTION CREATE CANDIDATE [Name] [Position] [Location]
+Support/Answer Survey: ALAYON ELECTION SUPPORT [Name] [Position] [Location]
+
+
+1) ALAYON PUBLIC ASSISTANCE
+Format:
+ALAYON ASSISTANCE [Service Type] [Details: Name, Location, Request]
+
+Example Queries:
+List of Public Assistance Programs: ALAYON ASSISTANCE (Displays available programs)
+Medical Assistance: ALAYON ASSISTANCE MEDICAL Request for financial aid for surgery at Barangay 5.
+Scholarship Inquiry: ALAYON ASSISTANCE SCHOLARSHIP Are there available college grants?
+Food Relief Request: ALAYON ASSISTANCE FOOD RELIEF Urgent food assistance needed at Barangay 7.
+Public Service Request: ALAYON CREATE ASSISTANCE [Type] [Details]
+Example: ALAYON CREATE ASSISTANCE LIVELIHOOD PROGRAM for Farmers in Tacloban City

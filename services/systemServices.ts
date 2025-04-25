@@ -1,5 +1,8 @@
 import System, { ISystem } from "@/models/System"; // Assuming the System model is typed
 import dbConnect from "@/lib/mongodb";
+import User from "@/models/User";
+import { any } from "zod";
+import { sanitizeFilter } from "mongoose";
 
 /**
  * Create a new System.
@@ -136,5 +139,26 @@ export const updateSystemStats = async ({
     return { success: true, data: updatedSystem };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update system stats" };
+  }
+};
+
+
+export const createSystemResource = async (
+  data: any,
+  system: any
+): Promise<{ success: boolean; data?: ISystem; error?: string }> => {
+  try {
+    await dbConnect();
+
+    // Check if an active system with the same number already exists
+    const existingSystem = await User.findOne({ phone: sanitizeFilter(system), userType: 'system' });
+
+
+    // Create the new system
+    const newSystem = new System(data);
+    const savedSystem = await newSystem.save();
+    return { success: true, data: savedSystem };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to create system" };
   }
 };

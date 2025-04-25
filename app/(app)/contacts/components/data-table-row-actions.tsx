@@ -29,7 +29,6 @@ import {
 
 import { contactSchema } from "../data/schema"
 import { useEffect, useState } from "react"
-import { EditContactForm } from "@/components/contacts/EditContactForm"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"; // ⬅ Import useRouter
@@ -37,8 +36,7 @@ import { Bell, BellOff, Clipboard } from "lucide-react";
 import { useComponent } from "@/components/providers/ComponentContext"
 import { useContact } from "@/components/providers/ContactProvider"
 import { findFeature, replaceObjectInArray } from "@/lib/helpers"
-import { SendInviteForm } from "@/components/contacts/SendInviteForm"
-import { record } from "zod"
+import Link from "next/link"
 
 let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
 
@@ -231,19 +229,39 @@ export function DataTableRowActions<TData>({
             </DropdownMenuSubContent>
           </DropdownMenuSub>
 
-          {((findFeature(parent?.configs, 'biometric')?.value || (system?.userType == 'admin')) && biometricConnected) &&
+          {((findFeature(parent?.configs, 'biometric')?.value || (system?.userType == 'admin'))) &&
             <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  setRecord(contact)
-                  setModal('scanner', contact?._id)
-                }}
-              >
-                Set Biometrics
-                <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
-
-              </DropdownMenuItem>
+              {biometricConnected ?
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      // router.replace(`/scanner.html?id=${contact._id}`)
+                      setRecord(contact)
+                      setModal('scannerPage', contact?._id)
+                    }}
+                  >
+                    Set Biometrics
+                    <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </>
+                :
+                <>
+                  <DropdownMenuSeparator />
+                  <Link href={`/scanner.html?id=${contact._id}`} target="_blank">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        // router.replace(`/scanner.html?id=${contact._id}`)
+                        // setRecord(contact)
+                        // setModal('scannerPage', contact?._id)
+                      }}
+                    >
+                      Set Biometrics
+                      <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </Link>
+                </>
+              }
             </>
           }
 

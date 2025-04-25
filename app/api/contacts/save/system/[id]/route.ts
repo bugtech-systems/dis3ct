@@ -71,11 +71,6 @@ export const POST = async (
       );
     } else {
       // Create new contact
-      await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
-        console.log('Mobile Error')
-      });
-
-
 
 
       const newContact = new Contact({

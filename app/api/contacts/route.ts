@@ -72,7 +72,6 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "Contact already exist." }, { status: 200 });
     }
 
-    const newMobile = new Mobile({ phone: newPhone });
 
 
     const savedContact = await contact.save();
@@ -184,8 +183,12 @@ export async function GET(req: NextRequest) {
       const region = regions.find((r) => r.regCode === contact.regCode)?.regDesc;
       let tags = contact?.tags ? (user.userType == 'system' || user.userType == 'admin') ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => String(a.user) == String(user._id)).sort((a, b) => b.timestamp - a.timestamp) : []
 
-      let tagContact = tags.filter(a => (a.tagType == 'tag' && String(a.user) == String(user._id))).sort((a, b) => b.timestamp - a.timestamp)
+      let tagContact = tags.filter(a => ((a.tagType == 'tag' && String(a.user) == String(user._id)))).sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
+
+
+
+      console.log(tagContact, 'TCCC')
       return {
         _id: contact._id,
         name: contact.name,

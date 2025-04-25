@@ -65,11 +65,6 @@ export const POST = async (req: NextRequest) => {
         { status: 200 }
       );
     } else {
-      // Create new contact
-      await Mobile.create({ phone: sanitizePhoneNumber(phone) }).catch(err => {
-        console.log('Mobile Error')
-      });
-
 
 
 

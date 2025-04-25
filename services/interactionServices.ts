@@ -1,7 +1,8 @@
 // services/interactionService.ts
 import Interaction, { IInteraction } from '@/models/Interaction';
 import dbConnect from "@/lib/mongodb";
-import { removeNullishValues } from '@/lib/helpers';
+import { removeNullishValues, sanitizePhoneNumber } from '@/lib/helpers';
+import Resource from '@/models/Resource';
 
 /**
  * Create a new interaction.
@@ -100,6 +101,26 @@ export const getUserInteractions = async (
     }
 };
 
+export const getUserIntent = async (
+    intent?: any,
+    system?: any
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+        await dbConnect();
+
+
+        const intentData = await Resource.find({ type: 'intent', value: intent, system: sanitizePhoneNumber(system) }).lean()
+        const interactions = await Interaction.find({ system: sanitizePhoneNumber(system), intent, status: 'default' }).limit(100).sort({ timestamp: -1 });
+
+
+
+
+        return { success: true, data: { ...intentData, interactions } };
+    } catch (error: any) {
+        return { success: false, error: error.message || 'Failed to fetch interactions' };
+    }
+};
+
 
 export const getInteractionById = async (
     id: string
@@ -134,15 +155,16 @@ export const deleteInteraction = async (
 
 
 export const clearInteraction = async (
-    contact: string,
-    system: string
+    contact?: string | null,
+    system?: string | null
 ): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
         await dbConnect();
-        const deletedConversation = await Interaction.updateMany({
-            contact,
-            system
-        }, { status: 'closed' });
+        const deletedConversation = await Interaction.deleteMany({
+            contact: sanitizePhoneNumber(contact),
+            system: sanitizePhoneNumber(system),
+            status: 'pending'
+        });
         if (!deletedConversation) {
             return { success: false, error: "Conversation not found" };
         }

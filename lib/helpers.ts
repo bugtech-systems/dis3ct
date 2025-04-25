@@ -248,7 +248,7 @@ export function sanitizePhoneNumber(phoneNumber: any) {
   } else if (sanitized.length === 10) {
     return sanitized; // Already a 10-digit number
   } else {
-    return null;
+    return formatToTenDigits(sanitized);
   }
 
   // If the number is not in a valid format, return null or throw an error
@@ -523,3 +523,11 @@ export function convertObjectToString(obj: any): string {
 
 
 
+export function formatToTenDigits(str) {
+  if (!str || typeof str !== 'string') return '9000000000'; // default fallback
+  if (str[0] !== '9') str = '9' + str;
+  while (str.length < 10) {
+    str += '0';
+  }
+  return str.slice(0, 10); // In case it's longer than 10
+}
