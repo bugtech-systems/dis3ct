@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';
 
 
-const MONGODB_URI = 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/tacloban-db';
+const MONGODB_URI = 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/alayon-db';
 
 
 console.log(MONGODB_URI, "MONGOD")
