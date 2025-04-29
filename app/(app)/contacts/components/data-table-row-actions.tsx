@@ -56,11 +56,10 @@ export function DataTableRowActions<TData>({
   const { setModal, setRecord, setRefreshId, biometricRunning, biometricConnected, setTab } = useComponent();
   const { user, system, setContactTable, contactTable, parentSystem } = useContact();
 
-
   const handleDelete = async () => {
 
     try {
-      const response = await axios.delete(`/api/contacts/save/${contact?.id}`);
+      const response = await axios.delete(`/api/contacts/save/${contact?._id}`);
       if (response.data) {
         toast.success('Deleted Successfully!')
         router.refresh();
@@ -247,7 +246,7 @@ export function DataTableRowActions<TData>({
                 :
                 <>
                   <DropdownMenuSeparator />
-                  <Link href={`/scanner.html?id=${contact._id}`} target="_blank">
+                  <Link href={`/scanner.html?id=${contact?._id}`} target="_blank">
                     <DropdownMenuItem
                       onClick={() => {
                         // router.replace(`/scanner.html?id=${contact._id}`)
@@ -281,7 +280,7 @@ export function DataTableRowActions<TData>({
             </>
           }
 
-          {(user?.userType == 'admin') &&
+          {/* {(user?.userType == 'admin') &&
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -292,7 +291,7 @@ export function DataTableRowActions<TData>({
 
               </DropdownMenuItem>
             </>
-          }
+          } */}
           {(findFeature(parent?.configs, 'sms')?.value || (user?.userType == 'admin')) &&
             <>
               <DropdownMenuSeparator />
@@ -332,7 +331,7 @@ export function DataTableRowActions<TData>({
             </>
           }
 
-          {((findFeature(parent?.configs, 'hotline')?.value || user?.userType == 'admin')) &&
+          {/*         {((findFeature(parent?.configs, 'hotline')?.value || user?.userType == 'admin')) &&
             <>
               <DropdownMenuItem
                 onClick={() => {
@@ -342,7 +341,7 @@ export function DataTableRowActions<TData>({
               >Set hotline</DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
-          }
+          } */}
 
 
           {(user?.userType == 'admin') &&
@@ -350,29 +349,25 @@ export function DataTableRowActions<TData>({
 
 
               <DropdownMenuSeparator />
-              {(contact?.userLevel == 'admin') &&
-                <>
-                  <DropdownMenuItem
+              <>
+                {/* <DropdownMenuItem
                     onClick={() => handleRestart()}
                   >
                     Restart GSM
                     <DropdownMenuShortcut><ListRestartIcon size={18} /></DropdownMenuShortcut>
-
+  
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator /> */}
 
 
 
-                  <DropdownMenuItem
-                    onClick={() => setShowDeleteDialog(true)}
-                  >
-                    Delete
-                    <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </>
-
-              }
-
+                <DropdownMenuItem
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  Delete Tags
+                  <DropdownMenuShortcut><Trash size={18} /></DropdownMenuShortcut>
+                </DropdownMenuItem>
+              </>
 
             </>
           }

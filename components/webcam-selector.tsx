@@ -292,22 +292,23 @@ const CamScreen = ({ camType }: any) => {
             const formData = new FormData();
             formData.append("file", blob, "image.png");
 
-            const response = await fetch(`${STATIC_URL}/api/upload`, {
+            const response = await fetch(`${STATIC_URL}/api/image/upload?id=${record._id}`, {
                 method: "POST",
                 body: formData,
             });
+
             const data = await response.json();
 
-            await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
+            // await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
 
-            if (data.url) {
-                let newImgs = [data.url, ...capturedImages]
-                setDetection(null)
-                setCapturedImages(newImgs)
-                setViewing(!viewing)
-                setRefreshId(Math.random())
-                setModal(null)
-            }
+            /*          if (data.url) {
+                         let newImgs = [data.url, ...capturedImages]
+                         setDetection(null)
+                         setCapturedImages(newImgs)
+                         setViewing(!viewing)
+                         setRefreshId(Math.random())
+                         setModal(null)
+                     } */
             if (!response.ok) throw new Error(data.message || "Failed to upload");
         } catch (error) {
             console.error("Upload error:", error);

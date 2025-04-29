@@ -42,7 +42,6 @@ export function DataTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
-
   const handleSelect = (value: any) => {
     if (selectedValues.has(value)) {
       selectedValues.delete(value);

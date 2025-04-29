@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
                             $match: {
                                 tags: { $elemMatch: { tagType: "image" } },
                                 // descriptor: { $in: [null, "", []] },
-                                parNum: user?._id
+                                // parNum: user?._id
                             }
                         }
                     ],
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
                             $match: {
                                 tags: { $elemMatch: { tagType: "biometrics" } },
                                 // biometric: { $in: [null, ""] },
-                                parNum: user?._id
+                                // parNum: user?._id
                             }
                         }
                     ]

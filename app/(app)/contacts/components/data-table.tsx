@@ -52,7 +52,7 @@ interface DataTableProps<TData, TValue> {
 
 export default function CardsDataTable<TData, TValue>({ columns }: DataTableProps<TData, TValue>) {
   const { user, parentSystem, contactTable, setContactTable } = useContact();
-  const { setIsRefreshing, refreshId } = useComponent();
+  const { setIsRefreshing, refreshId, setRefreshId } = useComponent();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
@@ -115,14 +115,14 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
           ...(filters?.tags ? { tags: filters?.tags.join(',') } : {}),
           ...(filters?.brgyCode ? { brgyCode: filters?.brgyCode.join(',') } : {}),
           ...(filters?.precincts ? { precincts: filters?.precincts.join(',') } : {}),
+          ...(filters?.identity ? { identity: filters?.identity.join(',') } : {}),
 
         };
 
         const response = await axios.get("/api/contacts", { params });
-        setContactTable(response.data.data);
         setTotalPages(response.data.pagination.totalPages);
         setIsRefreshing(false)
-
+        setContactTable(response.data.data);
       } catch (error) {
         setIsRefreshing(false)
         console.error("Error fetching data:", error);

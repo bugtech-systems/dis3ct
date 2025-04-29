@@ -24,6 +24,12 @@ const tagsLabel = [
   { label: "UNKNOWN", value: "unknown" },
 ];
 
+
+const mediaLabel = [
+  { label: "IMAGE", value: "image" },
+  { label: "BIOMETRICS", value: "biometrics" },
+];
+
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   setFilters: (filters: Record<string, any>) => void;
@@ -37,10 +43,9 @@ export function DataTableToolbar<TData>({
   setSearch,
   search
 }: DataTableToolbarProps<TData>) {
-  const { user, system, parentSystem } = useContact();
-  const { refreshId } = useComponent();
+  const { user, system, parentSystem, setFilterOpts } = useContact();
+  const { refreshId, setRefreshId } = useComponent();
   const [precincts, setPrecincts] = useState([]);
-  const [selectedMunicipality, setSelectedMunicipality] = useState("");
   const [filterOptions, setFilterOptions] = useState([]);
   const isFiltered = table.getState().columnFilters.length > 0 || search;
   const selectedRows = table.getSelectedRowModel().flatRows?.map(
@@ -55,7 +60,7 @@ export function DataTableToolbar<TData>({
       let parId = parentSystem?.parent?._id ? parentSystem?.parent?._id : parentSystem?.parent;
       axios.get(`/api/contacts/filters?parNum=${parId}&userId=${parentSystem?._id}`).then((res) => {
         if (res.data) {
-          // setFilters(res.data);
+          setFilterOpts(res.data);
           setFilterOptions(res.data)
         }
       });
@@ -74,6 +79,7 @@ export function DataTableToolbar<TData>({
 
   let barangayOptions = filterOptions?.brgyCode || [];
   let tagsOptions = tagsLabel || [];
+  let mediaOptions = mediaLabel || [];
 
   let precinctsOption = []
 
@@ -102,6 +108,15 @@ export function DataTableToolbar<TData>({
   })
 
 
+  mediaOptions = mediaLabel.map(a => {
+    let tag = filterOptions?.mediaTags?.find(ab => ab.value == a.value);
+    if (tag) {
+      return tag
+    } else {
+      return a
+    }
+  })
+
 
   let columns = table.getAllColumns().filter(col => col.getIsVisible()).map(col => col.id).filter(a => !(a == 'select' || a == 'id' || a == 'actions'));
   // let columns = ['name', 'address', 'precinct', 'marker'];
@@ -115,6 +130,8 @@ export function DataTableToolbar<TData>({
   });
 
 
+
+  console.log(mediaOptions, 'MEDIA OPTIONS')
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -145,6 +162,7 @@ export function DataTableToolbar<TData>({
             options={precinctsOption}
             onFilterChange={(values) => {
               setFilters((old) => { return { ...old, precincts: values } })
+              setRefresh
               // table.getColumn("tag")?.setFilterValue(values.length ? values : undefined)
             }}
           />
@@ -162,6 +180,17 @@ export function DataTableToolbar<TData>({
           />
         )}
 
+        {/*        <DataTableFacetedFilter
+          column={table.getColumn("identity")}
+          title="Identity"
+          options={mediaOptions}
+          onFilterChange={(values) => {
+            setFilters((old) => { return { ...old, identity: values } })
+            setRefreshId(Math.random())
+            // table.getColumn("identity")?.setFilterValue(values.length ? values : undefined)
+          }}
+        />
+ */}
         {isFiltered && (
           <Button variant="ghost" onClick={() => {
             setSearch("")

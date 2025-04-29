@@ -99,6 +99,7 @@ export async function GET(req: NextRequest) {
     const brgyCode = searchParams.get("brgyCode");
     const tags = searchParams.get("tags");
     const precincts = searchParams.get("precincts");
+    const identities = searchParams.get("identity");
 
     const phoneFilter = searchParams.get("phone");
     const userId = searchParams.get("userId");
@@ -142,7 +143,15 @@ export async function GET(req: NextRequest) {
         // Otherwise, filter by specific tagTypes
         query.tags = { $elemMatch: (user.userType == 'system' || user.userType == 'admin') ? { value: { $in: tagList } } : { value: { $in: tagList }, user: user._id, tagType: 'tag' } };
       }
+    }
 
+
+    if (identities) {
+      const tagList = identities.split(",");
+
+
+      // Otherwise, filter by specific tagTypes
+      query.tags = { $elemMatch: { tagType: { $in: tagList } } };
     }
 
     // Include only contacts with a phone number if requested
@@ -186,9 +195,10 @@ export async function GET(req: NextRequest) {
       let tagContact = tags.filter(a => ((a.tagType == 'tag' && String(a.user) == String(user._id)))).sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
 
-      const biometeric = tags.filter(a => a.tagType == 'biometrics');
-      const image = tags.filter(a => a.tagType == 'image');
+      const biometeric = tags.find(a => a.tagType == 'biometrics')?.value ? 'biometrics' : null;
+      const image = tags.find(a => a.tagType == 'image')?.value ? 'image' : null;
 
+      let identity = (biometeric && image) ? 'complete' : (biometeric && !image) ? 'biometrics' : (!biometeric && image) ? 'image' : null;
       console.log(tagContact, 'TCCC')
       return {
         _id: contact._id,
@@ -206,6 +216,9 @@ export async function GET(req: NextRequest) {
         biometric: contact.biometric,
         recordType: contact.recordType,
         school: contact.school,
+        identity,
+        image,
+        biometrics: biometeric,
         tags: tags,
         tag: tagContact.length ? tagContact[0].value : 'unknown',
         subscribed: contact.subscribed,

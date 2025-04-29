@@ -110,6 +110,57 @@ export async function GET(req) {
       filters.tags.push({ value: "unknown", label: "UNKNOWN", count: unknownCount });
     }
     console.log('filter', userObjectId, userId)
+    // Count records that contain tagType "biometrics" or "image"
+    const mediaTagCounts = await Contact.aggregate([
+      {
+        $match: {
+          ...matchQuery,
+          tags: { $elemMatch: { tagType: { $in: ["image", "biometrics"] } } }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          tagTypes: {
+            $map: {
+              input: {
+                $filter: {
+                  input: "$tags",
+                  as: "tag",
+                  cond: { $in: ["$$tag.tagType", ["image", "biometrics"]] }
+                }
+              },
+              as: "tag",
+              in: "$$tag.tagType"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          tagTypes: { $setUnion: ["$tagTypes", []] } // deduplicate tag types per record
+        }
+      },
+      { $unwind: "$tagTypes" },
+      {
+        $group: {
+          _id: "$tagTypes",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    filters.mediaTags = mediaTagCounts.map(({ _id, count }) => ({
+      value: _id,
+      label: _id.toUpperCase(),
+      count
+    }));
+
+
+
+
+
+    console.log(filters, 'FILTER')
     return NextResponse.json(filters);
   } catch (error) {
     console.error("Error fetching filters:", error);

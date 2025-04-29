@@ -13,7 +13,7 @@ import {
 import { useComponent } from "./providers/ComponentContext";
 import axios from "axios";
 import { useContact } from "./providers/ContactProvider";
-import { findFeature } from "@/lib/helpers";
+import { checkImage, findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 import { SyncView } from "./SyncView";
@@ -32,7 +32,7 @@ export function DeviceForm() {
   const [isConnected, setIsConnected] = React.useState(false);
   const [modelsLoaded, setModelsLoaded] = React.useState(false);
   const [isView, setIsView] = React.useState(null);
-  const [host, setHost] = React.useState('http://localhost:3500');
+  const [host, setHost] = React.useState('');
   let socket = getSocket()
 
   const handleInit = async () => {
@@ -292,6 +292,7 @@ export function DeviceForm() {
 
   const handleSubmitImages = async () => {
     let images = transferables.filter(a => a.sync == 'image');
+    console.log(images, 'IMAGES')
     for (const data of images) {
       console.log(data)
       let imgData = data?.tags?.filter(a => a.tagType == 'image')
@@ -299,12 +300,15 @@ export function DeviceForm() {
       const formData = new FormData();
 
       for (const img of imgData) {
-
-        const response = await fetch(STATIC_URL + img.value);
-        const blob = await response.blob();
-        const fileName = (STATIC_URL + img.value).split('/').pop() || 'upload.file';
-        const file = new File([blob], fileName, { type: blob.type });
-        formData.append("file", file);
+        if (!await checkImage(STATIC_URL + img.value)) {
+          console.log('Cant Find Image')
+        } else {
+          const response = await fetch(STATIC_URL + img.value);
+          const blob = await response.blob();
+          const fileName = (STATIC_URL + img.value).split('/').pop() || 'upload.file';
+          const file = new File([blob], fileName, { type: blob.type });
+          formData.append("file", file);
+        }
       }
 
       const response = await fetch(`${host}/api/image/upload?id=${data?._id}`, {
@@ -313,7 +317,9 @@ export function DeviceForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        // throw new Error('Upload failed');
+        console.log('UPLOAD Failed')
+
       }
 
       const result = await response.json();
@@ -322,7 +328,7 @@ export function DeviceForm() {
     }
 
 
-    alert('File uploaded successfully!');
+    // alert('File uploaded successfully!');
 
 
 
@@ -338,12 +344,19 @@ export function DeviceForm() {
       const formData = new FormData();
 
       for (const bio of bios) {
+        if (!await checkImage(STATIC_URL + bio.value)) {
+          console.log('Cant Find Biometric')
+        } else {
 
-        const response = await fetch(STATIC_URL + bio.value);
-        const blob = await response.blob();
-        const fileName = (STATIC_URL + bio.value).split('/').pop() || 'upload.file';
-        const file = new File([blob], fileName, { type: blob.type });
-        formData.append("file", file);
+
+
+          const response = await fetch(STATIC_URL + bio.value);
+          const blob = await response.blob();
+          const fileName = (STATIC_URL + bio.value).split('/').pop() || 'upload.file';
+          const file = new File([blob], fileName, { type: blob.type });
+          formData.append("file", file);
+        }
+
       }
 
       const response = await fetch(`${host}/api/biometrics/upload?id=${data?._id}`, {
@@ -352,11 +365,11 @@ export function DeviceForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        console.log('UPLOAD Failed')
+        // throw new Error('Upload failed');
       }
 
       const result = await response.json();
-      console.log('Upload successful:', result);
       console.log('Upload successful:', result);
 
     }

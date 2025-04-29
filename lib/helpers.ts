@@ -531,3 +531,17 @@ export function formatToTenDigits(str) {
   }
   return str.slice(0, 10); // In case it's longer than 10
 }
+
+
+export const checkImage = async (url) => {
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    if (res.ok && res.headers.get('content-type')?.startsWith('image/')) {
+      return true
+    } else {
+      return false
+    }
+  } catch (err) {
+    return false
+  }
+};

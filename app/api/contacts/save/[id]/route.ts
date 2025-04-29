@@ -111,7 +111,6 @@ export const DELETE = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const userId = session.user.id;
     const { id } = params;
 
     // if (!(await isAuthorized(userId, contactId))) {
@@ -123,14 +122,13 @@ export const DELETE = async (
     //   return new NextResponse("Forbidden", { status: 403 });
     // }
 
-    const updatedContact = await Contact.findByIdAndUpdate(id,
-      { $set: { deletedAt: new Date } }
+    await Contact.updateOne(
+      { _id: id },
+      { $set: { descriptor: null, biometric: null, tags: [] } }
     );
 
 
-
-
-    return new NextResponse("Contact deleted", { status: 200 });
+    return new NextResponse("Contact Tags deleted", { status: 200 });
   } catch (err) {
     console.error("Error deleting contact:", err);
     return new NextResponse("Internal Server Error", { status: 500 });

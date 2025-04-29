@@ -17,6 +17,8 @@ interface ContactContextProvider {
   setParentSystem: (temp: any) => void;
   selectedContacts: any[];
   setSelectedContacts: (temp: any) => void;
+  filterOpts: any[];
+  setFilterOpts: (temp: any) => void;
 }
 
 interface ContactProviderProps {
@@ -40,12 +42,12 @@ export const ContactProvider: React.FC<ContactProviderProps> = ({
   const [contactTable, setContactTable] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState<IContact[]>([]);
   const [teams, setTeams] = useState<IContact[]>([]);
-
+  const [filterOpts, setFilterOpts] = useState([]);
 
 
 
   return (
-    <ContactContext.Provider value={{ contactTable, setContactTable, teams, setTeams, user, setUser, selectedContacts, setSelectedContacts, system, setSystem, parentSystem, setParentSystem }}>
+    <ContactContext.Provider value={{ filterOpts, setFilterOpts, contactTable, setContactTable, teams, setTeams, user, setUser, selectedContacts, setSelectedContacts, system, setSystem, parentSystem, setParentSystem }}>
       {children}
     </ContactContext.Provider>
   );

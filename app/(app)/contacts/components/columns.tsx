@@ -40,15 +40,15 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false,
   },
   {
-    // id: "identity",
-    // header: "Identity",
+    id: "identity",
+    header: "Identity",
     accessorKey: "identity",
     cell: ({ row }) => {
       const tags = row.original.tags || [];
-  
+
       const imageTag = tags.find(tag => tag.tagType === "image");
       const biometricTag = tags.find(tag => tag.tagType === "biometrics");
-  
+
       return (
         <div className="flex gap-2 items-center">
           {imageTag?.value ? (
@@ -64,8 +64,8 @@ export const columns: ColumnDef<Contact>[] = [
                 className="w-10 h-10 rounded border object-cover"
               />
             </a>
-          ) : 
-          <span className="w-10 text-gray-400 text-sm">—</span>
+          ) :
+            <span className="w-10 text-gray-400 text-sm">—</span>
 
           }
           {biometricTag?.value ? (
@@ -81,17 +81,21 @@ export const columns: ColumnDef<Contact>[] = [
                 className="w-10 h-10 rounded border object-cover"
               />
             </a>
-          ) 
-        : 
-        <span className="w-10 text-gray-400 text-sm">—</span>
+          )
+            :
+            <span className="w-10 text-gray-400 text-sm">—</span>
 
-        }
-      
+          }
+
         </div>
       );
     },
     enableSorting: false,
-    enableColumnFilter: true,
+    filterFn: (row, id, value) => {
+      console.log(row, id, value,)
+      return value.includes(row.getValue(id))
+    },
+    // enableColumnFilter: true,
   },
   {
     accessorKey: "name",

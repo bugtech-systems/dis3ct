@@ -18,8 +18,6 @@ import {
 
 import toast from "react-hot-toast";
 import { useComponent } from "@/components/providers/ComponentContext";
-import { findObject, updateOrPushObject } from "@/lib/helpers";
-import axios from "axios";
 import CamScreen from "./webcam-selector";
 
 export function CamScanner() {
