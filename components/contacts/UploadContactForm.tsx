@@ -120,6 +120,41 @@ export function UploadContactForm() {
     }
   }
 
+  const handleTag = async () => {
+    let load = toast.loading('Processing!')
+
+    try {
+      setLoading(true)
+      let newJson = []
+      for (const contact of jsonData) {
+        console.log(contact, 'cont')
+        if (contact.contId) {
+          const response = await axios.post(`/api/contacts/${contact.contId}/tag`, { type: contact.tag, system: parentSystem?._id });
+
+          if (response.data) {
+            // router.refresh();
+            console.log('Response', contact.name)
+          }
+        } else {
+          newJson.push(contact)
+          // router.refresh();
+        }
+      }
+
+      setJsonData(newJson)
+
+      toast.success("Upload Success.", { id: load })
+
+    } catch (error: any) {
+      console.log(error.response, 'ERR')
+      toast.error("An error occurred while sending OTP.", { id: load })
+      // setPhoneError(error.response ? error.response.data : "An error occurred while sending OTP.");
+    } finally {
+      setLoading(false)
+    }
+
+  }
+
   // function previewData(file: any) {
   //   if (file) {
   //     setJsonData([])
@@ -183,6 +218,55 @@ export function UploadContactForm() {
       setLoading(false);
 
 
+      setJsonData(data);
+
+
+
+      // await createBulkContact(newJson);
+      // await axios.post(`/api/contacts/bulk/upload`, { rows: newJson, refNum: user?._id, parNum: system?.id, regCode: selectedRegion, provCode: selectedProvince, citymunCode: selectedMunicipality, brgyCode: selectedBarangay }).then((res) => {
+      //   // setBarangays(res.data.data);
+      //   return toast.success('Upload Success')
+      // });
+
+      // setOpen(false)
+      // router.refresh()
+
+      // return toast.success(data.message)
+    } catch (error) {
+      console.error("Upload PDF failed", error);
+      setLoading(false);
+      return toast.success("Upload PDF failed")
+
+
+
+    }
+  };
+
+  const handleExcelChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files[0]) {
+      alert("Please select a file");
+      return;
+    }
+
+    setLoading(true);
+
+
+    try {
+
+      const formData = new FormData();
+      formData.append("file", event.target.files[0]);
+
+
+
+      const response = await fetch("/api/contacts/bulk/excel", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+      console.log(data, 'DATA')
       setJsonData(data);
 
 
@@ -374,6 +458,9 @@ export function UploadContactForm() {
     }
   };
 
+
+
+
   // Fetch Regions on Component Mount
   React.useEffect(() => {
     if (system) {
@@ -481,6 +568,13 @@ export function UploadContactForm() {
                     <Input id="contact" type="file"
                       accept=".pdf"
                       onChange={handlePdfChange}
+                    />
+                  </div>
+                  <div className="space-y-2 pb-4">
+                    <Label htmlFor="contact">Excel File</Label>
+                    <Input id="contact" type="file"
+                      accept="*"
+                      onChange={handleExcelChange}
                     />
                   </div>
                   <DropdownMenuSeparator />
@@ -617,6 +711,7 @@ export function UploadContactForm() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button variant="outline" onClick={() => handleUploadSchoolFile()}>Upload</Button>
+              {activeTab == 'basic' && <Button variant="outline" disabled={loading} onClick={() => handleTag()}>Tag</Button>}
               {activeTab == 'zip' && <Button disabled={loading} onClick={() => handleUploadZip()}>Save</Button>}
               {activeTab == 'basic' && <Button disabled={loading} onClick={() => saveData()}>Save</Button>}
 

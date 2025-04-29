@@ -17,6 +17,7 @@ import { findFeature } from "@/lib/helpers";
 import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 import { SyncView } from "./SyncView";
+import { Input } from "./ui/input";
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
@@ -27,9 +28,11 @@ export function DeviceForm() {
   const [faceapi, setFaceapi] = React.useState(null);
   const [status, setStatus] = React.useState('');
   const [syncables, setSyncables] = React.useState([]);
+  const [transferables, setTransferables] = React.useState([]);
   const [isConnected, setIsConnected] = React.useState(false);
   const [modelsLoaded, setModelsLoaded] = React.useState(false);
-  const [isView, setIsView] = React.useState(false);
+  const [isView, setIsView] = React.useState(null);
+  const [host, setHost] = React.useState('http://localhost:3500');
   let socket = getSocket()
 
   const handleInit = async () => {
@@ -152,6 +155,40 @@ export function DeviceForm() {
     }
   }
 
+  const handleTransferables = async () => {
+
+
+    let parent = user?.parent ? (user?.parent || user?.parent?._id) : (parentSystem?.parent || parentSystem?.parent?._id)
+    const response = await fetch(`/api/public/transferable?parent=${parent?._id || parent}`, {
+      method: "GET"
+    });
+    const data = await response.json();
+    if (data) {
+      let { image, biometric } = data;
+      let syncs = []
+
+      console.log(image, 'IMAGE')
+      console.log(biometric, 'BIOMETRIC')
+
+      image?.map(a => {
+        syncs.push({
+          ...a,
+          sync: "image"
+        });
+      })
+
+      biometric?.map(a => {
+        syncs.push({
+          ...a,
+          sync: "biometric"
+        });
+      })
+
+      setStatus(`${syncs.length} pending sync`)
+      setTransferables(syncs)
+    }
+  }
+
 
 
   async function extractFaceDescriptor(imageUrl) {
@@ -193,7 +230,6 @@ export function DeviceForm() {
 
 
         } else {
-
 
           let descriptors = []
           let newTags = data?.tags?.filter(a => a.tagType == 'image').map(a => a.value);
@@ -254,6 +290,84 @@ export function DeviceForm() {
   }
 
 
+  const handleSubmitImages = async () => {
+    let images = transferables.filter(a => a.sync == 'image');
+    for (const data of images) {
+      console.log(data)
+      let imgData = data?.tags?.filter(a => a.tagType == 'image')
+
+      const formData = new FormData();
+
+      for (const img of imgData) {
+
+        const response = await fetch(STATIC_URL + img.value);
+        const blob = await response.blob();
+        const fileName = (STATIC_URL + img.value).split('/').pop() || 'upload.file';
+        const file = new File([blob], fileName, { type: blob.type });
+        formData.append("file", file);
+      }
+
+      const response = await fetch(`${host}/api/image/upload?id=${data?._id}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
+
+    }
+
+
+    alert('File uploaded successfully!');
+
+
+
+  }
+
+
+  const handleSubmitBiometrics = async () => {
+    let biometrics = transferables.filter(a => a.sync == 'biometric');
+    for (const data of biometrics) {
+      console.log(data)
+      let bios = data?.tags?.filter(a => a.tagType == 'biometrics')
+
+      const formData = new FormData();
+
+      for (const bio of bios) {
+
+        const response = await fetch(STATIC_URL + bio.value);
+        const blob = await response.blob();
+        const fileName = (STATIC_URL + bio.value).split('/').pop() || 'upload.file';
+        const file = new File([blob], fileName, { type: blob.type });
+        formData.append("file", file);
+      }
+
+      const response = await fetch(`${host}/api/biometrics/upload?id=${data?._id}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
+      console.log('Upload successful:', result);
+
+    }
+    alert('File uploaded successfully!');
+
+  }
+
+
+
+
+
   React.useEffect(() => {
     socket = getSocket()
 
@@ -306,6 +420,12 @@ export function DeviceForm() {
 
 
 
+  React.useEffect(() => {
+    handleTransferables();
+  }, []);
+
+
+  console.log(transferables, 'TRANS')
   return (
     <Dialog open={modal === "devices"} onOpenChange={(e) => setModal(e)}>
       <DialogContent>
@@ -316,7 +436,7 @@ export function DeviceForm() {
         <br />
         {isView ?
           <>
-            <SyncView data={syncables} onBack={() => setIsView(false)} />
+            <SyncView data={isView == 'transfer' ? transferables : syncables} onBack={() => setIsView(null)} />
           </>
           :
           <>
@@ -353,13 +473,33 @@ export function DeviceForm() {
             {(user?.userType == 'admin' || (findFeature(parentSystem?.configs, 'biometric' || findFeature(parentSystem?.configs, 'image').value))) &&
               <>
                 <div className="d-flex flex-row justify-around">
-                  <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView(true)} className="float-end clickable text-blue">View</button>
+                  <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView('sync')} className="float-end clickable text-blue">View</button>
                 </div>
                 <Button onClick={() => handleSubmit()} >
                   Start Syncing
                 </Button>
               </>
             }
+            <br />
+            <div className="d-flex flex-col w-full">
+              <div className="d-flex flex-row justify-around">
+                <span className="mr-auto">Transfer: {status}</span><button onClick={() => setIsView('transfer')} className="float-end clickable text-blue">View</button>
+              </div>
+              <div className="d-flex flex-row justify-around w-full">
+                <Button onClick={() => handleSubmitImages()} >
+                  Upload Images
+                </Button>&nbsp;&nbsp;&nbsp;
+                <Button onClick={() => handleSubmitBiometrics()} >
+                  Upload Biometrics
+                </Button>
+              </div>
+              <br />
+              <Input
+                value={host}
+                onChange={(e) => setHost(e.target.value)}
+              />
+
+            </div>
           </>
         }
         <DialogFooter>
