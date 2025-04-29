@@ -186,7 +186,8 @@ export async function GET(req: NextRequest) {
       let tagContact = tags.filter(a => ((a.tagType == 'tag' && String(a.user) == String(user._id)))).sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
 
-
+      const biometeric = tags.filter(a => a.tagType == 'biometrics');
+      const image = tags.filter(a => a.tagType == 'image');
 
       console.log(tagContact, 'TCCC')
       return {

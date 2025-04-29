@@ -51,12 +51,12 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       Contact.countDocuments({ subscribed: true, ...options }),
       Contact.countDocuments({
         ...options,
-        'tags.user': String(user._id),
+        ...(user.userType == 'system' ? { 'tags.tagType': { $in: ['tag', 'image', 'biometrics'] } } : { 'tags.user': String(user._id) }),
       }),
       // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })
         .sort({ updatedAt: -1 })
-        .limit(5)
+        .limit(10)
         .select("name phone createdAt updatedAt")
         .lean(), // ✅ Convert to plain objects
     ]);

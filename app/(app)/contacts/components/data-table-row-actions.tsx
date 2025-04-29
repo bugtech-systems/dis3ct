@@ -165,7 +165,6 @@ export function DataTableRowActions<TData>({
   let hasImg = contact?.tags.find(tg => tg.tagType == 'image');
   let parent = parentSystem ? parentSystem.parent : user.parent;
 
-
   return (
     <>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
