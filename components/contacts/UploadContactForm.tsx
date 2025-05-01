@@ -217,8 +217,8 @@ export function UploadContactForm() {
       const data = await response.json();
       setLoading(false);
 
-
-      setJsonData(data);
+      console.log(data, 'DATA')
+      // setJsonData(data);
 
 
 
@@ -258,16 +258,25 @@ export function UploadContactForm() {
 
 
 
-      const response = await fetch("/api/contacts/bulk/excel", {
+      const res = await fetch("/api/contacts/bulk/excel", {
         method: "POST",
         body: formData,
       });
 
-      const data = await response.json();
+      // const data = await response.json();
+
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'processed_contacts.xlsx';
+      a.click();
       setLoading(false);
 
-      console.log(data, 'DATA')
-      setJsonData(data);
+      // console.log(data, 'DATA')
+      // setJsonData(data);
 
 
 

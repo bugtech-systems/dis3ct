@@ -41,10 +41,11 @@ export function ScannerForm() {
   const { modal, setModal, error, setError, biometricRunning, setBiometricRunning, setIsEnrolling, isEnrolling, biometricConnected, record, setRecord, scannerStatus, setScannerStatus } = useComponent();
   const [scanProgress, setScanProgress] = React.useState(0);
   const [isConnected, setIsConnected] = React.useState(false);
+  // const [scanStages, setScanStages] = React.useState(["/examples/finger0.jpg"]);
   const [fingerPrintId, setFingerPrintId] = React.useState(null)
   const [fingerPrint, setFingerPrint] = React.useState(null);
   const [fingerFile, setFingerFile] = React.useState(null)
-  const [fingerImage, setFingerImage] = React.useState(null)
+  const [fingerImage, setFingerImage] = React.useState<any>(null)
   const [fingerImages, setFingerImages] = React.useState([])
   const [rnd, setRnd] = React.useState(0);
   let socket = getSocket()
@@ -167,7 +168,14 @@ export function ScannerForm() {
         // toast.success(`Fingerprint m/atched! User ID: ${data.user_id}`);
       });
 
+      // socket?.on('fingerprint_image', (data) => {
+      //   console.log(data, 'IMAGE')
+
+      //   setFingerImage(`data:image/jpeg;base64,${data.image}`)
+      // });
+
       socket?.on("fingerprint_scan", (data) => {
+        console.log(data, 'data')
         console.log("📝 Fingerprint Scan Step:", data.step);
         setScanProgress(data.step);
         setScannerStatus('Enrolling.. ')
@@ -199,28 +207,9 @@ export function ScannerForm() {
         // toast.error(data.error);
         setIsEnrolling(false);
       });
-
-
-
-
     }
 
 
-
-
-
-
-    // if (modal === "scanner") {
-    //   console.log("🔄 Scanner modal opened. Initializing scanner...");
-    //   handleFingerPrint(record?._id)
-    //   handleInit();
-    //   // handleShutdown(() => handleInit());
-
-    // }
-
-    // if (modal == 'searchScanner') {
-    //   handleInit();
-    // }
 
     return () => {
       if (modal == 'scanner') {
@@ -231,6 +220,7 @@ export function ScannerForm() {
         socket?.off("fingerprint_enrolled");
         socket?.off("enrollment_started");
         socket?.off("enrollment_error");
+        socket?.off("fingerprint_image");
         // socket?.off("fingerprint_not_verified");
         // socket?.off("fingerprint_verified");
         console.log("🚪 Cleaning up socket listeners...");
@@ -323,6 +313,7 @@ export function ScannerForm() {
     setScanProgress(0);
     setIsEnrolling(true);
     setFingerImages([])
+    setFingerImage(null)
     console.log(`📌 Starting fingerprint enrollment for User ID: ${record._id}`, socket, fingerPrintId);
 
     socket?.emit("enroll", { user_id: record._id, fingerPrintId });
@@ -386,13 +377,9 @@ export function ScannerForm() {
     return scanStages[3];
   };
 
-  React.useEffect(() => {
-    console.log(rnd)
-
-  }, [rnd])
 
 
-  console.log(fingerPrint, fingerFile, 'FINGERPRINT')
+  console.log(fingerPrint, fingerFile, fingerImage, 'FINGERPRINT')
 
   return (
     <>
@@ -449,7 +436,7 @@ export function ScannerForm() {
                   </>
                   :
                   <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>
-                    <img src={getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
+                    <img src={fingerImage ? fingerImage : getGif(scanProgress)} className="w-50  ml-auto mr-auto" style={{ height: '300px' }} />
                   </div>
                 : fingerFile ?
                   <div className="d-flex flex-row justify-center items-center" style={{ marginBottom: '-10px', zIndex: -1 }}>

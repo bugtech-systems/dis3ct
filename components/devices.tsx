@@ -65,7 +65,7 @@ export function DeviceForm() {
 
   const handleShutdown = async () => {
     console.log("🛑 Shutting down scanner...");
-    setIsConnected(false)
+    setIsConnected(!isConnected)
     // setScannerStatus("Shutting");
     // socket.emit("shutdown")
 
@@ -90,8 +90,6 @@ export function DeviceForm() {
   const handleStatus = () => {
     // socket.emit("check_status")
   }
-
-
   const handleRestartGsm = async () => {
     let apiUrl = process.env.TASK_URL ? process.env.TASK_URL : 'https://sharewin.pro/api/tasks';
 
@@ -246,9 +244,6 @@ export function DeviceForm() {
             console.log(mergedDescriptor, 'dddd')
             await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
 
-
-
-
           }
 
 
@@ -377,6 +372,48 @@ export function DeviceForm() {
 
   }
 
+  const handleSubmitTags = async () => {
+    let biometrics = transferables.filter(a => a.sync == 'biometric');
+    for (const data of biometrics) {
+      console.log(data)
+      let bios = data?.tags?.filter(a => a.tagType == 'biometrics')
+
+      const formData = new FormData();
+
+      for (const bio of bios) {
+        if (!await checkImage(STATIC_URL + bio.value)) {
+          console.log('Cant Find Biometric')
+        } else {
+
+
+
+          const response = await fetch(STATIC_URL + bio.value);
+          const blob = await response.blob();
+          const fileName = (STATIC_URL + bio.value).split('/').pop() || 'upload.file';
+          const file = new File([blob], fileName, { type: blob.type });
+          formData.append("file", file);
+        }
+
+      }
+
+      const response = await fetch(`${host}/api/biometrics/upload?id=${data?._id}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        console.log('UPLOAD Failed')
+        // throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result);
+
+    }
+    alert('File uploaded successfully!');
+
+  }
+
 
 
 
@@ -392,7 +429,6 @@ export function DeviceForm() {
         setIsConnected(true)
         setBiometricConnected(true)
       }
-      console.log(socket?.connected, 'con')
 
 
 
@@ -438,7 +474,6 @@ export function DeviceForm() {
   }, []);
 
 
-  console.log(transferables, 'TRANS')
   return (
     <Dialog open={modal === "devices"} onOpenChange={(e) => setModal(e)}>
       <DialogContent>
@@ -456,7 +491,7 @@ export function DeviceForm() {
             {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'biometric').value) &&
               <>
                 <p onClick={() => handleStatus()}>Biometric: {scannerStatus}</p>
-                {isConnected ?
+                {(isConnected && scannerStatus != 'Shutdown') ?
                   <Button onClick={() => handleShutdown()} >
                     Stop Device
                   </Button> :

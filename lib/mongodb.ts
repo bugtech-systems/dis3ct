@@ -2,8 +2,8 @@
 import mongoose from 'mongoose';
 
 
-const MONGODB_URI = 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/alayon-db';
-// const MONGODB_URI = 'mongodb://localhost:27017/sanisidro-db';
+// const MONGODB_URI = 'mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/alayon-db';
+const MONGODB_URI = 'mongodb://localhost:27017/sanisidro-db';
 // const MONGODB_URI = 'mongodb://localhost:27017/fingerprintDB';
 
 

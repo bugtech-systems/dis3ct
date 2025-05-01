@@ -298,6 +298,14 @@ const CamScreen = ({ camType }: any) => {
             });
 
             const data = await response.json();
+            if (response.ok) {
+                setDetection(null)
+                // setCapturedImages(newImgs)
+                setViewing(!viewing)
+                setRefreshId(Math.random())
+                setModal(null)
+            }
+
 
             // await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
 

@@ -42,12 +42,8 @@ export const POST = async (
     let isTag = false;
     let newTags = updatedContact?.tags as any[];
 
-
-
     let tagExist = updatedContact?.tags?.find(tag => (String(tag?.user) == String(authUser?._id) && tag.value == type))
     // newTags = newTags.filter(tag => String(tag.user) != String(authUser._id) );
-
-
 
     if (tagExist) {
       // if(tagExist)

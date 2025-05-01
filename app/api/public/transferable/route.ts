@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
                     imageContacts: [
                         {
                             $match: {
-                                tags: { $elemMatch: { tagType: "image" } },
+                                tags: { $elemMatch: { tagType: "image", sync: { $in: [null, "", false] } } },
                                 // descriptor: { $in: [null, "", []] },
                                 // parNum: user?._id
                             }
@@ -32,7 +32,16 @@ export async function GET(req: NextRequest) {
                     biometricContacts: [
                         {
                             $match: {
-                                tags: { $elemMatch: { tagType: "biometrics" } },
+                                tags: { $elemMatch: { tagType: "biometrics", sync: { $in: [null, "", false] } } },
+                                // biometric: { $in: [null, ""] },
+                                // parNum: user?._id
+                            }
+                        }
+                    ],
+                    tagContacts: [
+                        {
+                            $match: {
+                                tags: { $elemMatch: { tagType: "tag", sync: { $in: [null, "", false] } } },
                                 // biometric: { $in: [null, ""] },
                                 // parNum: user?._id
                             }

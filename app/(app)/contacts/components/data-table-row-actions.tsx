@@ -164,6 +164,7 @@ export function DataTableRowActions<TData>({
   let hasImg = contact?.tags.find(tg => tg.tagType == 'image');
   let parent = parentSystem ? parentSystem.parent : user.parent;
 
+
   return (
     <>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -236,7 +237,7 @@ export function DataTableRowActions<TData>({
                     onClick={() => {
                       // router.replace(`/scanner.html?id=${contact._id}`)
                       setRecord(contact)
-                      setModal('scannerPage', contact?._id)
+                      setModal('scanner', contact?._id)
                     }}
                   >
                     Set Biometrics
