@@ -18,6 +18,8 @@ import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 import { SyncView } from "./SyncView";
 import { Input } from "./ui/input";
+import { imageExists } from '@/utils/imageExists'
+
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
@@ -192,6 +194,10 @@ export function DeviceForm() {
   async function extractFaceDescriptor(imageUrl) {
     // Fetch the image
     if (!modelsLoaded) return console.log('model not loaded!')
+    let isImg = await imageExists(STATIC_URL + imageUrl);
+    if (!isImg) return console.log('Is not Image!')
+
+
     const img = await faceapi.fetchImage(STATIC_URL + imageUrl);
 
     // Detect face in the image and extract face descriptor
@@ -306,28 +312,29 @@ export function DeviceForm() {
         }
       }
 
-      const response = await fetch(`${host}/api/image/upload?id=${data?._id}`, {
-        method: "POST",
-        body: formData,
-      });
+    }
 
-      if (!response.ok) {
-        // throw new Error('Upload failed');
-        console.log('UPLOAD Failed')
+    const response = await fetch(`${host}/api/image/upload?id=${data?._id}`, {
+      method: "POST",
+      body: formData,
+    });
 
-      }
-
-      const result = await response.json();
-      console.log('Upload successful:', result);
+    if (!response.ok) {
+      // throw new Error('Upload failed');
+      console.log('UPLOAD Failed')
 
     }
 
-
-    // alert('File uploaded successfully!');
-
-
+    const result = await response.json();
+    console.log('Upload successful:', result);
 
   }
+
+
+  // alert('File uploaded successfully!');
+
+
+
 
 
   const handleSubmitBiometrics = async () => {
@@ -353,6 +360,8 @@ export function DeviceForm() {
         }
 
       }
+
+
 
       const response = await fetch(`${host}/api/biometrics/upload?id=${data?._id}`, {
         method: "POST",

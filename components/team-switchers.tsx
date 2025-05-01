@@ -1,8 +1,8 @@
-"use client"
-import * as React from "react"
-import { useSession } from "next-auth/react";
-import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react"
+"use client";
 
+import * as React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,154 +11,112 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import axios from "axios"
-import { CreateSystemForm } from "./contacts/CreateSystemForm"
-import { useContact } from "./providers/ContactProvider"
+} from "@/components/ui/sidebar";
+import axios from "axios";
+import { useContact } from "./providers/ContactProvider";
 
-
-
-export function TeamSwitchers({
-  currentUser
-}: {
-  currentUser?: any
-}) {
-  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false)
-  const { isMobile } = useSidebar()
+export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { isMobile } = useSidebar();
   const { setSystem, system, user, setParentSystem } = useContact();
-  const [teams, setTeams] = React.useState<any>([]);
+  const [teams, setTeams] = React.useState<any[]>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
+  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
 
-  const handleSystems = async (e: any) => {
-    setActiveTeam(e)
-    // setTeams([])
-    // setSystem(e)
-    setParentSystem(e)
-    // setRefreshId(Math.random())
-    if (e) {
-      localStorage.setItem('system', e?._id)
+  const updateUrlParams = (team: any) => {
+    const params = new URLSearchParams(window.location.search);
+    if (team?.accessCode) {
+      params.set("team", team.accessCode);
+    } else {
+      params.delete("team");
     }
-    // signOut({ callbackUrl: '/login' })
-  }
+    router.push(`?${params.toString()}`);
+  };
 
+  const handleSystems = async (team: any) => {
+    setActiveTeam(team);
+    setSystem(team);
+    setParentSystem(team);
+    localStorage.setItem("system", team?.accessCode || "");
+    updateUrlParams(team);
+  };
 
-  const handleGetSystems = async (authUser) => {
-    await axios.get(`/api/users?userId=${authUser?._id}`)
-      .then((response) => {
-        setTeams(response.data)
-
-      })
-      .catch((error) => {
-        console.log("Error fetching user data:", error);
-      })
-    // let teamData = await getTeams(authUser?._id);
-    // console.log(teamData, 'authUSER0', authUser)
-  }
-
+  const handleGetSystems = async (authUser: any) => {
+    try {
+      const response = await axios.get(
+        `/api/location/barangays/${authUser?.accessCode}`
+      );
+      const { data } = response.data;
+      setTeams(
+        data.map((a: any) => ({
+          name: a.brgyDesc,
+          accessCode: a.brgyCode,
+          userType: "Barangay",
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   React.useEffect(() => {
-    // if(user)
-
-    // Fetch user details from API if session exists
-    // handleGetSystems(system?._id)
-    // handleAuth()
-
-    // handleGetSystems(user)
-    handleSystems(system);
-    return () => {
-
-      // setActiveTeam(null)
+    if (system) {
+      handleSystems(system);
     }
-  }, [user, system]);
+  }, [system]);
 
   React.useEffect(() => {
     if (activeTeam) {
-      handleGetSystems(activeTeam)
+      handleGetSystems(activeTeam);
     }
+  }, [activeTeam]);
 
-  }, [activeTeam])
-
-
-
-  // console.log(teams, 'TEAMS')
-  // React.useEffect(() => {
-
-  //   if (currentUser) {
-  //     //     axios.get(`/api/contacts/save/${activeTeam?.user}`)
-
-  //     axios.get(`/api/contacts/save/${currentUser?._id}`)
-  //       .then((response) => {
-  //         setUser(response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.log("Error fetching user data:", error);
-  //       })
-  //   }
-
-  // }, [currentUser]);
-
-
-  // console.log(session, 'SESSION')
   return (
-    <>
-      <CreateSystemForm open={showNewTeamDialog} setOpen={setShowNewTeamDialog} />
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <DropdownMenu>
-            {(teams.length >= 0) ?
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <GalleryVerticalEnd className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {activeTeam?.name}
-                    </span>
-                    <span className="truncate text-xs">{activeTeam?.userType}</span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              :
-              <SidebarMenuButton
-                size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GalleryVerticalEnd className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {activeTeam?.name}
-                  </span>
-                  <span className="truncate text-xs">{activeTeam?.userType}</span>
-                </div>
-                <ChevronsUpDown className="ml-auto" />
-              </SidebarMenuButton>
-            }
-
-            <DropdownMenuContent
-              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-              align="start"
-              side={isMobile ? "bottom" : "right"}
-              sideOffset={4}
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
-                Teams
-              </DropdownMenuLabel>
-              {teams?.filter(team => (team?._id != user?._id)).map((team, index) => (
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <GalleryVerticalEnd className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">
+                  {activeTeam?.name || "Select Team"}
+                </span>
+                <span className="truncate text-xs">{activeTeam?.userType}</span>
+              </div>
+              <ChevronsUpDown className="ml-auto" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            // className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
+            align="start"
+            side={isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              Teams
+            </DropdownMenuLabel>
+<div
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
+>
+            {teams
+              ?.filter((team) => team?.accessCode !== user?.accessCode)
+              .map((team, index) => (
                 <DropdownMenuItem
-                  key={team?._id}
+                  key={team.accessCode}
                   onClick={() => handleSystems(team)}
                   className="gap-2 p-2"
                 >
@@ -169,40 +127,38 @@ export function TeamSwitchers({
                   <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               ))}
-              {(activeTeam && user?._id != activeTeam._id) &&
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handleSystems(user)}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-sm border">
-                      <GalleryVerticalEnd className="size-4 shrink-0" />
-                    </div>
-                    Clear Selection
-                  </DropdownMenuItem>
-                </>
-              }
-              <DropdownMenuSeparator />
-              {user?.userType == 'admin' &&
-                <DropdownMenuItem className="gap-2 p-2">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Plus className="size-4" />
+</div>
+            {activeTeam && user?.accessCode !== activeTeam.accessCode && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => handleSystems(user)}
+                  className="gap-2 p-2"
+                >
+                  <div className="flex size-6 items-center justify-center rounded-sm border">
+                    <GalleryVerticalEnd className="size-4 shrink-0" />
                   </div>
-
-                  <div className="font-medium text-muted-foreground"
-                    onClick={() => {
-                      setShowNewTeamDialog(true)
-                    }}
-                  >Add team</div>
+                  Clear Selection
                 </DropdownMenuItem>
-              }
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarMenuItem>
+              </>
+            )}
 
+            <DropdownMenuSeparator />
 
-      </SidebarMenu >
-    </>
-  )
+            {user?.userType === "admin" && (
+              <DropdownMenuItem
+                className="gap-2 p-2"
+                onClick={() => setShowNewTeamDialog(true)}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                  <Plus className="size-4" />
+                </div>
+                <div className="font-medium text-muted-foreground">Add team</div>
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
 }

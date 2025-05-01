@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+
 import {
   Card,
   CardContent,
@@ -15,54 +17,71 @@ import { getLeaderDashboard } from "@/actions/getDashboard";
 import { findFeature } from "@/lib/helpers";
 import { BarangayChart } from "@/components/barangayChart";
 import { ChartProvider } from "@/components/ui/chart";
+import axios from "axios";
 
 export default function DashboardPage() {
-  const { user, system, parentSystem } = useContact();
-
+  const searchParams = useSearchParams();
+  const { user, system, parentSystem, setSystem, setParentSystem } = useContact();
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
     subscriptions: 0,
     contacts: 0,
     recentContacts: [],
     overviewChartData: [],
-    barangay: {}
+    barangay: {},
   });
+  const teamCode = searchParams.get("team");
 
-  // Memoized function to fetch dashboard data
+
+  // Fetch dashboard for selected system
   const fetchDashboardData = useCallback(async () => {
     if (!parentSystem || !user) return;
 
     try {
-      const dashData = await getLeaderDashboard(parentSystem?._id);
-      // Only update state if data actually changes
-      setDashboardData((prevData) => {
-        return JSON.stringify(prevData) !== JSON.stringify(dashData)
-          ? dashData
-          : prevData;
-      });
+
+      
+      const dashData = await getLeaderDashboard(teamCode);
+      setDashboardData((prevData) =>
+        JSON.stringify(prevData) !== JSON.stringify(dashData) ? dashData : prevData
+      );
     } catch (error) {
       console.error("Failed to fetch dashboard data", error);
     }
-  }, [parentSystem, user, system]);
+  }, [parentSystem, user]);
 
+  // Check for `team` param in URL and set context accordingly
+  useEffect(() => {
 
-  // Fetch dashboard data when user changes
+    const fetchAndSetTeam = async (code: string) => {
+        try {
+
+      
+          const dashData = await getLeaderDashboard(teamCode);
+          setDashboardData((prevData) =>
+            JSON.stringify(prevData) !== JSON.stringify(dashData) ? dashData : prevData
+          );
+        } catch (error) {
+          console.error("Failed to fetch dashboard data", error);
+        }
+      }
+
+    if (teamCode) {
+      fetchAndSetTeam(teamCode);
+    }
+  }, [teamCode]);
+
   useEffect(() => {
     fetchDashboardData();
   }, [parentSystem, fetchDashboardData]);
 
-
+  // Optional: auto-refresh every 10 minutes
   useEffect(() => {
-    let interv = setInterval(() => {
-      fetchDashboardData
-    }, 1000 * 60 * 10)
+    const interval = setInterval(fetchDashboardData, 1000 * 60 * 10);
+    return () => clearInterval(interval);
+  }, [fetchDashboardData]);
 
-    return () => {
-      clearInterval(interv)
-    }
-  }, [])
+  const parent = parentSystem?.parent ?? user?.parent;
 
-  let parent = parentSystem?.parent ? parentSystem?.parent : user?.parent;
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">
@@ -78,8 +97,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-
-
             {/* My Contacts */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -91,7 +108,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Subscriptions */}
-            {(parent && findFeature(parent?.configs, 'sms').value) &&
+            {parent && findFeature(parent?.configs, "sms")?.value && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
@@ -99,22 +116,18 @@ export default function DashboardPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
                 </CardContent>
-              </Card>}
+              </Card>
+            )}
           </div>
 
           {/* Chart & Recent Contacts */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
             <Card className="col-span-4">
-              {/* <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader> */}
-              {/* <CardContent className="pl-2"> */}
-              {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
               <ChartProvider>
                 <BarangayChart data={dashboardData.barangay || {}} />
               </ChartProvider>
-              {/* </CardContent> */}
             </Card>
+
             <Card className="col-span-3">
               <CardHeader>
                 <CardTitle>Recently Updated</CardTitle>

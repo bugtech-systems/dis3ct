@@ -54,8 +54,8 @@ export function UserNav({ user }: { user: any }) {
   const handleAuth = async () => {
 
     let authUser = await getAuth();
-    let parent = localStorage.getItem('system')
-
+    // let parent = localStorage.getItem('system')
+    let parent = null
 
     if (authUser) {
       setUser(authUser);
