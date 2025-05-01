@@ -18,6 +18,8 @@ import { connectSocket, getSocket } from "@/lib/socket";
 import createTask from "@/actions/createTask";
 import { SyncView } from "./SyncView";
 import { Input } from "./ui/input";
+import {imageExists} from '@/utils/imageExists'
+
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
@@ -194,6 +196,10 @@ export function DeviceForm() {
   async function extractFaceDescriptor(imageUrl) {
     // Fetch the image
     if (!modelsLoaded) return console.log('model not loaded!')
+    let isImg = await imageExists(STATIC_URL + imageUrl);
+    if (!isImg) return console.log('Is not Image!')
+
+
     const img = await faceapi.fetchImage(STATIC_URL + imageUrl);
 
     // Detect face in the image and extract face descriptor
@@ -247,8 +253,6 @@ export function DeviceForm() {
             await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
 
 
-
-
           }
 
 
@@ -299,12 +303,19 @@ export function DeviceForm() {
       const formData = new FormData();
 
       for (const img of imgData) {
+        let isImg = await imageExists(STATIC_URL + imageUrl);
+        if (!isImg) {
 
+
+          
+        } else {
         const response = await fetch(STATIC_URL + img.value);
         const blob = await response.blob();
         const fileName = (STATIC_URL + img.value).split('/').pop() || 'upload.file';
         const file = new File([blob], fileName, { type: blob.type });
         formData.append("file", file);
+      }
+
       }
 
       const response = await fetch(`${host}/api/image/upload?id=${data?._id}`, {
@@ -339,12 +350,19 @@ export function DeviceForm() {
 
       for (const bio of bios) {
 
+            imageExists
+
         const response = await fetch(STATIC_URL + bio.value);
+        
         const blob = await response.blob();
         const fileName = (STATIC_URL + bio.value).split('/').pop() || 'upload.file';
         const file = new File([blob], fileName, { type: blob.type });
         formData.append("file", file);
       }
+
+
+
+
 
       const response = await fetch(`${host}/api/biometrics/upload?id=${data?._id}`, {
         method: "POST",

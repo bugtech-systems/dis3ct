@@ -6,42 +6,53 @@ import AuditLogs from "@/models/AuditLogs";
 import Contact from "@/models/Contact";
 import User from "@/models/User";
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export const getLeaderDashboard = async (id): Promise<any> => {
   try {
     // Get session & user details
+    const session = await getServerSession(authOptions) as any;
+    if (!session || !session.user) {
+      return [];
+    }
+    const userId = session.user.id;
+
 
     await connectToDatabase();
+    let user = await User.findById(userId)
 
-    // Get user details
-    const user = await User.findById(id).lean(); // ✅ Convert to plain object
+
+console.log(id, 'IIDD')
+    // // Get user details
+    // const user = await User.findById(id).lean(); // ✅ Convert to plain object
     if (!user) {
       throw new Error("User not found");
     }
 
-    let brgyCode = user.accessCodes;
+    // let brgyCode = user.accessCodes;
 
-    let brgys = brgyCode ? brgyCode.map(brgy => {
-      return {
-        brgyCode: brgy, parNum: user.parent
-      }
-    }) : []
-
-
-
-    let options: any = { deletedAt: null };
-    if (user.userType != "leader") {
-      options.parNum = user.parent;
-
-    } else if (user.userType == 'leader') {
-      options.parNum = user.parent;
-      // options[user.accessLevel] = user.accessCode;
-      if (brgys.length) {
-        options.$or = brgys;
-      }
-    }
+    // let brgys = brgyCode ? brgyCode.map(brgy => {
+    //   return {
+    //     brgyCode: brgy, parNum: user.parent
+    //   }
+    // }) : []
 
 
+
+    // let options: any = { deletedAt: null };
+    // if (user.userType != "leader") {
+    //   options.parNum = user.parent;
+
+    // } else if (user.userType == 'leader') {
+    //   options.parNum = user.parent;
+    //   // options[user.accessLevel] = user.accessCode;
+    //   if (brgys.length) {
+    //     options.$or = brgys;
+    //   }
+    // }
+     let isSystem = String(id).length == 6 
+     let options = isSystem ? { citymunCode: id } : {brgyCode: id }
 
 
 
@@ -51,7 +62,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       Contact.countDocuments({ subscribed: true, ...options }),
       Contact.countDocuments({
         ...options,
-        ...(user.userType == 'system' ? { 'tags.tagType': { $in: ['tag', 'image', 'biometrics'] } } : { 'tags.user': String(user._id) }),
+        ...(isSystem ? { 'tags.tagType': { $in: ['tag', 'image', 'biometrics'] } } : { 'tags.user': String(user._id) }),
       }),
       // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })
