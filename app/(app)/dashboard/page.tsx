@@ -17,11 +17,10 @@ import { getLeaderDashboard } from "@/actions/getDashboard";
 import { findFeature } from "@/lib/helpers";
 import { BarangayChart } from "@/components/barangayChart";
 import { ChartProvider } from "@/components/ui/chart";
-import axios from "axios";
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
-  const { user, system, parentSystem, setSystem, setParentSystem } = useContact();
+  const { user, parentSystem } = useContact();
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
     subscriptions: 0,
@@ -39,7 +38,7 @@ export default function DashboardPage() {
 
     try {
 
-      
+
       const dashData = await getLeaderDashboard(teamCode);
       setDashboardData((prevData) =>
         JSON.stringify(prevData) !== JSON.stringify(dashData) ? dashData : prevData
@@ -53,17 +52,17 @@ export default function DashboardPage() {
   useEffect(() => {
 
     const fetchAndSetTeam = async (code: string) => {
-        try {
+      try {
 
-      
-          const dashData = await getLeaderDashboard(teamCode);
-          setDashboardData((prevData) =>
-            JSON.stringify(prevData) !== JSON.stringify(dashData) ? dashData : prevData
-          );
-        } catch (error) {
-          console.error("Failed to fetch dashboard data", error);
-        }
+
+        const dashData = await getLeaderDashboard(teamCode);
+        setDashboardData((prevData) =>
+          JSON.stringify(prevData) !== JSON.stringify(dashData) ? dashData : prevData
+        );
+      } catch (error) {
+        console.error("Failed to fetch dashboard data", error);
       }
+    }
 
     if (teamCode) {
       fetchAndSetTeam(teamCode);

@@ -180,17 +180,17 @@ export function DataTableToolbar<TData>({
           />
         )}
 
-        {/*        <DataTableFacetedFilter
+        <DataTableFacetedFilter
           column={table.getColumn("identity")}
           title="Identity"
           options={mediaOptions}
           onFilterChange={(values) => {
             setFilters((old) => { return { ...old, identity: values } })
-            setRefreshId(Math.random())
+            // setRefreshId(Math.random())
             // table.getColumn("identity")?.setFilterValue(values.length ? values : undefined)
           }}
         />
- */}
+
         {isFiltered && (
           <Button variant="ghost" onClick={() => {
             setSearch("")

@@ -61,7 +61,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       Contact.countDocuments({ subscribed: true, ...options }),
       Contact.countDocuments({
         ...options,
-        ...(isSystem ? { 'tags.tagType': { $in: ['tag', 'image', 'biometrics'] } } : { 'tags.user': String(user._id) }),
+        'tags.tagType': { $in: ['tag', 'image', 'biometrics'] },
       }),
       // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })

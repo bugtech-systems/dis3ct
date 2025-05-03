@@ -12,7 +12,7 @@ export async function GET(req) {
     const parNum = searchParams.get("parNum");
     const userId = searchParams.get("userId");
 
-    const matchQuery = parNum ? { parNum: new mongoose.Types.ObjectId(parNum) } : {};
+    const matchQuery = parNum ? {} : {};
     const userObjectId = userId ? new mongoose.Types.ObjectId(userId) : null;
 
     const filterFields = [
@@ -81,8 +81,8 @@ export async function GET(req) {
       {
         $match: {
           "latestTag.tagType": "tag",
-          "latestTag.value": { $in: ["confirm", "undecided", "declined"] },
-          "latestTag.user": userObjectId,
+          "latestTag.value": { $in: ["undecided", "declined"] }
+          // "latestTag.user": userObjectId,
         },
       },
       {
@@ -92,12 +92,17 @@ export async function GET(req) {
         },
       },
       { $sort: { _id: 1 } },
-    ]).allowDiskUse(true);
+    ]);
 
     // Count records without a tag of type "tag"
     const unknownCount = await Contact.countDocuments({
       ...matchQuery,
-      tags: { $not: { $elemMatch: { tagType: "tag", user: userObjectId } } },
+      tags: { $not: { $elemMatch: { tagType: "tag" } } },
+    });
+
+    const confirmCount = await Contact.countDocuments({
+      ...matchQuery,
+      tags: { $elemMatch: { tagType: "tag", value: "confirm" } },
     });
 
     filters.tags = tagResults.map(({ _id, count }) => ({
@@ -109,7 +114,15 @@ export async function GET(req) {
     if (unknownCount > 0) {
       filters.tags.push({ value: "unknown", label: "UNKNOWN", count: unknownCount });
     }
-    console.log('filter', userObjectId, userId)
+
+    if (confirmCount > 0) {
+      filters.tags.push({ value: "confirm", label: "CONFIRM", count: confirmCount });
+    }
+
+
+
+
+    // console.log('filter', userObjectId, userId)
     // Count records that contain tagType "biometrics" or "image"
     const mediaTagCounts = await Contact.aggregate([
       {

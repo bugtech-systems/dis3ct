@@ -10,6 +10,7 @@ import { DataTableRowActions } from "./data-table-row-actions"
 // import { barangays } from "@/lib/locationData";
 
 import { Contact } from "../data/schema"
+import { imageExists } from "@/utils/imageExists"
 
 
 const STATIC_FILE_URL = 'http://localhost:3500'
@@ -40,13 +41,13 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false,
   },
   {
-    id: "identity",
-    header: "Identity",
+    // id: "identity",
+    // header: "Identity",
     accessorKey: "identity",
     cell: ({ row }) => {
       const tags = row.original.tags || [];
 
-      const imageTag = tags.find(tag => tag.tagType === "image");
+      const imageTag = tags.find(tag => (tag.tagType === "image" && imageExists(STATIC_FILE_URL + tag.value)));
       const biometricTag = tags.find(tag => tag.tagType === "biometrics");
 
       return (
@@ -90,11 +91,10 @@ export const columns: ColumnDef<Contact>[] = [
         </div>
       );
     },
-    enableSorting: false,
     filterFn: (row, id, value) => {
-      console.log(row, id, value,)
       return value.includes(row.getValue(id))
     },
+    enableColumnFilter: true,
     // enableColumnFilter: true,
   },
   {

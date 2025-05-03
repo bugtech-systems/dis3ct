@@ -105,6 +105,7 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
 
     const skip = (page - 1) * limit; // Correct pagination logic
+    const identityList = identities?.split(",");
 
     // Fetch user to determine access level
     let user = await User.findById(userId);
@@ -141,17 +142,16 @@ export async function GET(req: NextRequest) {
         ];
       } else {
         // Otherwise, filter by specific tagTypes
-        query.tags = { $elemMatch: (user.userType == 'system' || user.userType == 'admin') ? { value: { $in: tagList } } : { value: { $in: tagList }, user: user._id, tagType: 'tag' } };
+        query.tags = { $elemMatch: (user.userType == 'system' || user.userType == 'admin') ? { value: { $in: tagList } } : { value: { $in: tagList }, tagType: 'tag' } };
       }
     }
 
 
     if (identities) {
-      const tagList = identities.split(",");
 
 
       // Otherwise, filter by specific tagTypes
-      query.tags = { $elemMatch: { tagType: { $in: tagList } } };
+      query.tags = { $elemMatch: { tagType: { $in: identityList } } };
     }
 
     // Include only contacts with a phone number if requested
@@ -190,15 +190,15 @@ export async function GET(req: NextRequest) {
       const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;
       const province = provinces.find((p) => p.provCode === contact.provCode)?.provDesc;
       const region = regions.find((r) => r.regCode === contact.regCode)?.regDesc;
-      let tags = contact?.tags ? (user.userType == 'system' || user.userType == 'admin') ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : contact.tags.filter(a => String(a.user) == String(user._id)).sort((a, b) => b.timestamp - a.timestamp) : []
+      let tags = contact?.tags ? contact.tags.sort((a, b) => b.timestamp - a.timestamp) : []
 
-      let tagContact = tags.filter(a => ((a.tagType == 'tag' && String(a.user) == String(user._id)))).sort((a, b) => b.timestamp - a.timestamp)
+      let tagContact = tags.filter(a => ((a.tagType == 'tag'))).sort((a, b) => b.timestamp - a.timestamp)
       const tagPhone = tags.find(a => { return (a.tagType == 'phone' && String(a.user) == String(user._id)) })?.value
 
       const biometeric = tags.find(a => a.tagType == 'biometrics')?.value ? 'biometrics' : null;
       const image = tags.find(a => a.tagType == 'image')?.value ? 'image' : null;
 
-      let identity = (biometeric && image) ? 'complete' : (biometeric && !image) ? 'biometrics' : (!biometeric && image) ? 'image' : null;
+      let identity = identityList?.includes('biometrics') ? 'biometrics' : identityList?.includes('image') ? 'image' : null;
       console.log(tagContact, 'TCCC')
       return {
         _id: contact._id,
