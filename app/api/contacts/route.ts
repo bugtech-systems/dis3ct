@@ -199,7 +199,6 @@ export async function GET(req: NextRequest) {
       const image = tags.find(a => a.tagType == 'image')?.value ? 'image' : null;
 
       let identity = identityList?.includes('biometrics') ? 'biometrics' : identityList?.includes('image') ? 'image' : null;
-      console.log(tagContact, 'TCCC')
       return {
         _id: contact._id,
         name: contact.name,

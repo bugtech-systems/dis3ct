@@ -262,6 +262,56 @@ export function DeviceForm() {
     setStatus('Data submission complete.');
   };
 
+  const handleSubmitSyncBio = async () => {
+    setStatus('Submitting data...');
+    for (const data of syncables) {
+
+      if (data?.sync == 'biometric') {
+
+
+        const response = await fetch(`${STATIC_URL}/api/biometrics/register?id=${data?._id}`, {
+          method: "POST",
+        });
+
+        if (response.ok) {
+          console.log(`Successfully submitted: ${JSON.stringify(data)}`);
+        } else {
+          console.error(`Failed to submit: ${JSON.stringify(data)}`);
+        }
+
+      }
+
+    }
+    setStatus('Data submission complete.');
+  };
+
+  const handleSubmitSyncImage = async () => {
+    setStatus('Submitting data...');
+    for (const data of syncables) {
+
+      if (data?.sync != 'biometric') {
+
+        let descriptors = []
+        let newTags = data?.tags?.filter(a => a.tagType == 'image').map(a => a.value);
+
+        for (let pic of newTags) {
+          const descriptor = await extractFaceDescriptor(pic);
+          if (descriptor) {
+            descriptors.push(descriptor)
+          }
+        }
+        console.log('Face Descriptor:', descriptors);
+        if (descriptors.length == 3) {
+          const mergedDescriptor = mergeDescriptors(descriptors);
+          console.log(mergedDescriptor, 'dddd')
+          await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
+
+        }
+      }
+    }
+    setStatus('Data submission complete.');
+  };
+
   const loadModels = async () => {
     try {
       const faceapiModule = await import('face-api.js');
@@ -518,23 +568,30 @@ export function DeviceForm() {
             </Button>
           </>
         } */}
-            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+            {/* {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
               <>
                 <p >GSM Module</p>
                 <Button onClick={() => handleRestartTemplates()} >
                   Reset Templates
                 </Button>
               </>
-            }
+            } */}
 
             {(user?.userType == 'admin' || (findFeature(parentSystem?.configs, 'biometric' || findFeature(parentSystem?.configs, 'image').value))) &&
               <>
                 <div className="d-flex flex-row justify-around">
                   <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView('sync')} className="float-end clickable text-blue">View</button>
                 </div>
-                <Button onClick={() => handleSubmit()} >
-                  Start Syncing
-                </Button>
+                <div className="d-flex flex-row justify-between w-full w-100">
+
+                  <Button onClick={() => handleSubmitSyncImage()} >
+                    sync image
+                  </Button>&nbsp;&nbsp;&nbsp;
+                  <Button onClick={() => handleSubmitSyncBio()} >
+                    sync biometrics
+                  </Button>
+                </div>
+
               </>
             }
             <br />

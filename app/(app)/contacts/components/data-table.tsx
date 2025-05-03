@@ -76,7 +76,7 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
   });
 
 
-  const debouncedSearch = useDebounce(search, 2000);
+  const debouncedSearch = useDebounce(search, 1000);
 
 
   const table = useReactTable({
@@ -105,7 +105,6 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
 
   React.useEffect(() => {
     setIsRefreshing(true)
-    console.log('FETCH', (user && user?.parent?._id) ? user?.parent?._id : user?.parent)
     const fetchData = async () => {
       try {
         const params = {
@@ -130,12 +129,13 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
       }
     };
 
-    if (parentSystem) {
+    if (user || (user && user?.parent?._id)) {
       fetchData();
     }
 
-  }, [parentSystem, pageIndex, pageSize, debouncedSearch, filters, refreshId]);
+  }, [user, parentSystem, pageIndex, pageSize, debouncedSearch, filters, refreshId]);
 
+  console.log(user, parentSystem, 'systems')
   return (
     <div className="space-y-4">
       <DataTableToolbar setFilters={setFilters} setSearch={setSearch} table={table} search={search} />

@@ -51,7 +51,8 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     //   }
     // }
     let isSystem = String(id).length == 6
-    let options = isSystem ? { citymunCode: id } : { brgyCode: id }
+    // let options = isSystem ? { citymunCode: id } : { brgyCode: id }
+    let options = {}
 
 
 
@@ -77,7 +78,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
     let newBarangay = barangay.map((contact: any) => {
       let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
-      let tags = contact.tags.filter(a => a.tagType == 'tag');
+      let tags = contact.tags.filter(a => a.tagType == 'tag')
 
       let tag = tags.length ? tags[0].value : 'unknown';
 
@@ -90,7 +91,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
       if (acc[bar]) {
         acc[bar] = { ...acc[bar], total: acc[bar].total + 1, [contact.tag]: (acc[bar][contact.tag] || 0) + 1 };
       } else {
-        acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0 };
+        acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
       }
       return acc;
     }, {})

@@ -74,6 +74,8 @@ export function BarangayChart({ data }) {
             <option value="confirm">Confirm</option>
             <option value="declined">Declined</option>
             <option value="undecided">Undecided</option>
+            <option value="verified">Verified</option>
+
           </select>
         </div>
       </CardHeader>

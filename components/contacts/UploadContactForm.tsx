@@ -263,20 +263,20 @@ export function UploadContactForm() {
         body: formData,
       });
 
-      // const data = await response.json();
+      const data = await res.json();
 
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      // const blob = await res.blob();
+      // const url = window.URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'processed_contacts.xlsx';
-      a.click();
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = 'processed_contacts.xlsx';
+      // a.click();
       setLoading(false);
 
       // console.log(data, 'DATA')
-      // setJsonData(data);
+      setJsonData(data);
 
 
 
@@ -294,8 +294,8 @@ export function UploadContactForm() {
       console.error("Upload PDF failed", error);
       setLoading(false);
       return toast.success("Upload PDF failed")
-
-
+    } finally {
+      setLoading(false);
 
     }
   };

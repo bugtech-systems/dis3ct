@@ -25,7 +25,7 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useSidebar();
-  const {  system, user, setParentSystem } = useContact();
+  const { system, user, setParentSystem } = useContact();
   const [teams, setTeams] = React.useState<any[]>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
   // const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
@@ -71,9 +71,9 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
     let active = localStorage.getItem('system');
 
     if (system || (active && JSON.parse(active))) {
-      handleSystems(system || JSON.parse(active));
+      handleSystems(system || (active && JSON.parse(active)));
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
     if (activeTeam && String(activeTeam.accessCode).length == 6) {
@@ -114,25 +114,25 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Teams
             </DropdownMenuLabel>
-<div
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
->
-            {teams
-              ?.filter((team) => team?.accessCode !== user?.accessCode)
-              .map((team, index) => (
-                <DropdownMenuItem
-                  key={team.accessCode}
-                  onClick={() => handleSystems(team)}
-                  className="gap-2 p-2"
-                >
-                  <div className="flex size-6 items-center justify-center rounded-sm border">
-                    <GalleryVerticalEnd className="size-4 shrink-0" />
-                  </div>
-                  {team?.name}
-                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              ))}
-</div>
+            <div
+              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
+            >
+              {teams
+                ?.filter((team) => team?.accessCode !== user?.accessCode)
+                .map((team, index) => (
+                  <DropdownMenuItem
+                    key={team.accessCode}
+                    onClick={() => handleSystems(team)}
+                    className="gap-2 p-2"
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      <GalleryVerticalEnd className="size-4 shrink-0" />
+                    </div>
+                    {team?.name}
+                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                ))}
+            </div>
             {activeTeam && user?.accessCode !== activeTeam.accessCode && (
               <>
                 <DropdownMenuSeparator />
