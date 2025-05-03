@@ -105,10 +105,11 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
 
   React.useEffect(() => {
     setIsRefreshing(true)
+    console.log('FETCH', (user && user?.parent?._id) ? user?.parent?._id : user?.parent)
     const fetchData = async () => {
       try {
         const params = {
-          userId: parentSystem ? parentSystem?._id : user?._id,
+          userId: (user && user?.parent?._id) ? user?.parent?._id : user?.parent,
           page: pageIndex + 1,
           limit: pageSize,
           search: debouncedSearch,

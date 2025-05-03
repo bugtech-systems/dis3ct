@@ -25,10 +25,10 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useSidebar();
-  const { setSystem, system, user, setParentSystem } = useContact();
+  const {  system, user, setParentSystem } = useContact();
   const [teams, setTeams] = React.useState<any[]>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
-  const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
+  // const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
 
   const updateUrlParams = (team: any) => {
     const params = new URLSearchParams(window.location.search);
@@ -41,11 +41,12 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   };
 
   const handleSystems = async (team: any) => {
+    console.log(team, 'handlesystem')
     setActiveTeam(team);
-    setSystem(team);
-    setParentSystem(team);
-    localStorage.setItem("system", team?.accessCode || "");
+    // setSystem(team);
     updateUrlParams(team);
+    setParentSystem(team);
+    localStorage.setItem("system", JSON.stringify(team) || "");
   };
 
   const handleGetSystems = async (authUser: any) => {
@@ -67,17 +68,21 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   };
 
   React.useEffect(() => {
-    if (system) {
-      handleSystems(system);
+    let active = localStorage.getItem('system');
+
+    if (system || (active && JSON.parse(active))) {
+      handleSystems(system || JSON.parse(active));
     }
-  }, [system]);
+  }, []);
 
   React.useEffect(() => {
-    if (activeTeam) {
+    if (activeTeam && String(activeTeam.accessCode).length == 6) {
       handleGetSystems(activeTeam);
     }
   }, [activeTeam]);
 
+
+  console.log(system, 'ATCIVE', activeTeam)
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -145,7 +150,7 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
 
             <DropdownMenuSeparator />
 
-            {user?.userType === "admin" && (
+            {/* {user?.userType === "admin" && (
               <DropdownMenuItem
                 className="gap-2 p-2"
                 onClick={() => setShowNewTeamDialog(true)}
@@ -155,7 +160,7 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
                 </div>
                 <div className="font-medium text-muted-foreground">Add team</div>
               </DropdownMenuItem>
-            )}
+            )} */}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

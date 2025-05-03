@@ -379,7 +379,6 @@ export function ScannerForm() {
 
 
 
-  console.log(fingerPrint, fingerFile, fingerImage, 'FINGERPRINT')
 
   return (
     <>

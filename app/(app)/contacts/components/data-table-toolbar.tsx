@@ -4,7 +4,7 @@ import { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/app/(app)/tasks/components/data-table-view-options";
+import { DataTableViewOptions } from "@/app/(app)/contacts/components/data-table-view-options";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { CreateNewMessageForm } from "@/components/contacts/CreateNewMessageForm";
 import { useContact } from "@/components/providers/ContactProvider";

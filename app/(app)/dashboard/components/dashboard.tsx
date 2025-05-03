@@ -1,138 +1,114 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Overview } from "@/app/(app)/dashboard/components/overview";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
-import { useContact } from "@/components/providers/ContactProvider";
 import { getLeaderDashboard } from "@/actions/getDashboard";
 import { BarangayChart } from "@/components/barangayChart";
+import { ChartProvider } from "@/components/ui/chart";
+import { useContact } from "@/components/providers/ContactProvider";
 
-export default function DashboardPage() {
-    const { user, setUser } = useContact();
+export default function DashboardPage({data}: any) {
+  const {user, parentSystem} = useContact();
+  const [dashboardData, setDashboardData] = useState({
+    teamReach: 0,
+    subscriptions: 0,
+    contacts: 0,
+    recentContacts: [],
+    overviewChartData: [],
+    barangay: {},
+  });
 
-    const [dashboardData, setDashboardData] = useState({
-        teamReach: 0,
-        subscriptions: 0,
-        contacts: 0,
-        recentContacts: [],
-        overviewChartData: [],
-    });
 
-    // Memoized function to fetch dashboard data
-    const fetchDashboardData = useCallback(async () => {
-        if (!user) return;
 
-        try {
-            const dashData = await getLeaderDashboard(user._id);
+  // Check for `team` param in URL and set context accordingly
 
-            // Only update state if data actually changes
-            /*     setDashboardData((prevData) => {
-                    return JSON.stringify(prevData) !== JSON.stringify(dashData)
-                        ? dashData
-                        : prevData;
-                }); */
-        } catch (error) {
-            console.error("Failed to fetch dashboard data", error);
+
+  useEffect(() => {
+        if(data){
+            setDashboardData((prevData) =>
+                JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
+              );
         }
-    }, []);
+  }, [data]);
 
-    // Fetch user data and set it in context
-    // const handleGetUser = useCallback(async () => {
-    //     try {
-    //         const userData = await fetch("/api/contacts/auth").then((res) =>
-    //             res.json()
-    //         );
+  // Optional: auto-refresh every 10 minutes
+  // useEffect(() => {
+  //   const interval = setInterval(fetchDashboardData, 1000 * 60 * 10);
+  //   return () => clearInterval(interval);
+  // }, [fetchDashboardData]);
 
-    //         if (userData) {
-    //             setUser(userData);
-    //         }
-    //     } catch (err) {
-    //         console.log("Error fetching user data:", err);
-    //     }
-    // }, [setUser]);
+  // const parent = parentSystem?.parent ?? user?.parent;
 
-    // // Fetch user on mount
-    // useEffect(() => {
-    //     if (!user) {
-    //         handleGetUser();
-    //     }
-    // }, []);
+  return (
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+            {/* Team Reach */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Target Reach</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData?.teamReach}</div>
+              </CardContent>
+            </Card>
 
-    // Fetch dashboard data when user changes
-    useEffect(() => {
-        fetchDashboardData();
-    }, []);
+            {/* My Contacts */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Actual Reach</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
+              </CardContent>
+            </Card>
 
+            {/* Subscriptions */}
+            {/* {parent && findFeature(parent?.configs, "sms")?.value && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
+                </CardContent>
+              </Card>
+            )} */}
+          </div>
 
-    return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
-            <Tabs defaultValue="overview" className="space-y-4">
-                <TabsContent value="overview" className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {/* Team Reach */}
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Team Reach</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{dashboardData?.teamReach}</div>
-                            </CardContent>
-                        </Card>
+          {/* Chart & Recent Contacts */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
+            <Card className="col-span-4">
+              <ChartProvider>
+                <BarangayChart data={dashboardData.barangay || {}} />
+              </ChartProvider>
+            </Card>
 
-                        {/* Subscriptions */}
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
-                            </CardContent>
-                        </Card>
-
-                        {/* My Contacts */}
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">My Contacts</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Chart & Recent Contacts */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                        <Card className="col-span-4">
-                            <CardHeader>
-                                <CardTitle>Overview</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pl-2">
-                                {/* <Overview chartData={dashboardData?.overviewChartData} /> */}
-                                <BarangayChart/>
-                            </CardContent>
-                        </Card>
-                        <Card className="col-span-3">
-                            <CardHeader>
-                                <CardTitle>Recently Updated</CardTitle>
-                                <CardDescription>
-                                    You saved {dashboardData?.recentContacts?.length} contacts.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <RecentSales contacts={dashboardData?.recentContacts} />
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
+            <Card className="col-span-3">
+              <CardHeader>
+                <CardTitle>Recently Updated</CardTitle>
+                <CardDescription>
+                  You saved {dashboardData?.recentContacts?.length} contacts.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RecentSales contacts={dashboardData?.recentContacts} />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
