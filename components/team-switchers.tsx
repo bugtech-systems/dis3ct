@@ -70,10 +70,10 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   React.useEffect(() => {
     let active = localStorage.getItem('system');
 
-    if (system || (active && JSON.parse(active))) {
-      handleSystems(system || JSON.parse(active));
+    if ((system || (active && JSON.parse(active)))) {
+      handleSystems((system || JSON.parse(active)));
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
     if (activeTeam && String(activeTeam.accessCode).length == 6) {
