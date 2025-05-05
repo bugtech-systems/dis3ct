@@ -182,7 +182,6 @@ export async function GET(req) {
 
 
 
-    console.log(filters, 'FILTER')
     return NextResponse.json(filters);
   } catch (error) {
     console.error("Error fetching filters:", error);

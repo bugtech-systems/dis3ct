@@ -157,6 +157,28 @@ export const getContactByNumber = async (
   }
 };
 
+export const getUserByNumber = async (
+  number: string | null
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+  try {
+    await dbConnect();
+
+    let options = {
+      phone: sanitizePhoneNumber(number)
+    } as any;
+
+    const systemData = await User.findOne({ phone: sanitizePhoneNumber(number) });
+
+    if (!systemData) {
+      return { success: false, error: "Contact not found" };
+    }
+
+    return { success: true, data: systemData };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to fetch contact" };
+  }
+};
+
 export const getContactMobile = async (
   number: string | null,
   system?: string

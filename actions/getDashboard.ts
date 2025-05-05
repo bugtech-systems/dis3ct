@@ -13,16 +13,17 @@ export const getLeaderDashboard = async (id): Promise<any> => {
   try {
     // Get session & user details
     const session = await getServerSession(authOptions) as any;
-    if (!session || !session.user) {
-      return [];
-    }
-    const userId = session.user.id;
+    // if (!session || !session.user) {
+    //   return [];
+    // }
+    const userId = session?.user?.id;
 
 
     await connectToDatabase();
-    let user = await User.findById(userId)
 
 
+
+    let user = (String(id).length < 10 || session) ? await User.findById(userId) : await User.findById(id)
     // // Get user details
     // const user = await User.findById(id).lean(); // ✅ Convert to plain object
     if (!user) {
@@ -50,7 +51,6 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     //     options.$or = brgys;
     //   }
     // }
-    let isSystem = String(id).length == 6
     // let options = isSystem ? { citymunCode: id } : { brgyCode: id }
     let options = {}
 
@@ -89,9 +89,21 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     let groupedBar = newBarangay.reduce((acc: any, contact) => {
       const bar = contact.barangay;
       if (acc[bar]) {
-        acc[bar] = { ...acc[bar], total: acc[bar].total + 1, [contact.tag]: (acc[bar][contact.tag] || 0) + 1 };
+
+        let options = {}
+        if (contact.tags[0]) {
+          contact.tags.map(a => {
+            options = { ...options, [a.value]: (acc[bar][a.value] || 0) + 1 }
+          })
+        } else {
+          options = { unknown: (acc[bar]['unknown'] || 0) + 1 }
+        }
+
+        acc[bar] = { ...acc[bar], total: acc[bar].total + 1, ...options };
       } else {
-        acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
+        let defData = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
+
+        acc[bar] = { ...defData, total: 1, [contact.tag]: 1 }
       }
       return acc;
     }, {})

@@ -1,10 +1,16 @@
+import { getLeaderDashboard } from '@/actions/getDashboard';
+import { getElectionFilters } from '@/actions/getFilters';
 import { cleanJsonObject, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
-import { getContactByNumber, getContactMobile, optInContact, optOutContact, setMobileIntent, updateContact } from '@/services/contactServices';
+import { getContactByNumber, getContactMobile, getUserByNumber, optInContact, optOutContact, setMobileIntent, updateContact } from '@/services/contactServices';
 import { createInteraction } from '@/services/interactionServices';
 import { getPresetByValue } from '@/services/presetServices';
 import PromptService from '@/services/promptService';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
+
+// let apiUrl = `http://192.168.1.150:3000/api/tasks`
+
+let apiUrl = `http://localhost:3000/api/tasks`
 
 const handleCall = async ({ phone, system }: { phone?: string; system?: string; }) => {
 
@@ -33,8 +39,9 @@ const handleCall = async ({ phone, system }: { phone?: string; system?: string; 
 
 const handleNewMessage = async ({ message, sender, system, isFlash = false }: { message?: string; sender?: string; isFlash?: boolean; system?: string; }) => {
 
-  let apiUrl = `http://192.168.1.150:3000/api/tasks`
 
+
+  console.log('NEW MESSAGE', message, sender, system)
 
   let resp = await axios.post(apiUrl, {
     status: 'Todo',
@@ -70,11 +77,13 @@ async function processApiResponse(response: any) {
     if (senderContact.data) {
       contact = senderContact.data;
     }
+
+
     if (content && isParsableObject(cleanJsonObject(content))) {
       let contentData = JSON.parse(cleanJsonObject(content))
 
       await setMobileIntent(sender, system, contentData?.intent)
-
+      console.log(contentData.actions, 'actionss')
 
       if (contentData.actions?.includes("subscribed")) {
         //  await contactService.optIn(contact.phone)
@@ -97,6 +106,8 @@ async function processApiResponse(response: any) {
         }
 
         if (contentData.actions?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
+
+          console.log('SEND SMS', contentData, 'dawd')
           await handleNewMessage({
             sender,
             message: contentData.message,
@@ -146,10 +157,16 @@ async function processApiResponse(response: any) {
 
     } else {
       let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
+      // const fixed = `{${textWithoutJson}}`.replace(/(\w+):/g, '"$1":');
+
+      const parsed = JSON.parse(textWithoutJson.replace(/(\w+):/g, '"$1":'));
+
+      // let contentData = JSON.parse(cleanJsonObject(textWithoutJson))
+      console.log(parsed, jsonObject, textWithoutJson, 'SSS')
 
       await handleNewMessage({
         sender,
-        message: `${jsonObject.message}`,
+        message: `${jsonObject?.message}`,
         system,
         isFlash: true
       })
@@ -161,7 +178,7 @@ async function processApiResponse(response: any) {
 
 }
 
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
 
     const { message, sender, system, preset, status, withSms } = await req.json();
@@ -188,36 +205,56 @@ export const POST = async (req: NextRequest) => {
     if (presetResult.success) {
       presetData = presetResult.data
     } else {
-      const defaultPreset = await getPresetByValue('alayon_help');
+      const defaultPreset = await getPresetByValue('alayon_election');
       presetData = defaultPreset.data
     };
 
 
 
     let mobile = await getContactMobile(sender ? sender : system, system)
+    console.log(mobile, 'MOBILE', sender ? sender : system, system)
     if (mobile?.data && !mobile?.data?.subscribedAt) {
       const defaultPreset = await getPresetByValue('opting');
       presetData = defaultPreset.data;
       response = await PromptService.generateOptResponse({ message, sender, system, status, mobile, preset: presetData })
     } else if (mobile && mobile?.data?.activeIntent == 'alayon_hotline') {
-      response = await PromptService.generatePromptResponse({ message, sender, system, preset: presetData, mobile, status })
+      response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
     } else {
-      response = await PromptService.generatePromptResponse({ message, sender, system, preset: presetData, mobile, status })
+
+      let contact = await getUserByNumber(system)
+      console.log('FILTS', contact)
+
+      if (contact && contact.data) {
+        let data = await getLeaderDashboard(contact.data._id)
+        let filters = await getElectionFilters(contact.data.parent, contact.data._id);
+
+        console.log(data, filters, 'FILTS', contact.data?.accessCode)
+        response = await PromptService.generateElectionResponse({ message, sender, system, preset: presetData, mobile, status, data: { ...data, ...filters } })
+
+      } else {
+        const helpPreset = await getPresetByValue('alayon_help');
+        response = await PromptService.generateResponse({ message, sender, system, preset: helpPreset.data, mobile, status })
+
+      }
+
+
+
 
       // response = await PromptService.generateResponse({ message, sender, system, preset: presetData, mobile, status })
     }
 
 
+    console.log(response, 'RESP')
 
-
-    await processApiResponse({ sender, system, content: response, status, preset: presetData, userInput: message })
+    await processApiResponse({ sender, system, content: response, status: withSms ? 'Sms' : status, preset: presetData, userInput: message })
 
     // let respData = JSON.parse(cleanJsonObject(response));
     // let smsTemp = getSMSTemplate(respData)
     // let resp = await createInteraction({ contact, system, preset: preset?._id, inputText: message, responseText: response })
     // console.log(r  esp, 'INTER RESP', response)
 
-
+    // return NextResponse.redirect(new URL('/dashboard', process.env.NEXT_PUBLIC_BASE_URL), 302);
+    // res.end();
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.log('Error in chat API:', error);

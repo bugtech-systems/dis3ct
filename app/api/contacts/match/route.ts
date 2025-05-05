@@ -28,7 +28,7 @@ export async function POST(
 
 
 
-        const { descriptor, parent } = await req.json();
+        const { descriptor, parent, teamCode } = await req.json();
 
 
 
@@ -45,15 +45,15 @@ export async function POST(
 
         if (descriptorArray) {
             const queryDescriptor = descriptorArray;
-
+            const options = String(teamCode).length > 6 ? { brgyCode: teamCode } : { parNum: parent }
             // Retrieve all face descriptors from MongoDB
-            const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null }, parNum: parent }).lean();
+            const allDescriptors = await Contact.find({ descriptor: { $exists: true, $ne: null }, ...options }).lean();
 
             let bestMatch = [] as any;
-            let lowestDistance = 0.5;
+            let lowestDistance = 0.48;
 
 
-
+            console.log(allDescriptors, 'ALL', options)
             let newData = allDescriptors.map((contact: any) => {
                 const barangay = barangays.find((b) => b.brgyCode === contact.brgyCode)?.brgyDesc;
                 const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;
@@ -98,6 +98,9 @@ export async function POST(
 
             newData.forEach(doc => {
                 const distance = euclideanDistance(queryDescriptor, doc.descriptor);
+                if (!isNaN(distance)) {
+                    console.log(distance, 'DISt');
+                }
                 if (distance < lowestDistance) {
                     lowestDistance = distance;
                     bestMatch.push(doc);
@@ -111,7 +114,7 @@ export async function POST(
                 return NextResponse.json({ message: "No match found", match: false });
             }
         } else {
-            return NextResponse.json({ message: "No Face ", match: false });
+            return NextResponse.json({ message: "No Face", match: false });
         }
     } catch (error) {
         console.log(error)

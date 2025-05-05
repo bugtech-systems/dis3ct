@@ -46,17 +46,17 @@ export async function POST(
         contact.descriptor = descriptorArray;
 
         // let newTags = contact?.tags as any[];
-        // let newTags = contact?.tags.filter(a => a.tagType != 'image');
+        let newTags = contact?.tags.filter(a => a.tagType != 'image');
 
-        // imgUrls.map(a => {
-        //     newTags.push({
-        //         tagType: 'image',
-        //         user: authUser?._id,
-        //         value: a
-        //     })
-        // })
+        imgUrls.map(a => {
+            newTags.push({
+                tagType: 'image',
+                user: authUser?._id,
+                value: a
+            })
+        })
 
-        console.log(descriptorArray, contact)
+        console.log(contact.name, 'Uploaded')
         // contact.tags = newTags;
         await contact.save()
 

@@ -32,12 +32,15 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
 
   const updateUrlParams = (team: any) => {
     const params = new URLSearchParams(window.location.search);
+
     if (team?.accessCode) {
       params.set("team", team.accessCode);
     } else {
       params.delete("team");
     }
     router.push(`?${params.toString()}`);
+
+
   };
 
   const handleSystems = async (team: any) => {

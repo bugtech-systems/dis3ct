@@ -5,67 +5,57 @@ import User from "@/models/User";
 
 export async function GET(req: NextRequest) {
     try {
-        await connectToDatabase(); // Ensure MongoDB connection
+        await connectToDatabase();
 
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get("parent") || "";
 
-        let user = await User.findById(userId);
-
+        const user = await User.findById(userId);
         if (!user) {
-            return NextResponse.json({ message: 'Record not found!' }, { status: 404 });
+            return NextResponse.json({ message: "Record not found!" }, { status: 404 });
         }
 
-        // Define the aggregation pipeline
         const pipeline = [
             {
                 $facet: {
                     imageContacts: [
                         {
                             $match: {
-                                tags: { $elemMatch: { tagType: "image", sync: { $in: [null, "", false] } } },
-                                // descriptor: { $in: [null, "", []] },
-                                // parNum: user?._id
+                                tags: { $elemMatch: { tagType: "image", sync: { $in: [null, "", false] } } }
                             }
-                        }
+                        },
+                        { $project: { name: 1, tags: { $slice: ["$tags", 5] }, _id: 1 } }, // Limit tags returned
+                        { $limit: 500 } // Prevent too large response
                     ],
                     biometricContacts: [
                         {
                             $match: {
-                                tags: { $elemMatch: { tagType: "biometrics", sync: { $in: [null, "", false] } } },
-                                // biometric: { $in: [null, ""] },
-                                // parNum: user?._id
+                                tags: { $elemMatch: { tagType: "biometrics", sync: { $in: [null, "", false] } } }
                             }
-                        }
+                        },
+                        { $project: { name: 1, tags: { $slice: ["$tags", 5] }, _id: 1, biometric: 1 } },
+                        { $limit: 500 }
                     ],
                     tagContacts: [
                         {
                             $match: {
-                                tags: { $elemMatch: { tagType: "tag", sync: { $in: [null, "", false] } } },
-                                // biometric: { $in: [null, ""] },
-                                // parNum: user?._id
+                                tags: { $elemMatch: { tagType: "tag", sync: { $in: [null, "", false] } } }
                             }
-                        }
+                        },
+                        { $project: { name: 1, tags: { $slice: ["$tags", 5] }, _id: 1 } },
+                        { $limit: 500 }
                     ]
                 }
             }
         ];
 
-
-
-        // Execute the aggregation pipeline
         const result = await Contact.aggregate(pipeline);
-
-        // Extract the arrays from the result
-        const imageContacts = result[0]?.imageContacts || [];
-        const newContacts = result[0]?.biometricContacts || [];
-
-
 
         return NextResponse.json(
             {
-                image: imageContacts,
-                biometric: newContacts,
+                image: result[0]?.imageContacts || [],
+                biometric: result[0]?.biometricContacts || [],
+                tag: result[0]?.tagContacts || []
             },
             { status: 200 }
         );
