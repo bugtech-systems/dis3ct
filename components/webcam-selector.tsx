@@ -16,6 +16,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { useContact } from "./providers/ContactProvider";
+import { useSearchParams } from "next/navigation";
 
 
 let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
@@ -38,6 +39,8 @@ const CamScreen = ({ camType }: any) => {
     const [borderColor, setBorderColor] = useState('transparent');
     const [uploadType, setUploadType] = useState('capture');
     const [matching, setMatching] = useState(false);
+    const searchParams = useSearchParams();
+    const teamCode = searchParams.get("team");
 
 
     useEffect(() => {
@@ -240,7 +243,7 @@ const CamScreen = ({ camType }: any) => {
         try {
             setMatching(true)
 
-            let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor, parent: parentSystem?._id });
+            let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor, parent: parentSystem?.parent, teamCode });
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)
@@ -281,7 +284,10 @@ const CamScreen = ({ camType }: any) => {
         }
     }
 
-
+    function normalizeDescriptor(descriptor: Float32Array): Float32Array {
+        const norm = Math.sqrt(descriptor.reduce((sum, val) => sum + val * val, 0));
+        return new Float32Array(descriptor.map(v => v / norm));
+    }
 
     const uploadImage = async () => {
         if (!capturedImage) return;
@@ -307,16 +313,16 @@ const CamScreen = ({ camType }: any) => {
             }
 
 
-            // await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: detection?.descriptor, imgUrl: data.url });
+            await axios.post(`/api/contacts/${record._id}/face/save`, { descriptor: normalizeDescriptor(detection?.descriptor), imgUrl: data.data[0] });
 
-            /*          if (data.url) {
-                         let newImgs = [data.url, ...capturedImages]
-                         setDetection(null)
-                         setCapturedImages(newImgs)
-                         setViewing(!viewing)
-                         setRefreshId(Math.random())
-                         setModal(null)
-                     } */
+            if (data.url) {
+                let newImgs = [data.url, ...capturedImages]
+                setDetection(null)
+                setCapturedImages(newImgs)
+                setViewing(!viewing)
+                setRefreshId(Math.random())
+                setModal(null)
+            }
             if (!response.ok) throw new Error(data.message || "Failed to upload");
         } catch (error) {
             console.error("Upload error:", error);

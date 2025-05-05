@@ -162,6 +162,7 @@ export function DataTableRowActions<TData>({
 
 
   let hasImg = contact?.tags.find(tg => tg.tagType == 'image');
+  let hasBio = contact?.tags.find(tg => tg.tagType == 'biometrics');
   let parent = parentSystem ? parentSystem.parent : user.parent;
 
 
@@ -241,7 +242,7 @@ export function DataTableRowActions<TData>({
                     }}
                   >
                     Set Biometrics
-                    <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
+                    <DropdownMenuShortcut><Fingerprint size={18} color={contact.biometric ? "blue" : hasBio ? "orange" : "gray"} /></DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </>
                 :
@@ -256,7 +257,7 @@ export function DataTableRowActions<TData>({
                       }}
                     >
                       Set Biometrics
-                      <DropdownMenuShortcut><Fingerprint size={18} color={contact?.biometric ? "blue" : "gray"} /></DropdownMenuShortcut>
+                      <DropdownMenuShortcut><Fingerprint size={18} color={contact.biometric ? "blue" : hasBio ? "orange" : "gray"} /></DropdownMenuShortcut>
                     </DropdownMenuItem>
                   </Link>
                 </>
@@ -275,7 +276,7 @@ export function DataTableRowActions<TData>({
                 }}
               >
                 Set Image
-                <DropdownMenuShortcut><Image size={18} color={hasImg ? "blue" : "gray"} /></DropdownMenuShortcut>
+                <DropdownMenuShortcut><Image size={18} color={contact.descriptor ? "blue" : hasImg ? "orange" : "gray"} /></DropdownMenuShortcut>
 
               </DropdownMenuItem>
             </>

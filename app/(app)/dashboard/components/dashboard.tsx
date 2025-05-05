@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 import {
   Card,
@@ -12,13 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
-import { getLeaderDashboard } from "@/actions/getDashboard";
 import { BarangayChart } from "@/components/barangayChart";
 import { ChartProvider } from "@/components/ui/chart";
-import { useContact } from "@/components/providers/ContactProvider";
 
-export default function DashboardPage({data}: any) {
-  const {user, parentSystem} = useContact();
+export default function DashboardPage({ data }: any) {
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
     subscriptions: 0,
@@ -34,11 +30,11 @@ export default function DashboardPage({data}: any) {
 
 
   useEffect(() => {
-        if(data){
-            setDashboardData((prevData) =>
-                JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
-              );
-        }
+    if (data) {
+      setDashboardData((prevData) =>
+        JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
+      );
+    }
   }, [data]);
 
   // Optional: auto-refresh every 10 minutes
@@ -49,6 +45,7 @@ export default function DashboardPage({data}: any) {
 
   // const parent = parentSystem?.parent ?? user?.parent;
 
+  console.log(dashboardData, 'DASHBOARD')
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">

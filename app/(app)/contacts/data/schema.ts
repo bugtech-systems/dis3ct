@@ -43,7 +43,8 @@ export const contactSchema = z.object({
   biometric: z.string().optional().nullable(),
   recordType: z.string().optional().nullable(),
   tags: z.any().optional().nullable(),
-  keyStr: z.string().optional().nullable()
+  keyStr: z.string().optional().nullable(),
+  descriptor: z.any().optional().nullable()
 
 })
 

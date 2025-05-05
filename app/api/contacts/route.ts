@@ -5,7 +5,8 @@ import Contact from '@/models/Contact';
 import Mobile from "@/models/Mobile";
 import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
 import User from "@/models/User";
-
+import { getServerSession } from "next-auth";
+import authOptions from "@/lib/authOptions";
 // import { withAuth } from '@/lib/withAuth';
 
 function objectToString(obj: any, separator = " ") {
@@ -90,6 +91,17 @@ export const POST = async (req: NextRequest) => {
 
 export async function GET(req: NextRequest) {
   try {
+
+    const session = await getServerSession(authOptions) as any;
+
+    // Check if user is authenticated
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
+    // const phone = session.user.phone;
+
+
     await connectToDatabase(); // Ensure MongoDB connection
 
     const { searchParams } = new URL(req.url);
@@ -102,7 +114,8 @@ export async function GET(req: NextRequest) {
     const identities = searchParams.get("identity");
 
     const phoneFilter = searchParams.get("phone");
-    const userId = searchParams.get("userId");
+    const userId = searchParams.get("userId") || session.user.id;
+    let tagList = [];
 
     const skip = (page - 1) * limit; // Correct pagination logic
     const identityList = identities?.split(",");
@@ -132,7 +145,7 @@ export async function GET(req: NextRequest) {
 
 
     if (tags) {
-      const tagList = tags.split(",");
+      tagList = tags.split(",");
 
       if (tagList.includes("unknown")) {
         // If "Unknown" is requested, return records without a `tags` field or an empty `tags` array
@@ -198,8 +211,9 @@ export async function GET(req: NextRequest) {
       const biometeric = tags.find(a => a.tagType == 'biometrics')?.value ? 'biometrics' : null;
       const image = tags.find(a => a.tagType == 'image')?.value ? 'image' : null;
 
+
+      let tag = tagContact.find(a => a.value == tagList[0]);
       let identity = identityList?.includes('biometrics') ? 'biometrics' : identityList?.includes('image') ? 'image' : null;
-      console.log(tagContact, 'TCCC')
       return {
         _id: contact._id,
         name: contact.name,
@@ -220,7 +234,7 @@ export async function GET(req: NextRequest) {
         image,
         biometrics: biometeric,
         tags: tags,
-        tag: tagContact.length ? tagContact[0].value : 'unknown',
+        tag: tag ? tag.value : 'unknown',
         subscribed: contact.subscribed,
         descriptor: contact.descriptor
       };

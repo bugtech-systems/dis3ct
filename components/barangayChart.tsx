@@ -71,9 +71,11 @@ export function BarangayChart({ data }) {
             className="p-2 border rounded-md bg-white"
           >
             <option value="total">ALL</option>
-            <option value="confirm">Confirm</option>
+            <option value="confirm">Target</option>
             <option value="declined">Declined</option>
-            <option value="undecided">Undecided</option>
+            <option value="undecided">Dead</option>
+            <option value="verified">Confirm</option>
+            <option value="unknown">Unknown</option>
           </select>
         </div>
       </CardHeader>

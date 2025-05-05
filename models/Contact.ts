@@ -28,6 +28,7 @@ export interface IContact extends Document {
   biometric?: Types.ObjectId;
   uplines?: Types.ObjectId[]; // Array of ObjectIds referencing Contact documents
   otpExpiresAt?: Date;
+  accessCode: string;
   descriptor?: Number[];
   tags?: any[];
   recordType: 'contact' | 'master_list' | 'hotline' | 'leader' | 'subscriber';

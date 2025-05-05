@@ -105,6 +105,11 @@ export async function GET(req) {
       tags: { $elemMatch: { tagType: "tag", value: "confirm" } },
     });
 
+    const verifiedCount = await Contact.countDocuments({
+      ...matchQuery,
+      tags: { $elemMatch: { tagType: "tag", value: "verified" } },
+    });
+
     filters.tags = tagResults.map(({ _id, count }) => ({
       value: _id,
       label: _id.toUpperCase(),
@@ -117,6 +122,10 @@ export async function GET(req) {
 
     if (confirmCount > 0) {
       filters.tags.push({ value: "confirm", label: "CONFIRM", count: confirmCount });
+    }
+
+    if (verifiedCount > 0) {
+      filters.tags.push({ value: "verified", label: "VERIFIED", count: verifiedCount });
     }
 
 
@@ -173,7 +182,6 @@ export async function GET(req) {
 
 
 
-    console.log(filters, 'FILTER')
     return NextResponse.json(filters);
   } catch (error) {
     console.error("Error fetching filters:", error);

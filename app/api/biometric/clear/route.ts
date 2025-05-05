@@ -9,8 +9,7 @@ export const POST = async (req: NextRequest) => {
 
         let contacts = await Contact.updateMany(
             {
-                descriptor: { $exists: true },
-                biometric: { $exists: true },
+                $or: [{ descriptor: { $exists: true } }, { biometric: { $exists: true } }],
                 parNum: parent
             },
             {

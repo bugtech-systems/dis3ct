@@ -120,7 +120,7 @@ export function DeviceForm() {
 
   const handleRestartTemplates = async () => {
 
-    let systemResp = await axios.post(`/api/biometric/clear`, { parent: parentSystem._id });
+    let systemResp = await axios.post(`/api/biometric/clear`, { parent: parentSystem.parent });
     handleSyncables()
 
   }
@@ -196,14 +196,17 @@ export function DeviceForm() {
     if (!modelsLoaded) return console.log('model not loaded!')
     let isImg = await imageExists(STATIC_URL + imageUrl);
     if (!isImg) return console.log('Is not Image!')
-
+    const options = new faceapi.TinyFaceDetectorOptions();
 
     const img = await faceapi.fetchImage(STATIC_URL + imageUrl);
 
+
     // Detect face in the image and extract face descriptor
-    const detections = await faceapi.detectSingleFace(img)
+    const detections = await faceapi.detectSingleFace(img, options)
       .withFaceLandmarks()
       .withFaceDescriptor();
+
+
 
     if (detections) {
       // Return the face descriptor
@@ -262,6 +265,56 @@ export function DeviceForm() {
     setStatus('Data submission complete.');
   };
 
+  const handleSubmitSyncBio = async () => {
+    setStatus('Submitting data...');
+    for (const data of syncables) {
+
+      if (data?.sync == 'biometric') {
+
+
+        const response = await fetch(`${STATIC_URL}/api/biometrics/register?id=${data?._id}`, {
+          method: "POST",
+        });
+
+        if (response.ok) {
+          console.log(`Successfully submitted: ${JSON.stringify(data)}`);
+        } else {
+          console.error(`Failed to submit: ${JSON.stringify(data)}`);
+        }
+
+      }
+
+    }
+    setStatus('Data submission complete.');
+  };
+
+  const handleSubmitSyncImage = async () => {
+    setStatus('Submitting data...');
+    for (const data of syncables) {
+      console.log(!(data.descriptor && data.descriptor.length), 'DESC')
+      if (data?.sync != 'biometric' && !(data.descriptor && data.descriptor.length)) {
+
+        let descriptors = []
+        let newTags = data?.tags?.filter(a => a.tagType == 'image').map(a => a.value);
+        for (let pic of newTags) {
+
+          const descriptor = await extractFaceDescriptor(pic);
+          if (descriptor) {
+            descriptors.push(descriptor)
+          }
+        }
+        console.log('Face Descriptor:', descriptors);
+        if (descriptors.length) {
+          const mergedDescriptor = normalizeDescriptor(mergeDescriptors(descriptors));
+          console.log(mergedDescriptor, 'dddd')
+          await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
+
+        }
+      }
+    }
+    setStatus('Data submission complete.');
+  };
+
   const loadModels = async () => {
     try {
       const faceapiModule = await import('face-api.js');
@@ -276,6 +329,12 @@ export function DeviceForm() {
       console.error("Error loading face-api models:", error);
     }
   };
+
+  function normalizeDescriptor(descriptor: Float32Array): Float32Array {
+    const norm = Math.sqrt(descriptor.reduce((sum, val) => sum + val * val, 0));
+    return new Float32Array(descriptor.map(v => v / norm));
+  }
+
 
   function mergeDescriptors(descriptors) {
     const merged = new Float32Array(descriptors[0].length);
@@ -518,23 +577,30 @@ export function DeviceForm() {
             </Button>
           </>
         } */}
-            {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
+            {/* {(user?.userType == 'admin' || findFeature(parentSystem?.configs, 'sms').value) &&
               <>
                 <p >GSM Module</p>
                 <Button onClick={() => handleRestartTemplates()} >
                   Reset Templates
                 </Button>
               </>
-            }
+            } */}
 
             {(user?.userType == 'admin' || (findFeature(parentSystem?.configs, 'biometric' || findFeature(parentSystem?.configs, 'image').value))) &&
               <>
                 <div className="d-flex flex-row justify-around">
                   <span className="mr-auto">Sync Data: {status}</span><button onClick={() => setIsView('sync')} className="float-end clickable text-blue">View</button>
                 </div>
-                <Button onClick={() => handleSubmit()} >
-                  Start Syncing
-                </Button>
+                <div className="d-flex flex-row justify-between w-full w-100">
+
+                  <Button onClick={() => handleSubmitSyncImage()} >
+                    sync image
+                  </Button>&nbsp;&nbsp;&nbsp;
+                  <Button onClick={() => handleSubmitSyncBio()} >
+                    sync biometrics
+                  </Button>
+                </div>
+
               </>
             }
             <br />

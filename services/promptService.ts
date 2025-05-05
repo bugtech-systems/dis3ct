@@ -196,6 +196,139 @@ User queries should be answered only using the list data. Follow these steps:
         }
     }
 
+
+    static async generateElectionResponse({ message: userInput, sender, system, preset, mobile, data }: any) {
+        try {
+            let instruction = preset?.instruction;
+            let contact = system;
+            let intentData;
+            let contactData;
+
+            const contactResult = await getContactByNumber(sender, system);
+            const systemResult = await getContactByNumber(system, system);
+
+            if (sender) {
+                contactData = contactResult.success ? contactResult.data : null;
+                contact = sender;
+            } else if (systemResult.success) {
+                contactData = systemResult.data;
+            }
+
+            const intent = mobile?.data?.activeIntent || null;
+            if (intent) {
+                const intentResult = await getUserIntent(intent, system);
+                intentData = intentResult?.data;
+                if (intentData?.note) instruction = `${intentData?.note}`;
+            }
+
+            const systemDefaults = await getUserInteractions({ preset: preset?._id, status: "default" }, 3);
+
+            const filter = {
+                contact,
+                system,
+                preset: preset?._id,
+                status: 'pending',
+            };
+
+            const recentChats = await getUserInteractions(filter, 3, { createdAt: -1 });
+
+            // --- Context Construction ---
+            const sampleConversations: any[] = [];
+            let systemContext = "";
+
+            if (systemDefaults?.data?.length) {
+                systemContext = systemDefaults.data.map(c =>
+                    `user: ${c.inputText}.\nassistant: ${c.feedback?.correction || c.responseText}`
+                ).join("\n");
+            }
+
+            if (recentChats?.data?.length) {
+                const sortedChats = [...recentChats.data].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                if (systemDefaults.data) {
+                    [...systemDefaults?.data].forEach(chat => {
+                        sampleConversations.push({ role: 'user', content: chat.inputText });
+                        sampleConversations.push({ role: 'assistant', content: chat.feedback?.correction || chat.responseText });
+                    });
+                }
+
+                sortedChats.forEach(chat => {
+                    sampleConversations.push({ role: 'user', content: chat.inputText });
+                    sampleConversations.push({ role: 'assistant', content: chat.feedback?.correction || chat.responseText });
+                });
+            }
+
+            // --- Election Data (Strict) ---
+            const userData = `
+    📊 ELECTION DATA SNAPSHOT (STRICTLY BASED ON PROVIDED INFORMATION)
+    
+    - Total Registered Voters: ${data.teamReach}
+    - Actual Reach (Number of Voters): ${data.contacts}
+    
+    🗺️ BARANGAY-WISE STATUS COUNTS:
+    ${Object.keys(data.barangay).map((barangay, i) => {
+                const b = data.barangay[barangay];
+                const rows = [`${i + 1}.) ${barangay}`];
+                if (b.total > 0) rows.push(`   - Total: ${b.total}`);
+                if (b.confirm > 0) rows.push(`   - Targeted: ${b.confirm}`);
+                if (b.declined > 0) rows.push(`   - Declined: ${b.declined}`);
+                if (b.undecided > 0) rows.push(`   - Dead: ${b.undecided}`);
+                if (b.unknown > 0) rows.push(`   - Unknown: ${b.unknown}`);
+                if (b.verified > 0) rows.push(`   - Confirmed: ${b.verified}`);
+                return rows.join('\n');
+            }).join('\n\n')}
+    
+    📦 OVERALL TAG COUNTS (USE EXACT VALUES BELOW):
+    ${data.tags.map(tag => `- ${tag.value == 'confirm' ? 'TARGETED' : tag.value == 'verified' ? 'CONFIRMED' : tag.label.toUpperCase()}: ${tag.count}`).join('\n')}
+    `;
+            console.log(data.tags, 'TT')
+            // --- System Instruction ---
+            const systemInstruction = `
+    ${preset?.systemBehavior || ''}\n
+    ${userData}
+    
+     **IMPORTANT INSTRUCTIONS:**
+    ${instruction}
+    📌 RULES FOR RESPONSE:
+    - Answer ONLY using the election data above.
+    - DO NOT assume or fabricate values.
+    - Consider the prompt may be a follow-up or related to recent chats.
+    - Be accurate and informative, always referencing the actual counts provided.\n 
+ 
+    `;
+
+            console.log(systemInstruction)
+
+            // --- AI Call ---
+            const response = await Ollama.chat({
+                model: preset?.modelName || 'llama3.1',
+                messages: [
+                    { role: 'system', content: convertQuillToPlainText(systemInstruction) },
+                    ...sampleConversations,
+                    { role: 'user', content: userInput }
+                ],
+                options: {
+                    num_predict: preset?.aiMaxLength,
+                    temperature: preset?.aiTemperature,
+                    top_p: preset?.aiTopP,
+                },
+            });
+            console.log(response.message, 'RESSP')
+            if (response?.message?.content) {
+                return response.message.content;
+            } else {
+                return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] }`;
+            }
+        } catch (error) {
+            console.error("Election Response Error:", error);
+            return "I'm unable to process your request.";
+        }
+    }
+
+
+
+
+
+
     static async generateResponse({ message: userInput, sender, system, preset, mobile }: any) {
         try {
             let instruction = preset?.instruction;
@@ -219,7 +352,7 @@ User queries should be answered only using the list data. Follow these steps:
                 let intentResult = await getUserIntent(intent, system)
                 intentData = intentResult?.data
                 if (intentData?.note) {
-                    instruction = `${intentData?.note}`;
+                    instruction = `${intentData?.note} `;
                 }
             }
 
@@ -256,7 +389,7 @@ User queries should be answered only using the list data. Follow these steps:
 
 
                 systemContext = systemDefaults.data.map(c =>
-                    `Intent: ${c.intent}.\nPrompt: ${c.inputText}.\nResponse: ${c.feedback?.correction || c.responseText}`
+                    `Intent: ${c.intent}.\nPrompt: ${c.inputText}.\nResponse: ${c.feedback?.correction || c.responseText} `
                 ).join("\n\n");
 
 
@@ -270,41 +403,41 @@ User queries should be answered only using the list data. Follow these steps:
                 });
 
                 userContext = recentChats.data.map(c =>
-                    `Intent: ${c.intent}.\nPrompt: ${c.inputText}.\nResponse: ${c.feedback?.correction || c.responseText}`
+                    `Intent: ${c.intent}.\nPrompt: ${c.inputText}.\nResponse: ${c.feedback?.correction || c.responseText} `
                 ).join("\n\n");
             }
 
 
 
             const userData = `
-            📌 **User Context**  
-            - **Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}  
-            `
+            📌 ** User Context **  
+            - ** Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}
+        `
 
 
             // Strict rules for SMS-friendly, short, and emergency-specific responses
             const promptRules = `Follow these strict rules:
-        - Keep responses **minimum 500 and maximum 700 characters**.  
-        - Responses must be SMS-friendly.
-        - Do **not assume** missing details.  
-        - Respond in **structured JSON format** Do **not generate text or content** outside JSON object.  
-        - Should use the **System sample** as reference to response sequence, behavior, format or template. But not it's subjects, as data value.  
-       `
+        - Keep responses ** minimum 500 and maximum 700 characters **.  
+        - Responses must be SMS - friendly.
+        - Do ** not assume ** missing details.  
+        - Respond in ** structured JSON format ** Do ** not generate text or content ** outside JSON object.  
+        - Should use the ** System sample ** as reference to response sequence, behavior, format or template.But not it's subjects, as data value.  
+            `
 
 
 
 
             const prompt = `
-        ${promptRules}\n
-        **IMPORTANT INSTRUCTION**
-         ${instruction}\n
-    
-            **User Input:** ${userInput}
-             `.trim();
+        ${promptRules} \n
+            ** IMPORTANT INSTRUCTION **
+                ${instruction} \n
 
-            let systemInstruction = `${preset?.systemBehavior}\n\n
-            **System Sample Responses**
-            ${systemContext}`;
+                    ** User Input:** ${userInput}
+        `.trim();
+
+            let systemInstruction = `${preset?.systemBehavior} \n\n
+            ** System Sample Responses **
+                ${systemContext} `;
 
 
 
@@ -334,7 +467,7 @@ User queries should be answered only using the list data. Follow these steps:
 
                 return response?.message.content;
             } else {
-                return `{"message": "I'm unable to process your request.", "actions": ["SMS", "error"]}`;
+                return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] } `;
             }
         } catch (error) {
             console.log("Ollama Error:", error);
@@ -376,7 +509,7 @@ User queries should be answered only using the list data. Follow these steps:
                 });
 
                 systemContext = systemDefaults.data.map(c =>
-                    `User Prompt: ${c.inputText}.\nResponse:\n${c.feedback?.correction || c.responseText}`
+                    `User Prompt: ${c.inputText}.\nResponse: \n${c.feedback?.correction || c.responseText} `
                 ).join("\n\n");
             }
 
@@ -387,40 +520,41 @@ User queries should be answered only using the list data. Follow these steps:
                 // });
 
                 userContext = recentChats.data.map(c =>
-                    `Prompt: ${c.inputText}\nResponse: ${c.feedback?.correction || c.responseText}`
+                    `Prompt: ${c.inputText} \nResponse: ${c.feedback?.correction || c.responseText} `
                 ).join("\n");
             }
 
 
 
             const userData = `
-            📌 **User Context**  
-            - **Contact Number:** ${sender ? contactData?.phone : "Unknown"}  
-            - **Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}  
-            `
+            📌 ** User Context **  
+            - ** Contact Number:** ${sender ? contactData?.phone : "Unknown"}  
+            - ** Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}
+        `
 
 
             // Strict rules for SMS-friendly, short, and emergency-specific responses
             const promptRules = `Follow these strict rules:
-        - Responses must be SMS-friendly.
-        - Do **not assume** missing details.  
-        - Respond in **structured JSON format**. 
-        - Always response for opt-in request if Subscription status is **Not Subscribed** and prompt is not opt-in or SUBSCRIBE.
+        - Responses must be SMS - friendly.
+        - Do ** not assume ** missing details.  
+        - Respond in ** structured JSON format **. 
+        - Always response for opt -in request if Subscription status is ** Not Subscribed ** and prompt is not opt -in or SUBSCRIBE.
        `
 
+            const promptInstruction = `
+        ${promptRules} \n
+            ** IMPORTANT INSTRUCTION **
+                ${instruction} \n`.trim();
             const prompt = `
-        ${promptRules}\n
-        **IMPORTANT INSTRUCTION**
-         ${instruction}\n
-    
-            **User DATA**: ${userData}
-            **User Prompt**: ${userInput}
-            **Recent Conversations**  
-            ${userContext}\n
+                    ** User DATA **: ${userData}
+            ** User Prompt **: ${userInput}
+            ** Recent Conversations **
+            ${userContext} \n
              `.trim();
 
-            let systemInstruction = `${convertQuillToPlainText(preset?.systemBehavior)}\n
-         `;
+            let systemInstruction = `${convertQuillToPlainText(preset?.systemBehavior)} \n
+            ${promptInstruction}
+        `;
 
 
 
@@ -469,7 +603,7 @@ User queries should be answered only using the list data. Follow these steps:
 
                 return response?.message.content;
             } else {
-                return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
+                return `{ "message": "I'm unable to process your request.", "actions": ["error"] } `;
             }
         } catch (error) {
             console.log("Ollama Error:", error);
@@ -513,49 +647,49 @@ User queries should be answered only using the list data. Follow these steps:
                 });
 
                 systemContext = systemDefaults.data.map(c =>
-                    `User: ${c.inputText}\nAssistant: ${c.feedback?.correction || c.responseText}`
+                    `User: ${c.inputText} \nAssistant: ${c.feedback?.correction || c.responseText} `
                 ).join("\n");
             }
 
             if (recentChats?.data) {
                 userContext = recentChats.data.map(c =>
-                    `User: ${c.inputText}\nAssistant: ${c.feedback?.correction || c.responseText}`
+                    `User: ${c.inputText} \nAssistant: ${c.feedback?.correction || c.responseText} `
                 ).join("\n");
             }
 
 
 
             const userData = `
-            📌 **User Context**  
-            - **Contact Number:** ${sender ? contactData?.phone : "Unknown"}  
-            - **Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}  
+            📌 ** User Context **  
+            - ** Contact Number:** ${sender ? contactData?.phone : "Unknown"}  
+            - ** Subscription Status:** ${mobile?.data?.subscribedAt ? "Subscribed" : "Not Subscribed"}
 
-            `
+        `
 
 
             // 🔹 Define AI Behavior Rules
             const promptRules = `
-            📌 **AI Response Rules**  
-            - Keep responses **minimum 500 and maximum 700 characters**.  
-            - Ensure replies are **SMS-friendly**.  
-            - Do **not assume** missing details.  
-            - Respond in **structured JSON format**.  
-            - Do **not generate information** beyond opt-in context.  
-            - Always response for opt-in request if **Not Subscribed**.
+            📌 ** AI Response Rules **
+            - Keep responses ** minimum 500 and maximum 700 characters **.  
+            - Ensure replies are ** SMS - friendly **.  
+            - Do ** not assume ** missing details.  
+            - Respond in ** structured JSON format **.  
+            - Do ** not generate information ** beyond opt -in context.  
+            - Always response for opt -in request if ** Not Subscribed **.
             `.trim();
 
             // 🔹 Build AI Prompt
             const userPrompt = `
-            ${promptRules}  
-            \n
-            ${instruction}\n
+            ${promptRules}
+        \n
+            ${instruction} \n
             ${userData}
-            \n
+        \n
     
-            📩 **User Input:** ${userInput}
+            📩 ** User Input:** ${userInput}
     
-            🔹 **Recent Conversations**  
-            ${userContext}\n
+            🔹 ** Recent Conversations **
+            ${userContext} \n
             `.trim();
 
             // 🔹 Construct AI Messages Array
@@ -589,11 +723,11 @@ User queries should be answered only using the list data. Follow these steps:
                 });
                 return response.message.content;
             } else {
-                return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
+                return `{ "message": "I'm unable to process your request.", "actions": ["error"] } `;
             }
         } catch (error) {
             console.error("Ollama Error:", error);
-            return `{"message": "I'm unable to process your request.", "actions": ["error"]}`;
+            return `{ "message": "I'm unable to process your request.", "actions": ["error"] } `;
         }
     }
 
@@ -607,21 +741,21 @@ User queries should be answered only using the list data. Follow these steps:
         userQueryPlaceholder = "[Insert user query here]"
     }) {
         const formattedSystemTemplates = systemResponseTemplates.map((entry, i) =>
-            `${i + 1}. ${entry}`
+            `${i + 1}. ${entry} `
         ).join('\n');
 
         const formattedDataList = dataList.map((item, i) =>
-            `${i + 1}. ${Object.entries(item).map(([k, v]) => `${capitalize(k)}: ${v}`).join(", ")}`
+            `${i + 1}. ${Object.entries(item).map(([k, v]) => `${capitalize(k)}: ${v}`).join(", ")} `
         ).join("\n");
 
         const formattedCollectedData = Object.keys(collectedData).length
-            ? Object.entries(collectedData).map(([k, v]) => `- ${capitalize(k)}: ${v}`).join('\n')
+            ? Object.entries(collectedData).map(([k, v]) => `- ${capitalize(k)}: ${v} `).join('\n')
             : "(None yet)";
 
         const missingFields = Object.keys(requiredObject).filter(field => !collectedData[field]);
 
         const formattedRecentConversations = recentConversations.map((entry) =>
-            `${entry.role === 'user' ? 'User' : 'AI'}: ${entry.message}`
+            `${entry.role === 'user' ? 'User' : 'AI'}: ${entry.message} `
         ).join('\n');
 
         const followUpInstructions = missingFields.map(field =>
@@ -629,18 +763,18 @@ User queries should be answered only using the list data. Follow these steps:
         ).join('\n');
 
         return `
-      You are ALAYON Assistant, an SMS-based AI chatbot for emergency hotlines, elections, and public assistance in Tacloban City.
+      You are ALAYON Assistant, an SMS - based AI chatbot for emergency hotlines, elections, and public assistance in Tacloban City.
       
       📌 System Instructions:
       ${systemInstructions.trim()}
       
-      🧾 Response Templates (System Defaults):
+      🧾 Response Templates(System Defaults):
       ${formattedSystemTemplates}
       
       📋 Reference Data List:
       ${formattedDataList}
       
-      🧠 Recent Conversation Context (Accumulated Info):
+      🧠 Recent Conversation Context(Accumulated Info):
       ${formattedRecentConversations || "(None yet)"}
       
       📦 Collected Data So Far:
@@ -649,18 +783,18 @@ User queries should be answered only using the list data. Follow these steps:
       ❓ Fields Still Missing:
       ${missingFields.length > 0 ? missingFields.join(", ") : "None"}
       
-      📍 Follow-up Instructions:
+      📍 Follow - up Instructions:
       ${followUpInstructions || "- No follow-up questions needed."}
       
       📜 Final Step:
-      - If all fields are gathered, summarize in a clean, human-readable format.
+        - If all fields are gathered, summarize in a clean, human - readable format.
       - Ask the user to confirm the info or let you know if corrections are needed.
       - Response must be under 700 characters and ONLY based on system instructions and collected data.
       
       🔍 Example Input:
-      User: ${userQueryPlaceholder}
+        User: ${userQueryPlaceholder}
       AI Response:
-      `.trim();
+        `.trim();
     }
 
 
@@ -676,7 +810,7 @@ User queries should be answered only using the list data. Follow these steps:
     }: any) {
         // Format the reference list
         const formattedList = dataList.map((item, i) =>
-            `${i + 1}. ${Object.entries(item).map(([k, v]) => `${capitalize(k)}: ${v}`).join(", ")}`
+            `${i + 1}. ${Object.entries(item).map(([k, v]) => `${capitalize(k)}: ${v}`).join(", ")} `
         ).join("\n");
 
         // Determine which fields are still missing
@@ -684,34 +818,34 @@ User queries should be answered only using the list data. Follow these steps:
         const missingFields = requiredFields.filter(field => !collectedData[field]);
 
         const followUpInstructions = missingFields.map(field =>
-            `- If "${field}" is still missing, ask a short follow-up question to get this information.`
+            `- If "${field}" is still missing, ask a short follow - up question to get this information.`
         ).join('\n');
 
         const summaryInstructions = `
-  - After collecting all required fields, present a clean summary of the data in a human-readable format.
+            - After collecting all required fields, present a clean summary of the data in a human - readable format.
   - Ask the user if everything is correct, and politely confirm the details.
   `;
 
         // Format conversation history
         const formattedHistory = conversationHistory.map((entry, index) => {
             const role = entry.role === 'user' ? 'User' : 'AI';
-            return `${role}: ${entry.message}`;
+            return `${role}: ${entry.message} `;
         }).join('\n');
 
         // Format currently collected data
         const formattedCollectedData = Object.keys(collectedData).length
-            ? Object.entries(collectedData).map(([key, val]) => `- ${capitalize(key)}: ${val}`).join('\n')
+            ? Object.entries(collectedData).map(([key, val]) => `- ${capitalize(key)}: ${val} `).join('\n')
             : "(None yet)";
 
         return `
-  You are ALAYON Assistant, a polite and informative chatbot that provides SMS-based support to Tacloban City residents.
+  You are ALAYON Assistant, a polite and informative chatbot that provides SMS - based support to Tacloban City residents.
   
   ⚠️ AI Rules:
-  - Keep responses under 700 characters.
+        - Keep responses under 700 characters.
   - Only use the list and instructions below.
   - Never hallucinate or assume data outside provided info.
   - Use recent conversation context to continue collecting data.
-  - Ask follow-up questions for missing fields.
+  - Ask follow - up questions for missing fields.
   - Once complete, show a summary and ask for confirmation.
   
   📌 List: ${listName}
@@ -729,14 +863,14 @@ User queries should be answered only using the list data. Follow these steps:
   🔍 Fields Still Needed:
   ${missingFields.length > 0 ? missingFields.join(", ") : "None – ready to summarize"}
   
-  📌 Follow-up Instructions:
+  📌 Follow - up Instructions:
   ${followUpInstructions}
   ${summaryInstructions.trim()}
   
   💬 Example Input:
-  User: ${userQueryPlaceholder}
+        User: ${userQueryPlaceholder}
   AI Response:
-  `.trim();
+        `.trim();
     }
 
 

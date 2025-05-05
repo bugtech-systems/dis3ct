@@ -106,7 +106,7 @@ export default function PlaygroundPage() {
         }
     };
 
-
+    console.log(user, 'USERR', system)
     const handleMessageSubmit = async () => {
         try {
             setLoading(true)
@@ -139,7 +139,7 @@ export default function PlaygroundPage() {
                             preset: selectedPreset?.value,
                             modelName: selectedPreset?.modelName ?? selectedPreset?.aiModel,
                             sender: selectedContact?.phone,
-                            system: system.phone,
+                            system: user?.parent?.phone,
                             message: userMessage,
                             status,
                             ...(selectedPreset?.value ? { presetValue: selectedPreset?.value } : {}),

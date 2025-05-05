@@ -19,7 +19,6 @@ export const createInteraction = async (
         const savedInteraction = await newInteraction.save();
 
 
-        console.log(data, 'CREATE INTERACTION')
 
         return { success: true, data: savedInteraction };
     } catch (error: any) {

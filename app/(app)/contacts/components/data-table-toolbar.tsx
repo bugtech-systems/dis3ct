@@ -22,6 +22,7 @@ const tagsLabel = [
   { label: "UNDECIDED", value: "undecided" },
   { label: "DECLINED", value: "declined" },
   { label: "UNKNOWN", value: "unknown" },
+  { label: "VERIFIED", value: "verified" }
 ];
 
 
