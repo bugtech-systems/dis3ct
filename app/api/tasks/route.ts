@@ -72,6 +72,7 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
+    console.log(error, 'HELLOW')
     return NextResponse.json(
       { success: false, error: error.message || "Failed to create task" },
       { status: 500 }

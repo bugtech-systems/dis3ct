@@ -29,6 +29,8 @@ export default function DashboardPage({ data }: any) {
   // Check for `team` param in URL and set context accordingly
 
 
+
+
   useEffect(() => {
     if (data) {
       setDashboardData((prevData) =>
@@ -38,10 +40,14 @@ export default function DashboardPage({ data }: any) {
   }, [data]);
 
   // Optional: auto-refresh every 10 minutes
-  // useEffect(() => {
-  //   const interval = setInterval(fetchDashboardData, 1000 * 60 * 10);
-  //   return () => clearInterval(interval);
-  // }, [fetchDashboardData]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDashboardData((prevData) =>
+        JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
+      );
+    }, 1000 * 60 * 5);
+    return () => clearInterval(interval);
+  }, []);
 
   // const parent = parentSystem?.parent ?? user?.parent;
 

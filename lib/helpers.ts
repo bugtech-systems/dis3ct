@@ -545,3 +545,29 @@ export const checkImage = async (url) => {
     return false
   }
 };
+
+
+export function cleanAndParseJSON(input: string): any {
+  try {
+    // Replace backticks with double quotes
+    let cleaned = input.replace(/`/g, '"');
+
+    // Replace single-quoted keys and values with double quotes
+    cleaned = cleaned.replace(/([{,]\s*)'([^']+?)'\s*:/g, '$1"$2":'); // keys
+    cleaned = cleaned.replace(/:\s*'([^']*?)'(?=[},])/g, ': "$1"');   // values
+
+    // Remove trailing commas
+    cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
+
+    // Trim whitespace
+    cleaned = cleaned.trim();
+
+    console.log("Raw input:\n", input);
+    console.log("Cleaned input:\n", cleaned);
+
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error("Failed to clean or parse JSON:", err);
+    throw err;
+  }
+}

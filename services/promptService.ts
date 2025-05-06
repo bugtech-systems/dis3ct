@@ -257,6 +257,8 @@ User queries should be answered only using the list data. Follow these steps:
                 });
             }
 
+            let allTags = [...data.tags, ...data.mediaTags]
+
             // --- Election Data (Strict) ---
             const userData = `
     📊 ELECTION DATA SNAPSHOT (STRICTLY BASED ON PROVIDED INFORMATION)
@@ -277,10 +279,12 @@ User queries should be answered only using the list data. Follow these steps:
                 return rows.join('\n');
             }).join('\n\n')}
     
+    
+    
     📦 OVERALL TAG COUNTS (USE EXACT VALUES BELOW):
-    ${data.tags.map(tag => `- ${tag.value == 'confirm' ? 'TARGETED' : tag.value == 'verified' ? 'CONFIRMED' : tag.label.toUpperCase()}: ${tag.count}`).join('\n')}
+    ${allTags.map(tag => `- ${tag.value == 'confirm' ? 'TARGETED' : tag.value == 'verified' ? 'CONFIRMED' : tag.value == 'undecided' ? 'DEAD' : tag.label.toUpperCase()}: ${tag.count}`).join('\n')}
     `;
-            console.log(data.tags, 'TT')
+            console.log(allTags, 'TT')
             // --- System Instruction ---
             const systemInstruction = `
     ${preset?.systemBehavior || ''}\n
@@ -509,7 +513,7 @@ User queries should be answered only using the list data. Follow these steps:
                 });
 
                 systemContext = systemDefaults.data.map(c =>
-                    `User Prompt: ${c.inputText}.\nResponse: \n${c.feedback?.correction || c.responseText} `
+                    `Prompt: ${c.inputText}.\nResponse: \n${c.feedback?.correction || c.responseText} `
                 ).join("\n\n");
             }
 
@@ -544,12 +548,12 @@ User queries should be answered only using the list data. Follow these steps:
             const promptInstruction = `
         ${promptRules} \n
             ** IMPORTANT INSTRUCTION **
-                ${instruction} \n`.trim();
+                ${instruction} \n
+                `.trim();
             const prompt = `
                     ** User DATA **: ${userData}
             ** User Prompt **: ${userInput}
-            ** Recent Conversations **
-            ${userContext} \n
+          
              `.trim();
 
             let systemInstruction = `${convertQuillToPlainText(preset?.systemBehavior)} \n
@@ -588,7 +592,7 @@ User queries should be answered only using the list data. Follow these steps:
                     "frequency_penalty": 1.0       // Avoids repeating the same words (e.g., “po” or “hotline”)
                 },
             });
-            console.log(response, 'RESPPPP')
+            console.log(response, 'RESPPPP', systemContext)
 
             if (response && response.message) {
                 // Log interaction for tracking AI responses

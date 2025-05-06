@@ -1,6 +1,6 @@
 import { getLeaderDashboard } from '@/actions/getDashboard';
 import { getElectionFilters } from '@/actions/getFilters';
-import { cleanJsonObject, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
+import { cleanAndParseJSON, cleanJsonObject, extractJsonFromText, isParsableObject, sanitizePhoneNumber } from '@/lib/helpers';
 import { getContactByNumber, getContactMobile, getUserByNumber, optInContact, optOutContact, setMobileIntent, updateContact } from '@/services/contactServices';
 import { createInteraction } from '@/services/interactionServices';
 import { getPresetByValue } from '@/services/presetServices';
@@ -80,7 +80,7 @@ async function processApiResponse(response: any) {
 
 
     if (content && isParsableObject(cleanJsonObject(content))) {
-      let contentData = JSON.parse(cleanJsonObject(content))
+      let contentData = cleanAndParseJSON(cleanJsonObject(content))
 
       await setMobileIntent(sender, system, contentData?.intent)
       console.log(contentData.actions, 'actionss')
@@ -107,7 +107,12 @@ async function processApiResponse(response: any) {
 
         if (contentData.actions?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
 
-          console.log('SEND SMS', contentData, 'dawd')
+          console.log('SEND SMS', contentData, 'dawd', {
+            sender,
+            message: contentData.message,
+            system,
+            isFlash: status == 'flash' ? true : false
+          })
           await handleNewMessage({
             sender,
             message: contentData.message,
@@ -157,16 +162,18 @@ async function processApiResponse(response: any) {
 
     } else {
       let { textWithoutJson, jsonObject } = extractJsonFromText(response.content);
+
+      let content = cleanAndParseJSON(cleanJsonObject(response.content))
+
+      console.log('INV CONTENT', content, jsonObject)
       // const fixed = `{${textWithoutJson}}`.replace(/(\w+):/g, '"$1":');
 
-      const parsed = JSON.parse(textWithoutJson.replace(/(\w+):/g, '"$1":'));
 
       // let contentData = JSON.parse(cleanJsonObject(textWithoutJson))
-      console.log(parsed, jsonObject, textWithoutJson, 'SSS')
 
       await handleNewMessage({
         sender,
-        message: `${jsonObject?.message}`,
+        message: `${content?.message}`,
         system,
         isFlash: true
       })
