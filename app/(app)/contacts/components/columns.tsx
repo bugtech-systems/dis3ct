@@ -11,6 +11,7 @@ import { DataTableRowActions } from "./data-table-row-actions"
 
 import { Contact } from "../data/schema"
 import { imageExists } from "@/utils/imageExists"
+import SafeImage from "@/components/ImgWrapper"
 
 
 const STATIC_FILE_URL = 'https://dis3ct.sharewin.pro'
@@ -53,42 +54,33 @@ export const columns: ColumnDef<Contact>[] = [
       return (
         <div className="flex gap-2 items-center">
           {imageTag?.value ? (
-            <a
-              href={STATIC_FILE_URL + imageTag.value}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Image"
-            >
-              <img
-                src={STATIC_FILE_URL + imageTag.value}
-                alt="image"
-                className="w-10 h-10 rounded border object-cover"
-              />
-            </a>
+
+            <SafeImage
+              src={STATIC_FILE_URL + imageTag.value}
+              alt="image"
+              className="w-10 h-10 rounded border object-cover"
+              clickable={true}
+            />
           ) :
             <span className="w-10 text-gray-400 text-sm">—</span>
 
           }
-          {biometricTag?.value ? (
-            <a
-              href={STATIC_FILE_URL + biometricTag.value}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Biometric"
-            >
-              <img
+          {
+            biometricTag?.value ? (
+              <SafeImage
                 src={STATIC_FILE_URL + biometricTag.value}
                 alt="biometric"
                 className="w-10 h-10 rounded border object-cover"
+                clickable={true}
+
               />
-            </a>
-          )
-            :
-            <span className="w-10 text-gray-400 text-sm">—</span>
+            )
+              :
+              <span className="w-10 text-gray-400 text-sm">—</span>
 
           }
 
-        </div>
+        </div >
       );
     },
     filterFn: (row, id, value) => {
