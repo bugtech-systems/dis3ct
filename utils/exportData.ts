@@ -9,7 +9,6 @@ import { saveAs } from "file-saver";
 
 export function exportToExcel<T>(data: T[], fileName: string = 'export.xlsx'): void {
     // Convert JSON data to a worksheet
-    console.log(data, 'DATA')
 
     const worksheet = utils.json_to_sheet(data);
 

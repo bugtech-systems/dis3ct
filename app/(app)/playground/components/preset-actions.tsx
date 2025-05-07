@@ -95,7 +95,6 @@ export function PresetActions() {
   const handleGetResources = async () => {
     let response = await axios.get(`/api/system/${sanitizePhoneNumber(parentSystem?.phone)}/resources`).catch((err) => { return null })
 
-    console.log(response?.data, 'RESOURCES')
     if (response?.status == 200) {
       setResources(response.data)
     } else {
@@ -155,7 +154,6 @@ export function PresetActions() {
             <div className="space-y-2 pr-2 flex-grow">
               <Label htmlFor="preset">Preset</Label>
               <Select onValueChange={(e) => {
-                console.log(e, 'EE')
                 setActiveResource(e)
                 setResourceData(e)
               }

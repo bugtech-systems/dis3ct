@@ -39,7 +39,6 @@ export const POST = async (req: NextRequest) => {
 
 
 
-    console.log('CONTCTS', contacts)
     for (const contact of contacts) {
       let action = "Tag Record";
       let isTag = false;
@@ -47,13 +46,11 @@ export const POST = async (req: NextRequest) => {
 
       // Remove existing tag by this user
       let tagExist = newTags?.find(tag => (String(tag?.user) == String(authUser?._id) && tag.value == type))
-      console.log(tagExist, 'TAG EXIST', authUser._id, type, newTags)
 
       if (tagExist) {
         newTags = newTags.filter(tag => tag.value != type);
         // newTags = newTags.filter(tag => tag.tagType != 'tag');
         newTags = newTags.filter(tag => String(tag._id) != String(tagExist._id));
-        console.log(newTags)
 
       } else {
         newTags.push({ tagType: 'tag', user: authUser._id, value: type });

@@ -65,7 +65,6 @@ export function ScannerForm() {
 
   const handleDeleteFinger = async (id) => {
     let newRecord = await clearFingerId(id);
-    console.log(newRecord, 'NEW');
     setRecord({ ...record, biometric: null })
     // setFingerPrint(finger)
     // setFingerPrintId(finger.id)
@@ -102,7 +101,6 @@ export function ScannerForm() {
       body: formData,
     });
     const data = await response.json();
-    console.log(data, appUrl, 'FINGER DATA')
     if (response.ok) {
       setModal(null)
       setRecord(null)
@@ -123,7 +121,6 @@ export function ScannerForm() {
       }
 
       socket?.on("check_status_response", (data) => {
-        console.log('status', biometricConnected, data)
         if (data?.connected) {
           setBiometricRunning(true)
         } else {

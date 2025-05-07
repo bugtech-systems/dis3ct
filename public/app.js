@@ -125,7 +125,6 @@ async function captureFingerprint() {
     // const reader = new DigitalPersona.Devices.FingerprintReader();
     // await reader.start();
     test.startCapture();
-    console.log(test, 'READI')
     const sample = await test.captureSample();
     const base64 = sample.samples[0];
     const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
@@ -157,7 +156,6 @@ function onGetInfo() {
 function onDeviceInfo(id, element) {
     var myDeviceVal = test.getDeviceInfoWithID(id);
     myDeviceVal.then(function (sucessObj) {
-        console.log('sucessObj', sucessObj);
         var deviceId = sucessObj.DeviceID;
         var uidTyp = deviceUidType[sucessObj.eUidType];
         var modality = deviceModality[sucessObj.eDeviceModality];

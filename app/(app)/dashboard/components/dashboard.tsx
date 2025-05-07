@@ -51,7 +51,6 @@ export default function DashboardPage({ data }: any) {
 
   // const parent = parentSystem?.parent ?? user?.parent;
 
-  console.log(dashboardData, 'DASHBOARD')
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">

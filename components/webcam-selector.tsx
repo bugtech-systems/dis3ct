@@ -243,14 +243,13 @@ const CamScreen = ({ camType }: any) => {
         try {
             setMatching(true)
 
-            let newMatch = await axios.post(`/api/contacts/match`, { descriptor: detection?.descriptor, parent: parentSystem?.parent, teamCode });
+            let newMatch = await axios.post(`${STATIC_URL}/api/face-match`, { descriptor: detection?.descriptor, parent: parentSystem?.parent, teamCode });
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)
             if (newMatch.data) {
                 let { match, message, data } = newMatch.data;
                 if (match) {
-                    console.log(data)
                     setMatching(false)
                     setRecordMatch(data)
                     // handleRecord(data)
@@ -362,7 +361,7 @@ const CamScreen = ({ camType }: any) => {
                         <div className="flex flex-col items-center space-y-4">
                             {capturedImage ?
                                 <div className="w-full rounded-lg" style={{ border: `5px solid ${borderColor}` }}>
-                                    <img src={capturedImage} alt={`Captured `} className="w-full rounded-lg shadow" />
+                                    <img src={capturedImage} alt={`Captured `} className="ml-auto mr-auto rounded-lg shadow" />
                                 </div>
                                 :
                                 <>

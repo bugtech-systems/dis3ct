@@ -58,7 +58,6 @@ export const updateInteraction = async (
 ): Promise<{ success: boolean; data?: IInteraction; error?: string }> => {
     try {
         await dbConnect();
-        console.log(data, 'DATA INTERACT')
         const updatedInteraction = await Interaction.findByIdAndUpdate(
             interactionId,
             data,

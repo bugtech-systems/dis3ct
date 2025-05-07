@@ -85,7 +85,6 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   }, [activeTeam]);
 
 
-  console.log(system, 'ATCIVE', activeTeam)
   return (
     <SidebarMenu>
       <SidebarMenuItem>

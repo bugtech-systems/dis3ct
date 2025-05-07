@@ -56,7 +56,6 @@ export async function POST(
             })
         })
 
-        console.log(contact.name, 'Uploaded')
         // contact.tags = newTags;
         await contact.save()
 

@@ -135,7 +135,6 @@ export default function CardsDataTable<TData, TValue>({ columns }: DataTableProp
 
   }, [user, parentSystem, pageIndex, pageSize, debouncedSearch, filters, refreshId]);
 
-  console.log(user, parentSystem, 'systems')
   return (
     <div className="space-y-4">
       <DataTableToolbar setFilters={setFilters} setSearch={setSearch} table={table} search={search} />

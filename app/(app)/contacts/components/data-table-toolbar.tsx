@@ -132,7 +132,6 @@ export function DataTableToolbar<TData>({
 
 
 
-  console.log(mediaOptions, 'MEDIA OPTIONS')
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">

@@ -58,9 +58,7 @@ export function ContactSelector() {
       if (!response.ok) throw new Error("Failed to fetch contacts")
       const dataRes = await response.json()
       if (dataRes) {
-        console.log(dataRes)
         let newContacts = removeDuplicates(dataRes.filter((e: any) => e.phone))
-        console.log(newContacts, 'CONTS')
         setContacts(newContacts)
       }
     } catch (err: any) {
@@ -79,7 +77,6 @@ export function ContactSelector() {
         phone: sanitizePhoneNumber(phone),
         system: parent?.phone
       })
-      console.log(response.data)
       if (response.status == 200) {
         toast.success(response.data.message)
         setSearchString('')

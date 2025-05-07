@@ -106,7 +106,6 @@ export default function PlaygroundPage() {
         }
     };
 
-    console.log(user, 'USERR', system)
     const handleMessageSubmit = async () => {
         try {
             setLoading(true)

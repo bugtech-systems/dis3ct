@@ -121,7 +121,6 @@ export function CardsChat({ messages }: ChatProps) {
   const handleGetResources = async () => {
     let response = await axios.get(`/api/system/${sanitizePhoneNumber(parentSystem?.phone)}/resources`).catch((err) => { return null })
 
-    console.log(response?.data, 'RESOURCES')
     if (response?.status == 200) {
       setResources(response.data)
     } else {
@@ -138,7 +137,6 @@ export function CardsChat({ messages }: ChatProps) {
   }, [parentSystem])
 
 
-  console.log(selectedMessage, 'SELCT', resources)
 
 
   return (
@@ -251,7 +249,6 @@ export function CardsChat({ messages }: ChatProps) {
             <div className="space-y-2 pr-2 flex-grow">
               <Label htmlFor="preset">Intent</Label>
               <Select onValueChange={(e) => {
-                console.log(e, 'EE')
                 setSelectedMessage({ ...selectedMessage, intent: e })
                 // setActiveResource(e)
                 // setResourceData(e)
@@ -344,7 +341,7 @@ export function CardsChat({ messages }: ChatProps) {
           </DialogFooter>
         </DialogContent>
 
-      </Dialog>
+      </Dialog >
     </>
   );
 }

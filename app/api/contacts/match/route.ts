@@ -53,7 +53,6 @@ export async function POST(
             let lowestDistance = 0.48;
 
 
-            console.log(allDescriptors, 'ALL', options)
             let newData = allDescriptors.map((contact: any) => {
                 const barangay = barangays.find((b) => b.brgyCode === contact.brgyCode)?.brgyDesc;
                 const citymun = municipalities.find((c) => c.citymunCode === contact.citymunCode)?.citymunDesc;

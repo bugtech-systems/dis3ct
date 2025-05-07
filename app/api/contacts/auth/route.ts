@@ -21,7 +21,6 @@ export const GET = async (req: NextRequest) => {
             path: 'parNum',
             options: { strictPopulate: false } // Allows missing `parNum` without errors
         }).select('name phone userType configs username accessCode accessCodes accessLevel citymunCode brgyCode').lean();
-        console.log(contact, 'CONTACT')
         if (!contact) {
             return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
         }

@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
 
         let contacts = []
         for (const contact of jsonData) {
-            console.log(contact, 'CONTACT')
             let tag = contact.label == 'P' ? 'confirm' : contact.label == 'O' ? 'declined' : contact.label == 'D' ? 'undecided' : 'unknown'
             let cont = await Contact.findOne({ name: contact.fullname, precinct: contact.precinct })
             if (cont) {
@@ -64,7 +63,6 @@ export async function POST(request: NextRequest) {
 
 
 
-        console.log(jsonData, 'JSON DATA', contacts)
         return NextResponse.json(contacts);
 
     } catch (error) {
@@ -155,7 +153,6 @@ export async function PUT(request: NextRequest) {
         // Write to buffer
         const resultBuffer = await resultWorkbook.xlsx.writeBuffer();
 
-        console.log(contacts, 'CONTACTS')
 
         return new NextResponse(resultBuffer, {
             status: 200,

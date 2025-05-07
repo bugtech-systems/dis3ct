@@ -167,8 +167,6 @@ export function DeviceForm() {
       let { image, biometric } = data;
       let syncs = []
 
-      console.log(image, 'IMAGE')
-      console.log(biometric, 'BIOMETRIC')
 
       image?.map(a => {
         syncs.push({

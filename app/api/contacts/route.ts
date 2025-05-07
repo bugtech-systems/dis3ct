@@ -234,7 +234,7 @@ export async function GET(req: NextRequest) {
         image,
         biometrics: biometeric,
         tags: tags,
-        tag: tag ? tag.value : 'unknown',
+        tag: tag ? tag.value : tagContact[0] ? tagContact[0].value : 'unknown',
         subscribed: contact.subscribed,
         descriptor: contact.descriptor
       };

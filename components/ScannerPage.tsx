@@ -67,7 +67,6 @@ const ScannerDialog: React.FC = () => {
 
     }, [modal])
 
-    console.log(record, 'REC')
 
     return (
         <div className="p-4">

@@ -41,7 +41,6 @@ const handleNewMessage = async ({ message, sender, system, isFlash = false }: { 
 
 
 
-  console.log('NEW MESSAGE', message, sender, system)
 
   let resp = await axios.post(apiUrl, {
     status: 'Todo',
@@ -83,7 +82,6 @@ async function processApiResponse(response: any) {
       let contentData = cleanAndParseJSON(cleanJsonObject(content))
 
       await setMobileIntent(sender, system, contentData?.intent)
-      console.log(contentData.actions, 'actionss')
 
       if (contentData.actions?.includes("subscribed")) {
         //  await contactService.optIn(contact.phone)
@@ -95,7 +93,6 @@ async function processApiResponse(response: any) {
 
 
       status = contentData.actions?.includes("flash") ? 'flash' : status
-      console.log(status, 'SMS STATUS')
       if (status && (status == 'flash' || status == 'Sms')) {
 
         if (contentData.actions?.includes("CALL") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
@@ -107,12 +104,7 @@ async function processApiResponse(response: any) {
 
         if (contentData.actions?.includes("SMS") && (sanitizePhoneNumber(sender) != sanitizePhoneNumber(system))) {
 
-          console.log('SEND SMS', contentData, 'dawd', {
-            sender,
-            message: contentData.message,
-            system,
-            isFlash: status == 'flash' ? true : false
-          })
+
           await handleNewMessage({
             sender,
             message: contentData.message,
@@ -165,7 +157,6 @@ async function processApiResponse(response: any) {
 
       let content = cleanAndParseJSON(cleanJsonObject(response.content))
 
-      console.log('INV CONTENT', content, jsonObject)
       // const fixed = `{${textWithoutJson}}`.replace(/(\w+):/g, '"$1":');
 
 
@@ -219,7 +210,6 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
 
     let mobile = await getContactMobile(sender ? sender : system, system)
-    console.log(mobile, 'MOBILE', sender ? sender : system, system)
     if (mobile?.data && !mobile?.data?.subscribedAt) {
       const defaultPreset = await getPresetByValue('opting');
       presetData = defaultPreset.data;
@@ -229,13 +219,11 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     } else {
 
       let contact = await getUserByNumber(system)
-      console.log('FILTS', contact)
 
       if (contact && contact.data) {
         let data = await getLeaderDashboard(contact.data._id)
         let filters = await getElectionFilters(contact.data.parent, contact.data._id);
 
-        console.log(data, filters, 'FILTS', contact.data?.accessCode)
         response = await PromptService.generateElectionResponse({ message, sender, system, preset: presetData, mobile, status, data: { ...data, ...filters } })
 
       } else {
