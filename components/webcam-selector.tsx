@@ -243,7 +243,7 @@ const CamScreen = ({ camType }: any) => {
         try {
             setMatching(true)
 
-            let newMatch = await axios.post(`${STATIC_URL}/api/face-match`, { descriptor: detection?.descriptor, parent: parentSystem?.parent, teamCode });
+            let newMatch = await axios.post(`${STATIC_URL}/api/face-match`, { descriptor: detection?.descriptor, parent: parentSystem?.parent?._id, teamCode });
 
             // let newTags = capturedImages.filter(img => img != id);
             // setCapturedImages(newTags)
