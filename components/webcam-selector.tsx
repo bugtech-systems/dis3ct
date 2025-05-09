@@ -19,7 +19,7 @@ import { useContact } from "./providers/ContactProvider";
 import { useSearchParams } from "next/navigation";
 
 
-let STATIC_URL = process.env.STATIC_URL || 'https://dis3ct.sharewin.pro';
+let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
 const CamScreen = ({ camType }: any) => {
     const { parentSystem, user } = useContact()

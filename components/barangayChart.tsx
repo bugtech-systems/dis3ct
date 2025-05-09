@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, LabelList, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartTooltip, ChartTooltipContent, ChartContainer, useChart, ChartProvider } from "@/components/ui/chart";
+import { useRouter } from "next/navigation";
 
 // Chart configuration
 const chartConfig: ChartConfig = {
@@ -18,8 +19,9 @@ const chartConfig: ChartConfig = {
   },
 };
 
-export function BarangayChart({ data }) {
+export function BarangayChart({ data, onFilter }: any) {
   const { setChartConfig } = useChart(chartConfig); // Ensure useChart is used within ChartContainer
+  const router = useRouter();
 
   // State for active chart selection (mobile/desktop)
   const [active, setActive] = useState("total");
@@ -31,9 +33,29 @@ export function BarangayChart({ data }) {
   const barGap = 12;
   const minHeight = 600; // Minimum height set to 3000px (ensures no shrinking)
 
+
+  const updateUrlParams = (tag: string) => {
+    const params = new URLSearchParams(window.location.search);
+    console.log(params.toString(), 'PR1')
+    if (tag) {
+      params.set('tag', tag);
+    } else {
+      params.delete("tag");
+    }
+
+    console.log(params.toString(), 'PR2')
+    router.push(`?${params.toString()}`);
+    // onFilter(tag)
+
+  };
+
+
+
+
   // Handler for dropdown selection change
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setActive(event.target.value);
+    updateUrlParams(event.target.value)
   };
 
   useEffect(() => {
@@ -76,6 +98,8 @@ export function BarangayChart({ data }) {
             <option value="undecided">Dead</option>
             <option value="verified">Confirm</option>
             <option value="unknown">Unknown</option>
+            <option value="sure_vote">Sure Vote</option>
+            <option value="voted">Voted</option>
           </select>
         </div>
       </CardHeader>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react";
+import { ChevronsUpDown, GalleryVerticalEnd } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,37 +26,35 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
   const searchParams = useSearchParams();
   const { isMobile } = useSidebar();
   const { system, user, setParentSystem } = useContact();
+
   const [teams, setTeams] = React.useState<any[]>([]);
   const [activeTeam, setActiveTeam] = React.useState<any>(null);
-  // const [showNewTeamDialog, setShowNewTeamDialog] = React.useState(false);
 
-  const updateUrlParams = (team: any) => {
+  const updateUrlParams = (teamCode: string) => {
     const params = new URLSearchParams(window.location.search);
-
-    if (team?.accessCode) {
-      params.set("team", team.accessCode);
+    console.log(params.toString(), 'PR1')
+    if (teamCode) {
+      params.set("team", teamCode);
+      params.delete("tag");
     } else {
       params.delete("team");
     }
+
+    console.log(params.toString(), 'PR2')
     router.push(`?${params.toString()}`);
-
-
   };
 
-  const handleSystems = async (team: any) => {
-    console.log(team, 'handlesystem')
+  const handleSystems = (team: any) => {
     setActiveTeam(team);
-    // setSystem(team);
-    updateUrlParams(team);
     setParentSystem(team);
-    localStorage.setItem("system", JSON.stringify(team) || "");
+    localStorage.setItem("system", JSON.stringify(team));
+    console.log(team, 'AA')
+    updateUrlParams(team?.accessCode);
   };
 
   const handleGetSystems = async (authUser: any) => {
     try {
-      const response = await axios.get(
-        `/api/location/barangays/${authUser?.accessCode}`
-      );
+      const response = await axios.get(`/api/location/barangays/${authUser?.accessCode}`);
       const { data } = response.data;
       setTeams(
         data.map((a: any) => ({
@@ -66,24 +64,38 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
         }))
       );
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching barangays:", error);
     }
   };
 
+  // On mount: set team from localStorage if exists
   React.useEffect(() => {
-    let active = localStorage.getItem('system');
-
-    if (system || (active && JSON.parse(active))) {
-      handleSystems(system || (active && JSON.parse(active)));
+    const savedSystem = localStorage.getItem("system");
+    if (savedSystem) {
+      try {
+        const parsed = JSON.parse(savedSystem);
+        if (parsed?.accessCode) {
+          handleSystems(parsed);
+        }
+      } catch (e) {
+        console.warn("Failed to parse saved team from localStorage.");
+      }
     }
-  }, [user]);
+  }, []);
 
+  // When `user` changes, re-fetch barangay list
   React.useEffect(() => {
-    if (activeTeam && String(activeTeam.accessCode).length == 6) {
-      handleGetSystems(activeTeam);
+    console.log(currentUser, 'CURRR')
+    if (currentUser?.accessCode) {
+      handleGetSystems(currentUser);
     }
-  }, [activeTeam]);
+  }, [currentUser]);
 
+  // React.useEffect(() => {
+  //   if (activeTeam?.accessCode) {
+  //     handleGetSystems(activeTeam);
+  //   }
+  // }, [activeTeam]);
 
   return (
     <SidebarMenu>
@@ -101,14 +113,15 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
                 <span className="truncate font-semibold">
                   {activeTeam?.name || "Select Team"}
                 </span>
-                <span className="truncate text-xs">{activeTeam?.userType}</span>
+                <span className="truncate text-xs">
+                  {activeTeam?.userType || ""}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            // className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
             align="start"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}
@@ -116,11 +129,9 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Teams
             </DropdownMenuLabel>
-            <div
-              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto"
-            >
+            <div className="w-[--radix-dropdown-menu-trigger-width] min-w-56 max-h-80 overflow-y-auto">
               {teams
-                ?.filter((team) => team?.accessCode !== user?.accessCode)
+                ?.filter((team) => team?.accessCode !== activeTeam?.accessCode)
                 .map((team, index) => (
                   <DropdownMenuItem
                     key={team.accessCode}
@@ -135,6 +146,7 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
                   </DropdownMenuItem>
                 ))}
             </div>
+
             {activeTeam && user?.accessCode !== activeTeam.accessCode && (
               <>
                 <DropdownMenuSeparator />
@@ -149,20 +161,6 @@ export function TeamSwitchers({ currentUser }: { currentUser?: any }) {
                 </DropdownMenuItem>
               </>
             )}
-
-            <DropdownMenuSeparator />
-
-            {/* {user?.userType === "admin" && (
-              <DropdownMenuItem
-                className="gap-2 p-2"
-                onClick={() => setShowNewTeamDialog(true)}
-              >
-                <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                  <Plus className="size-4" />
-                </div>
-                <div className="font-medium text-muted-foreground">Add team</div>
-              </DropdownMenuItem>
-            )} */}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

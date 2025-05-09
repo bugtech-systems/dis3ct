@@ -16,6 +16,7 @@ export const GET = async (req: NextRequest) => {
         const session = await getServerSession(authOptions) as any;
         const { searchParams } = new URL(req.url) as any;
         let systemParam = searchParams.get("parent");
+        let tagParams = searchParams.getAll("tag");
 
         // Check if user is authenticated
         if (!session || !session.user) {
@@ -24,9 +25,9 @@ export const GET = async (req: NextRequest) => {
 
         // const phone = session.user.phone;
         const userId = session.user.id;
-
+        console.log(systemParam, "DDSS", tagParams)
         // await connectToDatabase()
-        let dashboardDdata = await getLeaderDashboard(systemParam ? systemParam : userId);
+        let dashboardDdata = await getLeaderDashboard({ id: systemParam ? systemParam : userId, tag: tagParams[0], allTags: tagParams });
 
 
 

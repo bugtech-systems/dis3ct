@@ -21,7 +21,7 @@ import { Input } from "./ui/input";
 import { imageExists } from '@/utils/imageExists'
 
 
-let STATIC_URL = process.env.STATIC_URL || 'https://dis3ct.sharewin.pro';
+let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
 
 
 export function DeviceForm() {

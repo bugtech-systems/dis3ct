@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -13,60 +13,72 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { RecentSales } from "@/app/(app)/dashboard/components/recent-sales";
 import { BarangayChart } from "@/components/barangayChart";
 import { ChartProvider } from "@/components/ui/chart";
+import axios from "axios";
 
 export default function DashboardPage({ data }: any) {
   const [dashboardData, setDashboardData] = useState({
     teamReach: 0,
-    subscriptions: 0,
     contacts: 0,
-    recentContacts: [],
-    overviewChartData: [],
     barangay: {},
+    target: 0,
+    recentContacts: [],
+
   });
+  const searchParams = useSearchParams();
+  const team = searchParams.get("team");
+  const tag = searchParams.get("tag");
 
+  const fetchDashboardData = async (teamCode?: string | null) => {
+    try {
+      // const params = new URLSearchParams(window.location.search);
 
+      // let verified = tag.find(a => a == 'declined');
 
-  // Check for `team` param in URL and set context accordingly
+      // let newTags = verified ? [...tag, 'verified'] : tag
 
-
-
-
-  useEffect(() => {
-    if (data) {
-      setDashboardData((prevData) =>
-        JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
-      );
+      console.log(tag, 'TAG')
+      const response = await axios.get(`/api/dashboard`, {
+        params: { parent: team, tag }
+      });
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
     }
-  }, [data]);
+  };
 
-  // Optional: auto-refresh every 10 minutes
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDashboardData((prevData) =>
-        JSON.stringify(prevData) !== JSON.stringify(data) ? data : prevData
-      );
-    }, 1000 * 60 * 5);
-    return () => clearInterval(interval);
-  }, []);
+    fetchDashboardData();
+  }, [tag]);
 
-  // const parent = parentSystem?.parent ?? user?.parent;
+  // Optional: auto-refresh every 5 minutes
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchDashboardData(team);
+  //   }, 1000 * 60 * 5);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-            {/* Team Reach */}
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Target Reach</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Voters</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{dashboardData?.teamReach}</div>
               </CardContent>
             </Card>
-
-            {/* My Contacts */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Target Reach</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData?.target}</div>
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Actual Reach</CardTitle>
@@ -75,21 +87,8 @@ export default function DashboardPage({ data }: any) {
                 <div className="text-2xl font-bold">{dashboardData?.contacts}</div>
               </CardContent>
             </Card>
-
-            {/* Subscriptions */}
-            {/* {parent && findFeature(parent?.configs, "sms")?.value && (
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{dashboardData?.subscriptions}</div>
-                </CardContent>
-              </Card>
-            )} */}
           </div>
 
-          {/* Chart & Recent Contacts */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
             <Card className="col-span-4">
               <ChartProvider>

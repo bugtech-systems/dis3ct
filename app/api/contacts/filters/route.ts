@@ -68,21 +68,46 @@ export async function GET(req) {
     }));
 
     // Count occurrences of each tag type, ensuring only the latest tag is considered
+    // const tagResults = await Contact.aggregate([
+    //   { $match: matchQuery },
+    //   { $unwind: "$tags" },
+    //   { $sort: { "tags.timestamp": -1 } },
+    //   {
+    //     $group: {
+    //       _id: "$_id",
+    //       latestTag: { $first: "$tags" },
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       "latestTag.tagType": "tag",
+    //       "latestTag.value": { $in: ["undecided", "declined"] }
+    //       // "latestTag.user": userObjectId,
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: { $toLower: "$latestTag.value" },
+    //       count: { $sum: 1 },
+    //     },
+    //   },
+    //   { $sort: { _id: 1 } },
+    // ]);
+
     const tagResults = await Contact.aggregate([
       { $match: matchQuery },
       { $unwind: "$tags" },
       { $sort: { "tags.timestamp": -1 } },
       {
         $group: {
-          _id: "$_id",
+          _id: "$_id", // group by Contact ID
           latestTag: { $first: "$tags" },
         },
       },
       {
         $match: {
           "latestTag.tagType": "tag",
-          "latestTag.value": { $in: ["undecided", "declined"] }
-          // "latestTag.user": userObjectId,
+          "latestTag.value": { $in: ["declined", "undecided", "confirm"] },
         },
       },
       {
@@ -109,6 +134,10 @@ export async function GET(req) {
       ...matchQuery,
       tags: { $elemMatch: { tagType: "tag", value: "verified" } },
     });
+
+
+
+
 
     filters.tags = tagResults.map(({ _id, count }) => ({
       value: _id,

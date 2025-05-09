@@ -8,12 +8,12 @@ interface Props {
 }
 
 export default async function DashboardPageWrapper({ searchParams }: Props) {
-  const teamCode = searchParams?.team || "";
-  const dashData = await getLeaderDashboard(teamCode);
+  // const teamCode = searchParams?.team || "";
+  // const dashData = await getLeaderDashboard(teamCode);
 
   return (
     <Suspense fallback={<div>Loading dashboard...</div>}>
-      <DashboardPage data={dashData} />
+      <DashboardPage />
     </Suspense>
   );
 }

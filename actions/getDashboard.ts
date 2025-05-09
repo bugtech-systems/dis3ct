@@ -9,7 +9,7 @@ import { barangays, regions, provinces, municipalities } from "@/lib/locationDat
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
-export const getLeaderDashboard = async (id): Promise<any> => {
+export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any> => {
   try {
     // Get session & user details
     const session = await getServerSession(authOptions) as any;
@@ -24,7 +24,8 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
 
     let user = (String(id).length < 10 || session) ? await User.findById(userId) : await User.findById(id)
-    // // Get user details
+
+    // // Get   cpuser details
     // const user = await User.findById(id).lean(); // ✅ Convert to plain object
     if (!user) {
       throw new Error("User not found");
@@ -51,18 +52,38 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     //     options.$or = brgys;
     //   }
     // }
-    // let options = isSystem ? { citymunCode: id } : { brgyCode: id }
-    let options = {}
 
+
+    // let isSystem = (user.userType == 'admin' || user.userType == 'system')
+
+    console.log(tag, 'TAGG', id)
+    let options = { parNum: user.parent, $or: [{ brgyCode: id }, { citymunCode: id }] }
+    // let options = {}
 
 
     // Aggregate Dashboard Data
-    const [teamReach, subscriptions, contacts, recentContacts] = await Promise.all([
+
+
+    let tagOptions = (!tag || tag == 'total') ? { 'tags.value': { $in: ['confirm', 'verified', 'undecided', 'unknown', 'sure_voter', 'voted'] } } : { 'tags.value': { $in: allTags } }
+
+
+
+    console.log({
+      ...options,
+      ...tagOptions
+    }, 'OPTTIONS', id, allTags, tag)
+
+    const [teamReach, subscriptions, contacts, target, recentContacts] = await Promise.all([
       Contact.countDocuments({ ...options }),
       Contact.countDocuments({ subscribed: true, ...options }),
       Contact.countDocuments({
         ...options,
-        'tags.tagType': { $in: ['tag', 'image', 'biometrics'] },
+
+        ...tagOptions
+      }),
+      Contact.countDocuments({
+        ...options,
+        'tags.value': 'confirm'
       }),
       // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
       Contact.find({ ...options })
@@ -74,7 +95,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
     // Generate Chart Data
     const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
-    const barangay = await Contact.find(options).select("name brgyCode tags").lean(); // ✅ Use .lean()
+    const barangay = await Contact.find(options).select("name brgyCode tags precinct").lean(); // ✅ Use .lean()
 
     let newBarangay = barangay.map((contact: any) => {
       let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
@@ -82,7 +103,7 @@ export const getLeaderDashboard = async (id): Promise<any> => {
 
       let tag = tags.length ? tags[0].value : 'unknown';
 
-      return { name: contact.name, barangay, tags, tag }
+      return { name: contact.name, precinct: contact.precinct, barangay, tags, tag }
     })
 
 
@@ -130,8 +151,8 @@ export const getLeaderDashboard = async (id): Promise<any> => {
     })
 
 
-
-    return { teamReach, subscriptions, contacts, recentContacts: newContacts, overviewChartData, barangay: sanitizeObject(groupedBar) }
+    // console.log({ teamReach, subscriptions, contacts, recentContacts: newContacts, barangay: sanitizeObject(groupedBar) })
+    return { teamReach, subscriptions, contacts, target, recentContacts: newContacts, barangay: sanitizeObject(groupedBar) }
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
     return { teamReach: 0, subscriptions: 0, contacts: 0, recentContacts: [], overviewChartData: [] };

@@ -14,7 +14,7 @@ import { imageExists } from "@/utils/imageExists"
 import SafeImage from "@/components/ImgWrapper"
 
 
-const STATIC_FILE_URL = 'https://dis3ct.sharewin.pro'
+const STATIC_FILE_URL = 'http://localhost:3500'
 
 export const columns: ColumnDef<Contact>[] = [
   {
