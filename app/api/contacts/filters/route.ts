@@ -3,6 +3,7 @@ import dbConnect from "@/lib/mongodb";
 import Contact from "@/models/Contact";
 import { barangays, municipalities } from "@/lib/locationData";
 import mongoose from "mongoose";
+export const dynamic = "force-dynamic";
 
 export async function GET(req) {
   await dbConnect();

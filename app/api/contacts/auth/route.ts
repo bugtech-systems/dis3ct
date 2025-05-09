@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/authOptions";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 
+export const dynamic = "force-dynamic";
+
+
 export const GET = async (req: NextRequest) => {
     try {
         await dbConnect();

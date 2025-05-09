@@ -2,6 +2,7 @@
 import { redirect } from "next/navigation";
 import getAuth from "@/actions/getAuth";
 import ContactsPage from "./components/contacts";
+export const dynamic = "force-dynamic";
 
 // async function authenticate() {
 //   const session = await getServerSession(authOptions);

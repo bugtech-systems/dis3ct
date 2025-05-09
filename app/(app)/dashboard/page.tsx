@@ -2,6 +2,7 @@
 import { getLeaderDashboard } from "@/actions/getDashboard";
 import DashboardPage from "./components/dashboard";
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
 
 interface Props {
   searchParams: { team?: string };

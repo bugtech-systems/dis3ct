@@ -8,6 +8,7 @@ import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 // import { withAuth } from '@/lib/withAuth';
+export const dynamic = "force-dynamic";
 
 function objectToString(obj: any, separator = " ") {
   return Object.values(obj).join(separator);

@@ -6,6 +6,7 @@ import Mobile from "@/models/Mobile";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 // import { withAuth } from '@/lib/withAuth';
+export const dynamic = "force-dynamic";
 
 const convertToAndCondition = (option: any) => {
   if (!option || typeof option !== "object") {

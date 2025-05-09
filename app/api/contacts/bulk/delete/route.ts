@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import authOptions from "@/lib/authOptions";
 // import { withAuth } from '@/lib/withAuth';
 
+export const dynamic = "force-dynamic";
 
 export const POST = async (req: NextRequest) => {
 
