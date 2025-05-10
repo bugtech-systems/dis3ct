@@ -21,6 +21,7 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
 
     await connectToDatabase();
 
+    let options = {}
 
 
     let user = (String(id).length < 10 || session) ? await User.findById(userId) : await User.findById(id)
@@ -55,23 +56,19 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
 
 
     // let isSystem = (user.userType == 'admin' || user.userType == 'system')
-
-    console.log(tag, 'TAGG', id)
-    let options = { parNum: user.parent, $or: [{ brgyCode: id }, { citymunCode: id }] }
-    // let options = {}
+    if (String(id).length < 10) {
+      options = { parNum: user.parent, $or: [{ brgyCode: id }, { citymunCode: id }] }
+      let tagOptions = (!tag || tag == 'total') ? { 'tags.value': { $in: ['confirm', 'verified', 'undecided', 'unknown', 'sure_voter', 'voted'] } } : { 'tags.value': { $in: allTags } }
+      options = { ...options, tagOptions }
+    }
 
 
     // Aggregate Dashboard Data
 
 
-    let tagOptions = (!tag || tag == 'total') ? { 'tags.value': { $in: ['confirm', 'verified', 'undecided', 'unknown', 'sure_voter', 'voted'] } } : { 'tags.value': { $in: allTags } }
 
 
 
-    console.log({
-      ...options,
-      ...tagOptions
-    }, 'OPTTIONS', id, allTags, tag)
 
     const [teamReach, subscriptions, contacts, target, recentContacts] = await Promise.all([
       Contact.countDocuments({ ...options }),
@@ -79,7 +76,7 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       Contact.countDocuments({
         ...options,
 
-        ...tagOptions
+        // ...tagOptions
       }),
       Contact.countDocuments({
         ...options,

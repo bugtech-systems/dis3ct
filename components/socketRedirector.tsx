@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { io } from 'socket.io-client';
 
 // Optional: put your backend socket URL here
-const SOCKET_URL = 'http://localhost:3500';
+const SOCKET_URL = 'https://dis3ct.sharewin.pro';
 
 let socket: ReturnType<typeof io> | null = null;
 

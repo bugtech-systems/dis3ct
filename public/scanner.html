@@ -169,7 +169,7 @@
 
                 // dropdown.innerHTML = ;
 
-                const response = await fetch(`http://localhost:3500/api/contacts/scan/${encodeURIComponent(pageId)}`).
+                const response = await fetch(`https://dis3ct.sharewin.pro/api/contacts/scan/${encodeURIComponent(pageId)}`).
                     then(res => res.json())
                     .then(data => {
                         console.log(data, 'DATA')
@@ -222,7 +222,7 @@
                 formData.append(`file`, blob, `fingerprint${index + 1}.png`);
             });
 
-            const uploadUrl = `http://localhost:3500/api/biometrics/upload?id=${encodeURIComponent(pageId)}`;
+            const uploadUrl = `https://dis3ct.sharewin.pro/api/biometrics/upload?id=${encodeURIComponent(pageId)}`;
 
 
             fetch(uploadUrl, {

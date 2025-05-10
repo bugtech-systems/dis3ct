@@ -221,9 +221,9 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
       let contact = await getUserByNumber(system)
 
       if (contact && contact.data) {
-        let data = await getLeaderDashboard(contact.data._id)
+        let data = await getLeaderDashboard({ id: contact.data._id })
         let filters = await getElectionFilters(contact.data.parent, contact.data._id);
-
+        console.log(data, filters, 'DASH DTS')
         response = await PromptService.generateElectionResponse({ message, sender, system, preset: presetData, mobile, status, data: { ...data, ...filters } })
 
       } else {
