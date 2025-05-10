@@ -2,6 +2,8 @@
 import { getLeaderDashboard } from "@/actions/getDashboard";
 import DashboardPage from "./components/dashboard";
 import { Suspense } from "react";
+import SocketRedirector from "@/components/socketRedirector";
+
 export const dynamic = "force-dynamic";
 
 interface Props {
@@ -14,6 +16,7 @@ export default async function DashboardPageWrapper({ searchParams }: Props) {
 
   return (
     <Suspense fallback={<div>Loading dashboard...</div>}>
+      <SocketRedirector />
       <DashboardPage />
     </Suspense>
   );

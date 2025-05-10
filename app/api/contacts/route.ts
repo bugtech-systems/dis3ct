@@ -214,7 +214,7 @@ export async function GET(req: NextRequest) {
 
 
       let tag = tagContact.find(a => a.value == tagList[0]);
-      let identity = identityList?.includes('biometrics') ? 'biometrics' : identityList?.includes('image') ? 'image' : null;
+      let identity = identityList?.includes('biometrics') ? 'biometrics' : identityList?.includes('image') ? 'image' : contact._id;
       return {
         _id: contact._id,
         name: contact.name,

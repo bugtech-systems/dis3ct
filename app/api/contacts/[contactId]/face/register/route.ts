@@ -48,15 +48,21 @@ export async function POST(
         // let newTags = contact?.tags as any[];
         let newTags = contact?.tags.filter(a => a.tagType != 'image');
 
-        imgUrls.map(a => {
-            newTags.push({
-                tagType: 'image',
-                user: authUser?._id,
-                value: a
-            })
-        })
 
-        // contact.tags = newTags;
+        for (let img of imgUrls) {
+            let cImg = newTags.find(a => (a.tagType == 'image' && a.value == img))
+
+            if (!cImg) {
+
+                newTags.push({
+                    tagType: 'image',
+                    user: authUser?._id,
+                    value: img
+                })
+            }
+        }
+        console.log(contact.name, contact.address, imgUrls.length, 'UPLOADED')
+        contact.tags = newTags;
         await contact.save()
 
         return NextResponse.json({ message: "Face saved successfully", contact });
