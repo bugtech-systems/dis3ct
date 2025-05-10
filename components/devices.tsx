@@ -268,17 +268,18 @@ export function DeviceForm() {
     for (const data of syncables) {
 
       if (data?.sync == 'biometric') {
+        let newTags = data?.tags?.filter(async a => (a.tagType == 'biometrics' && await checkImage(STATIC_URL + a.value))).map(a => { return { value: a.value, isImage: checkImage(STATIC_URL + a.value) } });
+        console.log(newTags, 'NEW TAGS')
 
-
-        const response = await fetch(`${STATIC_URL}/api/biometrics/register?id=${data?._id}`, {
-          method: "POST",
-        });
-
-        if (response.ok) {
-          console.log(`Successfully submitted: ${JSON.stringify(data)}`);
-        } else {
-          console.error(`Failed to submit: ${JSON.stringify(data)}`);
-        }
+        /*       const response = await fetch(`${STATIC_URL}/api/biometrics/register?id=${data?._id}`, {
+                method: "POST",
+              });
+       */
+        /*        if (response.ok) {
+                 console.log(`Successfully submitted: ${JSON.stringify(data)}`);
+               } else {
+                 console.error(`Failed to submit: ${JSON.stringify(data)}`);
+               } */
 
       }
 
@@ -288,7 +289,10 @@ export function DeviceForm() {
 
   const handleSubmitSyncImage = async () => {
     setStatus('Submitting data...');
-    for (const data of syncables) {
+    let inds = syncables.filter(a => a.sync == 'image')
+    let i = inds.length;
+    console.log(i)
+    for (const data of inds) {
       console.log(!(data.descriptor && data.descriptor.length), 'DESC')
       if (data?.sync != 'biometric' && !(data.descriptor && data.descriptor.length)) {
 
@@ -306,10 +310,11 @@ export function DeviceForm() {
           const mergedDescriptor = normalizeDescriptor(mergeDescriptors(descriptors));
           console.log(mergedDescriptor, 'dddd')
           await axios.post(`/api/contacts/${data._id}/face/register`, { descriptor: mergedDescriptor, imgUrls: newTags });
-
+          i--
         }
       }
     }
+    console.log(i, 'COUNTS')
     setStatus('Data submission complete.');
   };
 

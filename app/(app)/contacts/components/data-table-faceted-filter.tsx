@@ -40,7 +40,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   onFilterChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const facets = column?.getFacetedUniqueValues();
+  // const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
   const handleSelect = (value: any) => {
     if (selectedValues.has(value)) {
@@ -49,7 +49,7 @@ export function DataTableFacetedFilter<TData, TValue>({
       selectedValues.add(value);
     }
     const filterValues = Array.from(selectedValues);
-    column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    column?.setFilterValue(filterValues?.length ? filterValues : undefined);
     onFilterChange?.(filterValues);
   };
 
