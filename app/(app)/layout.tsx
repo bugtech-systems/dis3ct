@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 
-let STATIC_URL = process.env.STATIC_URL || 'http://localhost:3500';
+let STATIC_URL = process.env.STATIC_URL || 'https://dis3ct.sharewin.pro';
 
 export default async function RootLayout({
   children,
