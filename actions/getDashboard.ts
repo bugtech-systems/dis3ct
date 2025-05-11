@@ -16,10 +16,8 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
 
     await connectToDatabase();
 
-    const user = (String(id).length < 10 || session)
-      ? await User.findById(userId).lean()
-      : await User.findById(id).lean();
-
+    const isSession = String(id).length < 10 || session;
+    const user = await User.findById(isSession ? userId : id).lean();
     if (!user) throw new Error("User not found");
 
     const parNumFilter = { parNum: user.parent };
@@ -32,50 +30,64 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       idFilter = { brgyCode: id };
     }
 
-    const combinedFilter = { ...parNumFilter, ...idFilter };
-
-    const tagOptions = (!tag || tag === "total")
+    const baseFilter = { ...parNumFilter, ...idFilter };
+    const tagFilter = (!tag || tag === "total")
       ? { "tags.value": { $in: ["confirm", "verified", "undecided", "unknown", "sure_voter", "voted"] } }
       : { "tags.value": { $in: allTags } };
 
-    // Dashboard stats
-    const [teamReach, subscriptions, contacts, target] = await Promise.all([
-      Contact.countDocuments(combinedFilter),
-      Contact.countDocuments({ ...combinedFilter, subscribed: true }),
-      Contact.countDocuments({ ...combinedFilter, ...tagOptions }),
-      Contact.countDocuments({ ...combinedFilter, "tags.value": "confirm" })
+    // ----------- PARALLELIZED QUERIES ------------
+    const [counts, recentContactsRaw, overviewLogs, barangayContacts] = await Promise.all([
+      Contact.aggregate([
+        { $match: baseFilter },
+        {
+          $facet: {
+            teamReach: [{ $count: "count" }],
+            subscriptions: [{ $match: { subscribed: true } }, { $count: "count" }],
+            contacts: [{ $match: tagFilter }, { $count: "count" }],
+            target: [{ $match: { "tags.value": "confirm" } }, { $count: "count" }]
+          }
+        }
+      ]),
+      Contact.find(baseFilter)
+        .sort({ updatedAt: -1 })
+        .limit(10)
+        .select("name phone createdAt updatedAt")
+        .lean(),
+      AuditLogs.find({
+        $or: [{ system: user.parent }, { userId: user._id }],
+        action: "Tag Record"
+      }).sort({ timestamp: 1 }).select("timestamp").lean(),
+      Contact.find(baseFilter).select("name brgyCode tags precinct").lean()
     ]);
 
-    // Recent contacts (filtered, sorted by updatedAt DESC)
-    const recentContactsRaw = await Contact.find(combinedFilter)
-      .sort({ updatedAt: -1 }) // Strictly updatedAt DESC
-      .limit(10)
-      .select("name phone createdAt updatedAt")
-      .lean();
+    // ------- Extract counts safely -------
+    const safeCount = (arr: any, key: string) => (arr[0]?.[key]?.[0]?.count || 0);
+    const stats = counts[0];
+    const teamReach = stats.teamReach[0]?.count || 0;
+    const subscriptions = stats.subscriptions[0]?.count || 0;
+    const contacts = stats.contacts[0]?.count || 0;
+    const target = stats.target[0]?.count || 0;
 
+    // ------- Recent Contacts -------
     const recentContacts = recentContactsRaw.map(contact => ({
       ...contact,
       _id: contact._id.toString()
     }));
 
-    // Chart Data
-    const overviewLogs = await AuditLogs.find({
-      $or: [{ system: user.parent }, { userId: user._id }],
-      action: "Tag Record"
-    }).sort({ timestamp: 1 }).select("timestamp").lean();
-
+    // ------- Chart Data -------
     const groupedContacts = overviewLogs.reduce((acc: any, log) => {
       const month = new Date(log.timestamp).toLocaleString("default", { month: "short" });
       acc[month] = (acc[month] || 0) + 1;
       return acc;
     }, {});
 
-    const overviewChartData = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-      .map(month => ({ name: month, total: groupedContacts[month] || 0 }));
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const overviewChartData = months.map(month => ({
+      name: month,
+      total: groupedContacts[month] || 0
+    }));
 
-    // Barangay Breakdown
-    const barangayContacts = await Contact.find(combinedFilter).select("name brgyCode tags precinct").lean();
-
+    // ------- Barangay Breakdown -------
     const newBarangay = barangayContacts.map(contact => {
       const barangay = barangays.find(brgy => brgy.brgyCode === contact.brgyCode)?.brgyDesc;
       const tags = contact.tags.filter(a => a.tagType === "tag");
@@ -93,7 +105,6 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       contact.tags.forEach(tag => {
         acc[bar][tag.value] = (acc[bar][tag.value] || 0) + 1;
       });
-
       if (contact.tags.length === 0) {
         acc[bar].unknown += 1;
       }

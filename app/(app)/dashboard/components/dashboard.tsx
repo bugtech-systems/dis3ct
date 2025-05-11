@@ -54,7 +54,7 @@ export default function DashboardPage({ data }: any) {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsContent value="overview" className="space-y-4">
           {loading ? (
-            <div className="flex justify-center items-center h-64 text-muted-foreground">
+            <div className="flex justify-center items-center text-muted-foreground">
               Loading dashboard data...
             </div>
           ) : (
@@ -85,28 +85,28 @@ export default function DashboardPage({ data }: any) {
                   </CardContent>
                 </Card>
               </div>
-
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
-                <Card className="col-span-4">
-                  <ChartProvider>
-                    <BarangayChart data={dashboardData.barangay || {}} />
-                  </ChartProvider>
-                </Card>
-
-                <Card className="col-span-3">
-                  <CardHeader>
-                    <CardTitle>Recently Updated</CardTitle>
-                    <CardDescription>
-                      You saved {dashboardData?.recentContacts?.length} contacts.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <RecentSales contacts={dashboardData?.recentContacts} />
-                  </CardContent>
-                </Card>
-              </div>
             </>
           )}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 h-full">
+            <Card className="col-span-4">
+              <ChartProvider>
+                <BarangayChart data={dashboardData.barangay || {}} />
+              </ChartProvider>
+            </Card>
+
+            <Card className="col-span-3">
+              <CardHeader>
+                <CardTitle>Recently Updated</CardTitle>
+                <CardDescription>
+                  You saved {dashboardData?.recentContacts?.length} contacts.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RecentSales contacts={dashboardData?.recentContacts} />
+              </CardContent>
+            </Card>
+          </div>
+
         </TabsContent>
       </Tabs>
     </div>
