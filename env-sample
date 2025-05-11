@@ -1,0 +1,16 @@
+MONGODB_URI=mongodb+srv://user:user@powertools-001.2mrrjyp.mongodb.net/sanisidro-prod
+# MONGODB_URI=mongodb://localhost:27017/sanisidro-db
+
+SERVER_IP=192.168.1.108:3500
+EMAIL_SERVER=smtp.example.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@example.com
+EMAIL_PASS=your-email-password
+NEXTAUTH_SECRET=wildcrack@420
+ALAYON_NEXT=http://localhost:3000
+TASK_URL=http://localhost:3000/api/tasks
+STATIC_URL=https://dis3ct.sharewin.pro
+APP_AUTH_URL=http://localhost:5050
+
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
