@@ -5,153 +5,121 @@ import connectToDatabase from "@/lib/mongodb";
 import AuditLogs from "@/models/AuditLogs";
 import Contact from "@/models/Contact";
 import User from "@/models/User";
-import { barangays, regions, provinces, municipalities } from "@/lib/locationData";
+import { barangays } from "@/lib/locationData";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
 export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any> => {
   try {
-    // Get session & user details
     const session = await getServerSession(authOptions) as any;
-    // if (!session || !session.user) {
-    //   return [];
-    // }
     const userId = session?.user?.id;
-
 
     await connectToDatabase();
 
-    let options = {}
+    const user = (String(id).length < 10 || session)
+      ? await User.findById(userId).lean()
+      : await User.findById(id).lean();
 
+    if (!user) throw new Error("User not found");
 
-    let user = (String(id).length < 10 || session) ? await User.findById(userId) : await User.findById(id)
+    const parNumFilter = { parNum: user.parent };
+    const idLength = String(id).length;
 
-    // // Get   cpuser details
-    // const user = await User.findById(id).lean(); // ✅ Convert to plain object
-    if (!user) {
-      throw new Error("User not found");
+    let idFilter = {};
+    if (idLength === 6) {
+      idFilter = { citymunCode: id };
+    } else if (idLength > 6 && idLength < 10) {
+      idFilter = { brgyCode: id };
     }
 
-    // let brgyCode = user.accessCodes;
+    const combinedFilter = { ...parNumFilter, ...idFilter };
 
-    // let brgys = brgyCode ? brgyCode.map(brgy => {
-    //   return {
-    //     brgyCode: brgy, parNum: user.parent
-    //   }
-    // }) : []
+    const tagOptions = (!tag || tag === "total")
+      ? { "tags.value": { $in: ["confirm", "verified", "undecided", "unknown", "sure_voter", "voted"] } }
+      : { "tags.value": { $in: allTags } };
 
-
-
-    // let options: any = { deletedAt: null };
-    // if (user.userType != "leader") {
-    //   options.parNum = user.parent;
-
-    // } else if (user.userType == 'leader') {
-    //   options.parNum = user.parent;
-    //   // options[user.accessLevel] = user.accessCode;
-    //   if (brgys.length) {
-    //     options.$or = brgys;
-    //   }
-    // }
-
-
-    // let isSystem = (user.userType == 'admin' || user.userType == 'system')
-    if (String(id).length < 10) {
-      options = { parNum: user.parent, $or: [{ brgyCode: id }, { citymunCode: id }] }
-      let tagOptions = (!tag || tag == 'total') ? { 'tags.value': { $in: ['confirm', 'verified', 'undecided', 'unknown', 'sure_voter', 'voted'] } } : { 'tags.value': { $in: allTags } }
-      options = { ...options, tagOptions }
-    }
-
-
-    // Aggregate Dashboard Data
-
-
-
-
-
-
-    const [teamReach, subscriptions, contacts, target, recentContacts] = await Promise.all([
-      Contact.countDocuments({ ...options }),
-      Contact.countDocuments({ subscribed: true, ...options }),
-      Contact.countDocuments({
-        ...options,
-
-        // ...tagOptions
-      }),
-      Contact.countDocuments({
-        ...options,
-        'tags.value': 'confirm'
-      }),
-      // Contact.countDocuments({ uplines: { $in: user._id?.toString() }, ...options }),
-      Contact.find({ ...options })
-        .sort({ updatedAt: -1 })
-        .limit(10)
-        .select("name phone createdAt updatedAt")
-        .lean(), // ✅ Convert to plain objects
+    // Dashboard stats
+    const [teamReach, subscriptions, contacts, target] = await Promise.all([
+      Contact.countDocuments(combinedFilter),
+      Contact.countDocuments({ ...combinedFilter, subscribed: true }),
+      Contact.countDocuments({ ...combinedFilter, ...tagOptions }),
+      Contact.countDocuments({ ...combinedFilter, "tags.value": "confirm" })
     ]);
 
-    // Generate Chart Data
-    const overview = await AuditLogs.find({ $or: [{ system: user.parent }, { userId: user }], action: 'Tag Record' }).sort({ timestamp: 1 }).select("timestamp").lean(); // ✅ Use .lean()
-    const barangay = await Contact.find(options).select("name brgyCode tags precinct").lean(); // ✅ Use .lean()
+    // Recent contacts (filtered, sorted by updatedAt DESC)
+    const recentContactsRaw = await Contact.find(combinedFilter)
+      .sort({ updatedAt: -1 }) // Strictly updatedAt DESC
+      .limit(10)
+      .select("name phone createdAt updatedAt")
+      .lean();
 
-    let newBarangay = barangay.map((contact: any) => {
-      let barangay = barangays.find((brgy: any) => brgy.brgyCode == contact.brgyCode)?.brgyDesc;
-      let tags = contact.tags.filter(a => a.tagType == 'tag')
+    const recentContacts = recentContactsRaw.map(contact => ({
+      ...contact,
+      _id: contact._id.toString()
+    }));
 
-      let tag = tags.length ? tags[0].value : 'unknown';
+    // Chart Data
+    const overviewLogs = await AuditLogs.find({
+      $or: [{ system: user.parent }, { userId: user._id }],
+      action: "Tag Record"
+    }).sort({ timestamp: 1 }).select("timestamp").lean();
 
-      return { name: contact.name, precinct: contact.precinct, barangay, tags, tag }
-    })
-
-
-    let groupedBar = newBarangay.reduce((acc: any, contact) => {
-      const bar = contact.barangay;
-      if (acc[bar]) {
-
-        let options = {}
-        if (contact.tags[0]) {
-          contact.tags.map(a => {
-            options = { ...options, [a.value]: (acc[bar][a.value] || 0) + 1 }
-          })
-        } else {
-          options = { unknown: (acc[bar]['unknown'] || 0) + 1 }
-        }
-
-        acc[bar] = { ...acc[bar], total: acc[bar].total + 1, ...options };
-      } else {
-        let defData = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
-
-        acc[bar] = { ...defData, total: 1, [contact.tag]: 1 }
-      }
-      return acc;
-    }, {})
-
-
-
-    const groupedContacts = overview.reduce((acc: any, contact) => {
-      const month = new Date(contact.timestamp).toLocaleString("default", { month: "short" });
+    const groupedContacts = overviewLogs.reduce((acc: any, log) => {
+      const month = new Date(log.timestamp).toLocaleString("default", { month: "short" });
       acc[month] = (acc[month] || 0) + 1;
       return acc;
     }, {});
 
-    const overviewChartData = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ].map((month) => ({
-      name: month,
-      total: groupedContacts[month] || 0,
-    }));
+    const overviewChartData = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      .map(month => ({ name: month, total: groupedContacts[month] || 0 }));
 
-    let newContacts = [];
+    // Barangay Breakdown
+    const barangayContacts = await Contact.find(combinedFilter).select("name brgyCode tags precinct").lean();
 
-    recentContacts.forEach((contact) => {
-      newContacts.push({ ...contact, _id: contact._id.toString() })
-    })
+    const newBarangay = barangayContacts.map(contact => {
+      const barangay = barangays.find(brgy => brgy.brgyCode === contact.brgyCode)?.brgyDesc;
+      const tags = contact.tags.filter(a => a.tagType === "tag");
+      const tag = tags.length ? tags[0].value : "unknown";
+      return { name: contact.name, precinct: contact.precinct, barangay, tags, tag };
+    });
 
+    const groupedBar = newBarangay.reduce((acc: any, contact) => {
+      const bar = contact.barangay || "Unknown Barangay";
+      if (!acc[bar]) {
+        acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
+      }
 
-    // console.log({ teamReach, subscriptions, contacts, recentContacts: newContacts, barangay: sanitizeObject(groupedBar) })
-    return { teamReach, subscriptions, contacts, target, recentContacts: newContacts, barangay: sanitizeObject(groupedBar) }
+      acc[bar].total += 1;
+      contact.tags.forEach(tag => {
+        acc[bar][tag.value] = (acc[bar][tag.value] || 0) + 1;
+      });
+
+      if (contact.tags.length === 0) {
+        acc[bar].unknown += 1;
+      }
+
+      return acc;
+    }, {});
+
+    return {
+      teamReach,
+      subscriptions,
+      contacts,
+      target,
+      recentContacts,
+      barangay: sanitizeObject(groupedBar),
+      overviewChartData
+    };
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
-    return { teamReach: 0, subscriptions: 0, contacts: 0, recentContacts: [], overviewChartData: [] };
+    return {
+      teamReach: 0,
+      subscriptions: 0,
+      contacts: 0,
+      target: 0,
+      recentContacts: [],
+      barangay: {},
+      overviewChartData: []
+    };
   }
 };
