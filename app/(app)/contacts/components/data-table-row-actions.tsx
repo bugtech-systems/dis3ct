@@ -38,8 +38,7 @@ import { useContact } from "@/components/providers/ContactProvider"
 import { findFeature, replaceObjectInArray } from "@/lib/helpers"
 import Link from "next/link"
 
-let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }];
-
+let tagsLabel = [{ label: 'Confirmed', value: 'confirm' }, { label: 'Undecided', value: 'undecided' }, { label: 'Declined', value: 'declined' }, { label: 'Sure Vote', value: 'sure_vote' }, { label: 'Voted', value: 'voted' }];
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
