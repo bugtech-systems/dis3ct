@@ -92,7 +92,8 @@ ContactSchema.index({ precinct: 1 });
 ContactSchema.index({ descriptor: 1 });
 // ContactSchema.index({ "tags.timestamp": -1 });
 
-
+ContactSchema.index({ citymunCode: 1 })
+ContactSchema.index({ "tags.tagType": 1, "tags.value": 1 })
 
 const Contact = (mongoose.models && mongoose.models.Contact)
   ? (mongoose.models.Contact as Model<IContact>)

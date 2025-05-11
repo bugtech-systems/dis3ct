@@ -13,7 +13,7 @@ export async function GET(req) {
     const parNum = searchParams.get("parNum");
     const userId = searchParams.get("userId");
 
-    const matchQuery = parNum ? {} : {};
+    const matchQuery = parNum ? {} : {};  // You can customize if parNum is used
     const userObjectId = userId ? new mongoose.Types.ObjectId(userId) : null;
 
     const filterFields = [
@@ -27,30 +27,32 @@ export async function GET(req) {
     // Generate filters for municipalities, barangays, and schools
     for (const { desc, field, label, data } of filterFields) {
       const results = await Contact.aggregate([
-        { $match: { ...matchQuery, [field]: { $ne: null } } },
+        { $match: { ...matchQuery, [field]: { $exists: true, $ne: null } } },
         { $group: { _id: `$${field}`, count: { $sum: 1 } } },
-      ]);
+      ], { allowDiskUse: true });
 
-      filters[field] = results.sort((a, b) => b.count - a.count).map(({ _id, count }) => {
-        let name = _id;
-        if (data) {
-          const location = data.find((item) => item[field] === _id);
-          name = location ? location[desc] : _id;
-        }
-        return { value: _id, label: name, count };
-      });
+      filters[field] = results
+        .sort((a, b) => b.count - a.count)
+        .map(({ _id, count }) => {
+          let name = _id;
+          if (data) {
+            const location = data.find((item) => item[field] === _id);
+            name = location ? location[desc] : _id;
+          }
+          return { value: _id, label: name, count };
+        });
     }
 
     // Group precincts under their corresponding barangays
     const precinctResults = await Contact.aggregate([
-      { $match: { ...matchQuery, brgyCode: { $ne: null }, precinct: { $ne: null } } },
+      { $match: { ...matchQuery, brgyCode: { $exists: true, $ne: null }, precinct: { $exists: true, $ne: null } } },
       {
         $group: {
           _id: { brgyCode: "$brgyCode", precinct: "$precinct" },
           count: { $sum: 1 },
         },
       },
-    ]);
+    ], { allowDiskUse: true });
 
     // Transform precinct results into a barangay-grouped structure
     const precinctsByBarangay = {};
@@ -68,41 +70,12 @@ export async function GET(req) {
       precincts: precinctsByBarangay[brgy.value] || [],
     }));
 
-    // Count occurrences of each tag type, ensuring only the latest tag is considered
-    // const tagResults = await Contact.aggregate([
-    //   { $match: matchQuery },
-    //   { $unwind: "$tags" },
-    //   { $sort: { "tags.timestamp": -1 } },
-    //   {
-    //     $group: {
-    //       _id: "$_id",
-    //       latestTag: { $first: "$tags" },
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       "latestTag.tagType": "tag",
-    //       "latestTag.value": { $in: ["undecided", "declined"] }
-    //       // "latestTag.user": userObjectId,
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: { $toLower: "$latestTag.value" },
-    //       count: { $sum: 1 },
-    //     },
-    //   },
-    //   { $sort: { _id: 1 } },
-    // ]);
-
+    // Count occurrences of each tag type (latest tag only)
     const tagResults = await Contact.aggregate([
-      { $match: matchQuery },
-      { $unwind: "$tags" },
-      { $sort: { "tags.timestamp": -1 } },
+      { $match: { ...matchQuery, tags: { $exists: true, $ne: [] } } },
       {
-        $group: {
-          _id: "$_id", // group by Contact ID
-          latestTag: { $first: "$tags" },
+        $project: {
+          latestTag: { $arrayElemAt: ["$tags", -1] },  // Get last tag (assumes chronological)
         },
       },
       {
@@ -118,9 +91,9 @@ export async function GET(req) {
         },
       },
       { $sort: { _id: 1 } },
-    ]);
+    ], { allowDiskUse: true });
 
-    // Count records without a tag of type "tag"
+    // Count records without tagType = tag
     const unknownCount = await Contact.countDocuments({
       ...matchQuery,
       tags: { $not: { $elemMatch: { tagType: "tag" } } },
@@ -135,10 +108,6 @@ export async function GET(req) {
       ...matchQuery,
       tags: { $elemMatch: { tagType: "tag", value: "verified" } },
     });
-
-
-
-
 
     filters.tags = tagResults.map(({ _id, count }) => ({
       value: _id,
@@ -158,59 +127,50 @@ export async function GET(req) {
       filters.tags.push({ value: "verified", label: "VERIFIED", count: verifiedCount });
     }
 
-
-
-
-    // console.log('filter', userObjectId, userId)
-    // Count records that contain tagType "biometrics" or "image"
+    // Count media tags (image / biometrics)
     const mediaTagCounts = await Contact.aggregate([
       {
         $match: {
           ...matchQuery,
-          tags: { $elemMatch: { tagType: { $in: ["image", "biometrics"] } } }
-        }
+          tags: { $elemMatch: { tagType: { $in: ["image", "biometrics"] } } },
+        },
       },
       {
         $project: {
-          _id: 1,
           tagTypes: {
-            $map: {
-              input: {
-                $filter: {
-                  input: "$tags",
+            $setUnion: [
+              {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: "$tags",
+                      as: "tag",
+                      cond: { $in: ["$$tag.tagType", ["image", "biometrics"]] },
+                    },
+                  },
                   as: "tag",
-                  cond: { $in: ["$$tag.tagType", ["image", "biometrics"]] }
-                }
+                  in: "$$tag.tagType",
+                },
               },
-              as: "tag",
-              in: "$$tag.tagType"
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          tagTypes: { $setUnion: ["$tagTypes", []] } // deduplicate tag types per record
-        }
+              [],
+            ],
+          },
+        },
       },
       { $unwind: "$tagTypes" },
       {
         $group: {
           _id: "$tagTypes",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+          count: { $sum: 1 },
+        },
+      },
+    ], { allowDiskUse: true });
 
     filters.mediaTags = mediaTagCounts.map(({ _id, count }) => ({
       value: _id,
       label: _id.toUpperCase(),
-      count
+      count,
     }));
-
-
-
-
 
     return NextResponse.json(filters);
   } catch (error) {

@@ -87,6 +87,8 @@ export const columns: ColumnDef<Contact>[] = [
       return value.includes(row.getValue(id))
     },
     enableColumnFilter: true,
+    enableSorting: false,
+
     // enableColumnFilter: true,
   },
   {
