@@ -109,6 +109,11 @@ export async function GET(req) {
       tags: { $elemMatch: { tagType: "tag", value: "verified" } },
     });
 
+    const sureVote = await Contact.countDocuments({
+      ...matchQuery,
+      tags: { $elemMatch: { tagType: "tag", value: "sure_vote" } },
+    });
+
     filters.tags = tagResults.map(({ _id, count }) => ({
       value: _id,
       label: _id.toUpperCase(),
@@ -125,6 +130,10 @@ export async function GET(req) {
 
     if (verifiedCount > 0) {
       filters.tags.push({ value: "verified", label: "VERIFIED", count: verifiedCount });
+    }
+
+    if (sureVote > 0) {
+      filters.tags.push({ value: "sure_vote", label: "SURE VOTE", count: sureVote });
     }
 
     // Count media tags (image / biometrics)

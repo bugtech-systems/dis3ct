@@ -22,7 +22,9 @@ const tagsLabel = [
   { label: "UNDECIDED", value: "undecided" },
   { label: "DECLINED", value: "declined" },
   { label: "UNKNOWN", value: "unknown" },
-  { label: "VERIFIED", value: "verified" }
+  { label: "VERIFIED", value: "verified" },
+  { label: "SURE VOTE", value: "sure_vote" }
+
 ];
 
 
@@ -61,6 +63,7 @@ export function DataTableToolbar<TData>({
       let parId = parentSystem?.parent?._id ? parentSystem?.parent?._id : parentSystem?.parent;
       axios.get(`/api/contacts/filters?parNum=${parId}&userId=${parentSystem?._id}`).then((res) => {
         if (res.data) {
+          console.log(res.data, 'DATA')
           setFilterOpts(res.data);
           setFilterOptions(res.data)
         }
