@@ -29,6 +29,8 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       idFilter = { citymunCode: id };
     } else if (idLength > 6 && idLength < 10) {
       idFilter = { brgyCode: id };
+    } else {
+      idFilter = { $or: [{ citymunCode: user.accessCode }, { brgyCode: user.accessCode }] };
     }
 
 
