@@ -276,7 +276,8 @@ User queries should be answered only using the list data. Follow these steps:
                 if (b.undecided > 0) rows.push(`   - Dead: ${b.undecided}`);
                 if (b.unknown > 0) rows.push(`   - Unknown: ${b.unknown}`);
                 if (b.verified > 0) rows.push(`   - Confirmed: ${b.verified}`);
-                return rows.join('\n');
+                if (b.sure_vote > 0) rows.push(`   - Sure Votes: ${b.verified}`);
+                return rows.join('\n\n');
             }).join('\n\n')}
     
     
