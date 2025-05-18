@@ -192,7 +192,7 @@ User queries should be answered only using the list data. Follow these steps:
 
         } catch (error) {
             console.log("Ollama Error:", error);
-            return "I'm unable to process your request.";
+            return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] }`;
         }
     }
 
@@ -325,7 +325,7 @@ User queries should be answered only using the list data. Follow these steps:
             }
         } catch (error) {
             console.error("Election Response Error:", error);
-            return "I'm unable to process your request.";
+            return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] }`;
         }
     }
 
@@ -476,7 +476,7 @@ User queries should be answered only using the list data. Follow these steps:
             }
         } catch (error) {
             console.log("Ollama Error:", error);
-            return "I'm unable to process your request.";
+            return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] }`;
         }
     }
 
@@ -612,7 +612,7 @@ User queries should be answered only using the list data. Follow these steps:
             }
         } catch (error) {
             console.log("Ollama Error:", error);
-            return "I'm unable to process your request.";
+            return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] }`;
         }
     }
 
