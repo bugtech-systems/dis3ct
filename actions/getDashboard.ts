@@ -17,7 +17,8 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
     await connectToDatabase();
 
     const isSession = String(id).length < 10 || session;
-    const user = await User.findById(isSession ? userId : id).lean();
+    const user = await User.findById((isSession && userId) ? userId : id).lean();
+
     if (!user) throw new Error("User not found");
 
     const parNumFilter = { parNum: user.parent };
@@ -30,10 +31,15 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       idFilter = { brgyCode: id };
     }
 
+
+
+
     const baseFilter = { ...parNumFilter, ...idFilter };
     const tagFilter = (!tag || tag === "total")
       ? { "tags.value": { $in: ["confirm", "verified", "undecided", "unknown", "sure_voter", "voted"] } }
       : { "tags.value": { $in: allTags } };
+
+    console.log(baseFilter, tagFilter, 'FIL', id)
 
     const [counts, recentContactsRaw, overviewLogs, barangayContacts] = await Promise.all([
       // Aggregated counts with disk use

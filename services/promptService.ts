@@ -287,7 +287,7 @@ User queries should be answered only using the list data. Follow these steps:
             console.log(allTags, 'TT')
             // --- System Instruction ---
             const systemInstruction = `
-    ${preset?.systemBehavior || ''}\n
+    ${convertQuillToPlainText(preset?.systemBehavior) || ''}\n
     ${userData}
     
      **IMPORTANT INSTRUCTIONS:**
@@ -306,7 +306,7 @@ User queries should be answered only using the list data. Follow these steps:
             const response = await Ollama.chat({
                 model: preset?.modelName || 'llama3.1',
                 messages: [
-                    { role: 'system', content: convertQuillToPlainText(systemInstruction) },
+                    { role: 'system', content: systemInstruction },
                     ...sampleConversations,
                     { role: 'user', content: userInput }
                 ],
