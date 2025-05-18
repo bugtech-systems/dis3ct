@@ -35,8 +35,8 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       ? { "tags.value": { $in: ["confirm", "verified", "undecided", "unknown", "sure_voter", "voted"] } }
       : { "tags.value": { $in: allTags } };
 
-    // ----------- PARALLELIZED QUERIES ------------
     const [counts, recentContactsRaw, overviewLogs, barangayContacts] = await Promise.all([
+      // Aggregated counts with disk use
       Contact.aggregate([
         { $match: baseFilter },
         {
@@ -47,52 +47,85 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
             target: [{ $match: { "tags.value": "confirm" } }, { $count: "count" }]
           }
         }
-      ]),
+      ], { allowDiskUse: true }),
+
+      // Recent contacts (last 10)
       Contact.find(baseFilter)
         .sort({ updatedAt: -1 })
         .limit(10)
         .select("name phone createdAt updatedAt")
         .lean(),
-      AuditLogs.find({
-        $or: [{ system: user.parent }, { userId: user._id }],
-        action: "Tag Record"
-      }).sort({ timestamp: 1 }).select("timestamp").lean(),
-      Contact.find(baseFilter).select("name brgyCode tags precinct").lean()
+
+      // Aggregated monthly tag logs
+      AuditLogs.aggregate([
+        {
+          $match: {
+            $or: [{ system: user.parent }, { userId: user._id }],
+            action: "Tag Record"
+          }
+        },
+        {
+          $project: {
+            month: { $month: "$timestamp" }
+          }
+        },
+        {
+          $group: {
+            _id: "$month",
+            count: { $sum: 1 }
+          }
+        }
+      ], { allowDiskUse: true }),
+
+      // Contacts for barangay breakdown
+      Contact.aggregate([
+        { $match: baseFilter },
+        {
+          $project: {
+            name: 1,
+            brgyCode: 1,
+            precinct: 1,
+            tags: {
+              $filter: {
+                input: "$tags",
+                as: "tag",
+                cond: { $eq: ["$$tag.tagType", "tag"] }
+              }
+            }
+          }
+        }
+      ], { allowDiskUse: true })
     ]);
 
-    // ------- Extract counts safely -------
-    const safeCount = (arr: any, key: string) => (arr[0]?.[key]?.[0]?.count || 0);
+    // Safe extractors
     const stats = counts[0];
-    const teamReach = stats.teamReach[0]?.count || 0;
-    const subscriptions = stats.subscriptions[0]?.count || 0;
-    const contacts = stats.contacts[0]?.count || 0;
-    const target = stats.target[0]?.count || 0;
+    const safeCount = (key: string) => stats[key]?.[0]?.count || 0;
+    const teamReach = safeCount("teamReach");
+    const subscriptions = safeCount("subscriptions");
+    const contacts = safeCount("contacts");
+    const target = safeCount("target");
 
-    // ------- Recent Contacts -------
+    // Format recent contacts
     const recentContacts = recentContactsRaw.map(contact => ({
       ...contact,
       _id: contact._id.toString()
     }));
 
-    // ------- Chart Data -------
-    const groupedContacts = overviewLogs.reduce((acc: any, log) => {
-      const month = new Date(log.timestamp).toLocaleString("default", { month: "short" });
-      acc[month] = (acc[month] || 0) + 1;
-      return acc;
-    }, {});
-
+    // Format chart data by month
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const overviewChartData = months.map(month => ({
-      name: month,
-      total: groupedContacts[month] || 0
-    }));
+    const overviewChartData = months.map((month, index) => {
+      const found = overviewLogs.find((log: any) => log._id === index + 1);
+      return {
+        name: month,
+        total: found?.count || 0
+      };
+    });
 
-    // ------- Barangay Breakdown -------
+    // Format barangay breakdown
     const newBarangay = barangayContacts.map(contact => {
       const barangay = barangays.find(brgy => brgy.brgyCode === contact.brgyCode)?.brgyDesc;
-      const tags = contact.tags.filter(a => a.tagType === "tag");
-      const tag = tags.length ? tags[0].value : "unknown";
-      return { name: contact.name, precinct: contact.precinct, barangay, tags, tag };
+      const tagName = contact.tags.length ? contact.tags.find(a => a.value == tag)?.value ? contact.tags.find(a => a.value == tag).value : contact.tags[0].value : "unknown";
+      return { name: contact.name, precinct: contact.precinct, barangay, tags: contact.tags, tag: tagName };
     });
 
     const groupedBar = newBarangay.reduce((acc: any, contact) => {
@@ -100,7 +133,6 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       if (!acc[bar]) {
         acc[bar] = { total: 0, confirm: 0, declined: 0, undecided: 0, unknown: 0, verified: 0 };
       }
-
       acc[bar].total += 1;
       contact.tags.forEach(tag => {
         acc[bar][tag.value] = (acc[bar][tag.value] || 0) + 1;
@@ -108,7 +140,6 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       if (contact.tags.length === 0) {
         acc[bar].unknown += 1;
       }
-
       return acc;
     }, {});
 
@@ -134,3 +165,4 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
     };
   }
 };
+
