@@ -266,17 +266,18 @@ User queries should be answered only using the list data. Follow these steps:
     - Total Registered Voters: ${data.teamReach}
     - Actual Reach (Number of Voters): ${data.contacts}
     
-    🗺️ BARANGAY-WISE STATUS COUNTS:
+    🗺️ BARANGAY-WISE STATUS COUNTS:\n
     ${Object.keys(data.barangay).map((barangay, i) => {
                 const b = data.barangay[barangay];
                 const rows = [`${i + 1}.) ${barangay}`];
-                if (b.total > 0) rows.push(`   - Total: ${b.total}`);
-                if (b.confirm > 0) rows.push(`   - Targeted: ${b.confirm}`);
-                if (b.declined > 0) rows.push(`   - Declined: ${b.declined}`);
-                if (b.undecided > 0) rows.push(`   - Dead: ${b.undecided}`);
-                if (b.unknown > 0) rows.push(`   - Unknown: ${b.unknown}`);
-                if (b.verified > 0) rows.push(`   - Confirmed or Sure Votes: ${b.verified}`);
-                return rows.join('\n') + '\n';
+                if (b.total > 0) rows.push(` - Total: ${b.total}`);
+                if (b.confirm > 0) rows.push(` - Targeted: ${b.confirm}`);
+                if (b.declined > 0) rows.push(` - Declined: ${b.declined}`);
+                if (b.undecided > 0) rows.push(` - Dead: ${b.undecided}`);
+                // if (b.unknown > 0) rows.push(`   - Unknown: ${b.unknown}`);
+                if (b.verified > 0) rows.push(` - Confirmed or Verified: ${b.verified}`);
+                // if (b.sure_vote > 0) rows.push(`   - Sure Votes: ${b.sure_vote}`);
+                return rows.join('\n');
             }).join('\n\n')}
     
     
@@ -296,11 +297,15 @@ User queries should be answered only using the list data. Follow these steps:
     - Answer ONLY using the election data above.
     - DO NOT assume or fabricate values.
     - Consider the prompt may be a follow-up or related to recent chats.
-    - Be accurate and informative, always referencing the actual counts provided.\n 
+    - Be accurate and informative, always referencing the actual counts provided.
+    - Response should be precise, SMS Friendly and not more than 700 Characters long.
+    - Response a proper JSON object.
+    \n
  
     `;
 
-            console.log(systemInstruction)
+            console.log(systemInstruction, 'system instruction')
+            console.log(userInput, 'user input')
 
             // --- AI Call ---
             const response = await Ollama.chat({
@@ -316,7 +321,19 @@ User queries should be answered only using the list data. Follow these steps:
                     top_p: preset?.aiTopP,
                 },
             });
-            console.log(response.message, 'RESSP')
+            console.log(response.message, 'RESSP', {
+                model: preset?.modelName || 'llama3.1',
+                messages: [
+                    { role: 'system', content: systemInstruction },
+                    ...sampleConversations,
+                    { role: 'user', content: userInput }
+                ],
+                options: {
+                    num_predict: preset?.aiMaxLength,
+                    temperature: preset?.aiTemperature,
+                    top_p: preset?.aiTopP,
+                },
+            })
             if (response?.message?.content) {
                 return response.message.content;
             } else {
@@ -468,7 +485,6 @@ User queries should be answered only using the list data. Follow these steps:
             });
 
             if (response && response.message) {
-
                 return response?.message.content;
             } else {
                 return `{ "message": "I'm unable to process your request.", "actions": ["SMS", "error"] } `;

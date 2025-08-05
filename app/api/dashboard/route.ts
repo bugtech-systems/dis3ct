@@ -20,12 +20,12 @@ export const GET = async (req: NextRequest) => {
         let tagParams = searchParams.getAll("tag");
 
         // Check if user is authenticated
-        if (!session || !session.user) {
-            return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-        }
+        // if (!session || !session.user) {
+        //     return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+        // }
 
         // const phone = session.user.phone;
-        const userId = session.user.id;
+        const userId = session?.user?.id;
         console.log(systemParam, "DDSS", tagParams)
         // await connectToDatabase()
         let dashboardDdata = await getLeaderDashboard({ id: systemParam ? systemParam : userId, tag: tagParams[0], allTags: tagParams });

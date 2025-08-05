@@ -18,7 +18,7 @@ import { useContact } from "./providers/ContactProvider";
 import { useSearchParams } from "next/navigation";
 
 
-let STATIC_URL = process.env.STATIC_URL || 'http://104.154.151.93:3500';
+let STATIC_URL = process.env.STATIC_URL || 'http://192.168.1.100:3500';
 
 const CamScreen = ({ camType }: any) => {
     const { parentSystem, user } = useContact()

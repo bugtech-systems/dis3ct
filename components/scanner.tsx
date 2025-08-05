@@ -35,7 +35,7 @@ const scanStages = [
   "/examples/finger4.jpg", // 67-100% progress
 ];
 
-let appUrl = process.env.STATIC_URL || 'http://104.154.151.93:3500'
+let appUrl = process.env.STATIC_URL || 'http://192.168.1.100:3500'
 
 export function ScannerForm() {
   const { modal, setModal, error, setError, biometricRunning, setBiometricRunning, setIsEnrolling, isEnrolling, biometricConnected, record, setRecord, scannerStatus, setScannerStatus } = useComponent();

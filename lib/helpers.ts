@@ -382,7 +382,7 @@ export function extractJsonFromText(text) {
 
 
 export function formatVoterSms({ name, address, barangay, municipality, province, region, precinct, school }) {
-  return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\nSchool: ${school}\n\nChange starts with us!\nSupport Team Pag BaBag'o. \nTogether, we can build a better future!`;
+  return `Maupay Adlaw!\n\n\nYour voting details:\n\nName: ${name}\nAddress: ${address}\nBarangay: ${barangay}\nMunicipality: ${municipality}\nProvince: ${province}\nRegion: ${region}\nPrecinct No: ${precinct}\nSchool: ${school}\n\nChange starts with us!\nTogether, we can build a better future!\n\nPowered By Alayon.`;
 }
 
 

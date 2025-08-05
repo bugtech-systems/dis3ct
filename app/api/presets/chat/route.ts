@@ -78,7 +78,7 @@ async function processApiResponse(response: any) {
     }
 
 
-    if (content && isParsableObject(cleanJsonObject(content))) {
+    if (content && isParsableObject(content)) {
       let contentData = cleanAndParseJSON(cleanJsonObject(content))
 
       await setMobileIntent(sender, system, contentData?.intent)
@@ -140,6 +140,8 @@ async function processApiResponse(response: any) {
         //   },
         // })
       }
+
+      console.log(contentData, 'CONTENT')
 
       // Log interaction for tracking AI responses
       await createInteraction({
@@ -228,6 +230,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 
       } else {
         const helpPreset = await getPresetByValue('alayon_help');
+
         response = await PromptService.generateResponse({ message, sender, system, preset: helpPreset.data, mobile, status })
 
       }

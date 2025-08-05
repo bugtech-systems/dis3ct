@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { io } from 'socket.io-client';
 
 // Optional: put your backend socket URL here
-const SOCKET_URL = 'http://104.154.151.93:3500';
+const SOCKET_URL = 'http://192.168.1.100:3500';
 
 let socket: ReturnType<typeof io> | null = null;
 

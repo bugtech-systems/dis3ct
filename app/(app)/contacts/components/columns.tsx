@@ -14,7 +14,7 @@ import { imageExists } from "@/utils/imageExists"
 import SafeImage from "@/components/ImgWrapper"
 
 
-const STATIC_FILE_URL = 'http://104.154.151.93:3500'
+const STATIC_FILE_URL = 'http://192.168.1.100:3500'
 
 export const columns: ColumnDef<Contact>[] = [
   {
