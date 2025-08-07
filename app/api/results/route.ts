@@ -276,33 +276,17 @@ let results = [
 ]
 
 
-// Define the tag values we're interested in counting
-const TAG_VALUES = [
-    "confirm",
-    "verified",
-    "unknown",
-    "sure_voter",
-    "voted",
-    "undecided"
-];
+
 
 export const GET = async (req: NextRequest) => {
     try {
         await connectToDatabase();
 
-        // Get session (optional based on your auth requirements)
         const session = await getServerSession(authOptions) as any;
-        // if (!session?.user?.id) {
-        //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        // }
+        // Add auth check if needed
 
-        // First, get all contacts grouped by brgyCode with their tags
+        // Get all contacts grouped by barangay
         const contactsByBarangay = await Contact.aggregate([
-            {
-                $match: {
-                    // Add any filters here if needed
-                }
-            },
             {
                 $group: {
                     _id: "$brgyCode",
@@ -312,59 +296,66 @@ export const GET = async (req: NextRequest) => {
             }
         ]);
 
-        // Process each barangay to count tag values
+        // Process each barangay
         const efficiencyReport = contactsByBarangay.map(barangay => {
+            let funded = 0;
+            let added = 0;
+            let missing = 0;
+            let declined = 0;
+            let voted = 0;
             const tagCounts: Record<string, number> = {};
 
-            // Initialize counts for all tag values
-            TAG_VALUES.forEach(value => {
-                tagCounts[value] = 0;
-            });
-
-            // Count occurrences of each tag value
             barangay.contacts.forEach(contact => {
-                const contactTags = contact.tags || [];
-                const tagValues = new Set<string>();
+                const tags = contact.tags || [];
+                const tagValues = tags.filter(t => t.tagType === "tag").map(t => t.value);
 
-                // Collect all tag values for this contact
-                contactTags.forEach((tag: any) => {
-                    if (tag.tagType === "tag" && TAG_VALUES.includes(tag.value)) {
-                        tagValues.add(tag.value);
-                    }
-                });
-
-                // Increment counts for each unique tag value
+                // Count all tag types
                 tagValues.forEach(value => {
-                    tagCounts[value]++;
+                    tagCounts[value] = (tagCounts[value] || 0) + 1;
                 });
-            });
 
-            // Calculate derived metrics
-            const funded = tagCounts["confirm"] || 0;
-            const added = tagCounts["verified"] || 0;
-            const sureVoters = tagCounts["sure_voter"] || 0;
-            const missing = funded - (added + sureVoters);
-            const declined = tagCounts["unknown"] || 0;
-            const voted = tagCounts["voted"] || 0;
+                // Check for specific tags
+                const hasConfirm = tagValues.includes("confirm");
+                const hasVerified = tagValues.includes("verified");
+                const hasSureVoter = tagValues.includes("sure_voter");
+                const hasVoted = tagValues.includes("voted");
+                const hasUnknown = tagValues.includes("unknown");
+
+                // Count funded (has confirm tag)
+                if (hasConfirm) funded++;
+
+                // Count added (has verified/sure_voter but no confirm)
+                if ((hasVerified || hasSureVoter) && !hasConfirm) added++;
+
+                // Count missing (has confirm but no verified or sure_voter)
+                if (hasConfirm && !hasVerified && !hasSureVoter) missing++;
+
+                // Count declined (has unknown tag)
+                if (hasUnknown) declined++;
+
+                // Count voted
+                if (hasVoted) voted++;
+            });
 
             return {
                 brgyCode: barangay._id,
                 totalVoters: barangay.totalVoters,
-                tagCounts, // Include all tag counts
-                funded,
-                added,
-                missing: Math.max(0, missing), // Ensure missing isn't negative
-                declined,
-                sureVoters,
-                voted,
-                efficiencyPercentage: barangay.totalVoters > 0
-                    ? Math.round(((funded + added + sureVoters) / barangay.totalVoters) * 100)
-                    : 0
+                tagCounts, // Includes counts for all tag types
+                metrics: {
+                    funded,
+                    added,
+                    missing,
+                    declined,
+                    voted,
+                    efficiencyPercentage: barangay.totalVoters > 0
+                        ? Math.round(((funded + added) / barangay.totalVoters) * 100)
+                        : 0
+                }
             };
         });
 
         // Sort by efficiency percentage (highest first)
-        efficiencyReport.sort((a, b) => b.efficiencyPercentage - a.efficiencyPercentage);
+        efficiencyReport.sort((a, b) => b.metrics.efficiencyPercentage - a.metrics.efficiencyPercentage);
 
         return NextResponse.json(efficiencyReport, { status: 200 });
     } catch (error: any) {
