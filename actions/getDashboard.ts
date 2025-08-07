@@ -158,7 +158,7 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       target,
       recentContacts,
       barangay: sanitizeObject(groupedBar),
-      overviewChartData
+      // overviewChartData
     };
   } catch (error) {
     console.error("Dashboard Fetch Error:", error);
@@ -169,7 +169,7 @@ export const getLeaderDashboard = async ({ id, allTags, tag }: any): Promise<any
       target: 0,
       recentContacts: [],
       barangay: {},
-      overviewChartData: []
+      // overviewChartData: []
     };
   }
 };
