@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest) => {
         await connectDB(); // Connect to MongoDB
 
         const { recipients, messages, isFlash = false, system } = await req.json();
-
+        console.log(recipients, messages, isFlash, 'SMS')
         if (!Array.isArray(recipients) || !Array.isArray(messages) || recipients.length === 0 || messages.length === 0) {
             return NextResponse.json(
                 { error: "Invalid request. Provide a valid array of recipients and messages." },

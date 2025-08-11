@@ -273,7 +273,7 @@ export function internationalizePhoneNumber(phoneNumber: any) {
 
 
 
-  if (sanitized.length > 12) throw Error('Invalid phone number format');
+  if (sanitized.length > 13) throw Error('Invalid phone number format');
 
 
   // Check for common prefixes and remove them
